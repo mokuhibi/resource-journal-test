@@ -1,0 +1,118 @@
+/* 記録タブ：承認済み editorial preview の一覧型UI。保存・操作処理とは独立。 */
+#record{--record-text:#202124;--record-muted:#777C80;--record-line:#ECEDEE;--record-input-line:#DCDDDF;--record-action:#F5F6F6;--record-candy:#A66B83;--record-shard:#B58A37;--record-pressed:#F4DCE5;--record-control-radius:6px;--accent:#555;--edge:var(--record-line);--tint:#F5F6F6;color:var(--record-text)}
+#record :is(.help,.mew,.delibird,.shards){--accent:#555;--edge:var(--record-line);--tint:#F5F6F6;color:var(--record-text)}
+#record :is(.card,.hero){background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;margin:0 0 28px;min-width:0}
+#record :is(h2,h3){font-size:18px;font-weight:600;line-height:1.5;color:var(--record-text);margin:0 0 12px;letter-spacing:-.3px}
+#record :is(p,label){font-size:14px;line-height:1.6}
+#record :is(small,.muted){font-size:12px;line-height:1.6;color:var(--record-muted)}
+#record label{color:var(--record-muted)}
+#record #today-total{padding:24px 0 0;margin-bottom:32px}
+#record #today-total>small{display:block;font-size:12px;margin-bottom:12px}
+#record #today-total .daily-metrics{display:grid;grid-template-columns:1fr 1.3fr;gap:14px}
+#record #today-total .daily-resource{display:block;background:none;border:0;border-radius:0;box-shadow:none;padding:0;margin:0;min-width:0}
+#record #today-total .daily-resource>small{display:block;font-size:13px;color:var(--record-candy);font-weight:500;margin-bottom:8px}
+#record #today-total .daily-resource:nth-child(2)>small{color:var(--record-shard)}
+#record #today-total .total{margin:0;font-size:clamp(30px,9.5vw,38px);line-height:1.2;font-weight:650;letter-spacing:-1px;color:var(--record-text);white-space:nowrap}
+#record #today-total .daily-resource:nth-child(2) .total{font-size:clamp(24px,7.9vw,31px)}
+#record #today-total .quantity-number{font-size:inherit;font-weight:inherit;color:inherit}
+#record #today-total .total .quantity-unit{font-size:12px;font-weight:400;color:var(--record-muted);letter-spacing:0;margin-left:4px}
+#record #today-total .daily-details{margin-top:16px;padding:0;border-top:1px solid var(--record-line)}
+#record #today-total .daily-details>summary{display:flex;align-items:center;justify-content:space-between;list-style:none;min-height:48px;font-size:12px;font-weight:400;color:var(--record-muted)}
+#record #today-total .daily-details>summary::after{content:'⌄';font-size:16px}
+#record #today-total .daily-details[open]>summary::after{content:'⌃'}
+#record #today-total .daily-details>h3{font-size:13px;color:var(--record-text);margin:12px 0}
+#record #today-total .total-breakdown{table-layout:fixed;min-width:0;width:100%;font-size:13px;margin:0 0 18px}
+#record #today-total .total-breakdown :is(th,td){border:0;border-bottom:1px solid var(--record-line);padding:8px 4px;background:none;color:var(--record-text);text-align:right}
+#record #today-total .total-breakdown th:first-child{text-align:left;padding-left:0;overflow-wrap:anywhere}
+#record #today-total .total-breakdown thead th{font-size:11px;font-weight:400;color:var(--record-muted)}
+#record #today-total .total-breakdown .quantity-number{font-size:14px;font-weight:600}
+#record #today-total .total-breakdown .shard-member :is(th,.quantity-number){font-size:12px;font-weight:400;color:var(--record-muted)}
+#record #today-total .total-breakdown .quantity-unit{font-size:11px;color:var(--record-muted)}
+#record .record-date-card{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:8px;padding:8px 0;background:#fffffff5;backdrop-filter:blur(12px);border-bottom:1px solid var(--record-line);margin-bottom:0}
+#record .record-datetime-field{height:48px;border:0;border-radius:0;background:transparent;box-shadow:none}
+#record .record-picker-trigger{font-size:16px;font-weight:600;letter-spacing:-.3px;color:var(--record-text);text-align:left;min-height:48px;padding:0}
+#record .record-date-card .check{font-size:12px;min-height:48px;min-width:96px;justify-content:center;gap:6px;margin:0;color:var(--record-muted)}
+#record .record-date-card .check input{width:16px;height:16px;accent-color:#343638}
+#record #record-methods>div{margin:0 0 28px;scroll-margin-top:76px}
+#record #record-methods .record-slots{display:flex;flex-direction:column;gap:0;margin:12px 0 0;border-top:1px solid var(--record-line)}
+#record #record-methods .help-card,#record #record-methods .help-card.leader-slot{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:8px;width:100%;background:transparent;border:0!important;border-bottom:1px solid var(--record-line)!important;border-radius:0;box-shadow:none;padding:12px 0;min-height:70px;color:var(--record-text);text-align:left}
+#record .record-row-content{min-width:0;display:block}
+#record .record-row-content>strong{display:block;font-size:15px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+#record .record-candy-name{display:block;font-size:12px;font-weight:400;color:var(--record-muted);line-height:1.6}
+#record .help-card>small{font-size:12px;font-weight:500;color:var(--record-muted);overflow-wrap:anywhere}
+#record .pokemon-nickname{font-size:12px;font-weight:400;color:var(--record-muted)}
+#record .record-row-action{font-size:14px;white-space:nowrap;background:var(--record-action);border-radius:6px;padding:12px 10px}
+#record .record-row-action .quantity-number{font-size:15px;font-weight:600}
+#record .mew-actions{width:auto;display:flex;gap:6px;margin:0}
+#record .mew-actions button{flex:none;min-width:44px;min-height:44px;padding:10px 8px;font-size:14px}
+#record #help-section>h2{color:#276242}#record #mew-section>h2{color:#963b68}#record #delibird-section>h2{color:#ad3d39}
+#record #record-methods>div>h2::before{content:'';display:inline-block;width:5px;height:5px;background:currentColor;border-radius:50%;vertical-align:middle;margin-right:8px}
+#record #mew-section>.mew-record-skill{margin:0 0 4px;font-size:13px;font-weight:500;overflow-wrap:anywhere}
+#record #mew-section>.mew-record-meta{margin:0 0 12px;font-size:12px;color:var(--record-muted)}
+#record :is(button,input,select){border-radius:var(--record-control-radius)}
+#record button{min-height:44px;font-weight:500}
+#record :is(input:not([type=checkbox]),select){font-size:16px;min-height:46px;background:#fff;border:1px solid var(--record-input-line);padding:10px 12px;color:var(--record-text)}
+#record :is(input[type=number],.comma-input){text-align:right;font-variant-numeric:tabular-nums}
+#record .formatted-date-field{height:46px;background:white;border-color:var(--record-input-line);border-radius:6px}
+#record :is(button,input,select):focus-visible{outline:2px solid #555;outline-offset:3px}
+#record .filters{gap:0 16px}
+#record #record-methods .card,#record #shard-records .card,#record #shard-records .card.leader-slot{border:0!important;border-radius:0;background:transparent;box-shadow:none;padding:16px 0;margin:0;border-bottom:1px solid var(--record-line)!important}
+#record #shard-records{--record-pressed:#F5E7C5}
+#record #shard-records :is(h2,h3,summary)::before,#record .copy-skill-card>h3::before{display:none}
+#record :is(.card>h3,.record-card-title){font-size:15px;font-weight:600;line-height:1.5;margin:0 0 6px;color:var(--record-text)}
+#record .record-slot-number{font-size:12px;font-weight:500;color:var(--record-muted)}
+#record .card>p{font-size:12px;color:var(--record-muted);margin:0 0 12px}
+#record :is(#record-methods,#shard-records) button:not(.help-card):not(:disabled){background:var(--record-action);border-color:transparent;color:var(--record-text)}
+#record :is(#record-methods,#shard-records) .record-save-button[data-record-category]:not(.help-card):not(:disabled){background:var(--record-action);border-color:transparent;transition:background .15s,transform .15s}
+#record :is(#record-methods,#shard-records) .record-save-button[data-record-category]:active:not(:disabled){background:var(--record-pressed);transform:translateY(1px)}
+#record button:disabled{color:#888;background:#F7F7F7;opacity:.5}
+#record details.card>summary{font-size:16px;font-weight:600;min-height:48px;line-height:24px;padding:12px 0;list-style:none;display:flex;align-items:center;justify-content:space-between}
+#record details.card>summary:after{content:'⌄';color:var(--record-muted)}#record details.card[open]>summary:after{content:'⌃'}
+#record summary::-webkit-details-marker{display:none}
+#record .research-fields>label:nth-child(-n+2){text-align:center;font-size:12px;font-weight:400}
+#record .research-fields>label:nth-child(-n+2) :is(input,.formatted-date-field){font-size:16px;font-weight:500;text-align:center}
+#record .research-fields>label:first-child .date-weekday{font-size:15px;font-weight:500;color:var(--record-text)}
+#record .cluster-result-row{gap:16px}#record #cluster-amount{font-size:23px;font-weight:600;letter-spacing:-.6px}
+@media(min-width:800px){#record #record-methods .record-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}#record .daily-metrics{max-width:480px}}
+@media(prefers-reduced-motion:reduce){#record .record-save-button{transition:none!important}#record .record-save-button:active{transform:none!important}}
+#record #today-total .daily-metrics .daily-resource+.daily-resource{margin:0;padding:0;border:0;background:none;box-shadow:none}
+#record #record-methods .help-card,#record #record-methods .help-card.leader-slot{grid-template-columns:52px minmax(0,1fr) auto}
+#record .help-card>small{font-size:11px;white-space:nowrap;letter-spacing:-.3px}
+/* アメ名と枠番号を同じ見出し行へ。直接記録と2列は維持する。 */
+#record #record-methods :is(#help-slots,#mew-slots){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}
+#record #record-methods :is(#help-slots,#mew-slots) .help-card{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'name slot' 'action action';gap:8px 6px;align-items:start;padding:10px 0;min-height:98px}
+#record #record-methods #help-slots .help-card{grid-template-areas:'name slot';min-height:64px;align-content:center;cursor:pointer}
+#record :is(#help-slots,#mew-slots) .record-row-content{display:contents}
+#record :is(#help-slots,#mew-slots) .record-row-content>strong{grid-area:name;display:block;min-width:0;font-size:14px;font-weight:650;line-height:22px;white-space:normal;overflow-wrap:anywhere;color:var(--record-text)}
+#record :is(#help-slots,#mew-slots) .help-card>small{grid-area:slot;font-size:10.5px;font-weight:500;line-height:22px;white-space:nowrap;letter-spacing:-.3px;text-align:right}
+#record #mew-slots .mew-actions{grid-area:action;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-self:end;min-height:44px;margin:0;width:100%}
+#record #mew-slots .mew-actions button{width:100%;min-width:44px;min-height:44px;padding:10px 4px;font-size:14px}
+#record #mew-slots .mew-actions button:only-child{grid-column:1/-1}
+#record #record-methods #help-slots .help-card:hover:not(:disabled){background:#F7F8F8}
+#record #record-methods #help-slots .help-card:active:not(:disabled){background:var(--record-pressed);transform:translateY(1px)}
+#record #record-methods #delibird-slots .candy-target-row{grid-template-columns:minmax(0,1fr) auto auto}
+#record #delibird-slots .candy-target-row .record-row-content{grid-column:1;grid-row:1}
+#record #delibird-slots .candy-target-row>small{grid-column:2;grid-row:1;text-align:right}
+#record .mew-record-heading{display:flex;align-items:baseline;gap:10px;min-width:0}
+#record .mew-record-heading::before{flex:none;align-self:center}
+#record .mew-record-heading>span:first-child{flex:none;white-space:nowrap}
+#record .mew-record-heading .mew-heading-level{flex:none;font-size:12px;font-weight:500;color:var(--record-muted);white-space:nowrap}
+#record .mew-record-heading .mew-heading-nickname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:400;color:var(--record-muted)}
+@media(prefers-reduced-motion:reduce){#record #record-methods #help-slots .help-card:active{transform:none}}
+
+/* かけらスキルだけ横1行。研究・かたまり・その他の配置には適用しない。 */
+#record #shard-skill-inputs .shard-skill-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(154px,1.05fr);gap:8px 12px;align-items:center;padding:10px 0!important}
+#record #shard-skill-inputs .shard-record-name{grid-column:1;grid-row:1;display:flex;align-items:center;gap:6px;min-width:0;margin:0;font-size:14px;line-height:1.5}
+#record #shard-skill-inputs .shard-record-name small{flex:none;font-size:10.5px;font-weight:500;white-space:nowrap;letter-spacing:-.3px}
+#record #shard-skill-inputs .shard-record-name strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:650;color:var(--record-text)}
+#record #shard-skill-inputs .shard-skill-form{grid-column:2;grid-row:1;display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:8px;align-items:center;min-width:0;margin:0}
+#record #shard-skill-inputs .shard-skill-form label{min-width:0;margin:0}
+#record #shard-skill-inputs .shard-skill-form input{margin:0;min-height:44px;height:44px;padding:8px;font-size:16px}
+#record #shard-skill-inputs .shard-skill-form button{margin:0;min-width:44px;min-height:44px;padding:8px 4px}
+#record #shard-skill-inputs .shard-amount-buttons{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+#record #shard-skill-inputs .shard-amount-option{display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:8px;align-items:center;min-width:0}
+#record #shard-skill-inputs .shard-amount-option>span{text-align:right;font-size:12px;white-space:nowrap;color:var(--record-text)}
+#record #shard-skill-inputs .shard-amount-option .quantity-number{font-size:16px;font-weight:600}
+#record #shard-skill-inputs .shard-amount-option button{min-width:44px;min-height:44px;padding:8px 4px}
+#record #shard-skill-inputs .copy-source-field{grid-column:1/-1;grid-row:2;margin:0;font-size:12px}
+#record #shard-skill-inputs .copy-source-field select{margin-top:4px}

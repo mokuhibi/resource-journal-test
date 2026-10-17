@@ -1,0 +1,384 @@
+/* 確定済み記録タブの暖色デザインを残りの画面へ展開。
+   記録タブの局所スタイルとカテゴリー色、表示条件には触れない。 */
+body:has(#record[hidden]){background:#fbf8ee}
+body:has(#record[hidden]) .app{padding-left:16px;padding-right:16px}
+:is(#summary,#shards,#team,#history,#settings){--accent:#695322;--edge:#c9c8bc;--tint:#eee7d5;color:#24251f}
+:is(#summary,#shards,#team,#history,#settings) :is(.help,.mew,.delibird,.shards):not([data-source]){--accent:#695322;--edge:#c9c8bc;--tint:#eee7d5}
+:is(#summary,#shards,#team,#history,#settings) :is(.card,.hero){background:#fff;border:0;border-radius:16px;box-shadow:inset 0 0 0 1px #d4d1c4;padding:16px;margin-bottom:16px}
+:is(#summary,#shards) .overview-header{background:#fff;box-shadow:inset 0 0 0 1px #d4d1c4;padding:12px 16px;margin-bottom:16px}
+:is(#summary,#shards,#team,#history,#settings) :is(h2,h3){color:#695322;font-size:17px;font-weight:600;line-height:1.5}
+:is(#summary,#shards,#team,#history,#settings) :is(h4,.help-card strong){color:#24251f}
+:is(#summary,#shards,#team,#history,#settings) :is(p,label){font-size:14px;line-height:1.5}
+:is(#summary,#shards,#team,#history,#settings) :is(small,.muted,label){color:#5c6056}
+:is(#summary,#shards,#team,#history,#settings) :is(button,input,select){border-radius:10px;min-height:44px}
+:is(#summary,#shards,#team,#history,#settings) button{color:#51401b;border-color:#c9c8bc;font-weight:600}
+:is(#summary,#shards,#team,#history,#settings) button:active:not(:disabled){background:#e3dac0}
+:is(#summary,#shards,#team,#history,#settings) button:disabled{color:#85887e;background:#f1f1eb;border-color:#e0e0d6;opacity:1}
+:is(#summary,#shards,#team,#history,#settings) :is(input:not([type=checkbox]),select){color:#24251f;background:#fff;border-color:#bdbeb0;min-height:48px;font-size:16px;padding:10px 12px}
+:is(#summary,#shards,#team,#history,#settings) .formatted-date-field{height:48px;border-color:#bdbeb0;background:#fff;color:#24251f}
+:is(#summary,#shards,#team,#history,#settings) input::placeholder{color:#73766d;opacity:1}
+:is(#summary,#shards,#team,#history,#settings) :is(button,input,select):focus-visible{outline-color:#695322}
+:is(#summary,#shards,#team,#history,#settings) .formatted-date-field:focus-within{outline-color:#695322}
+:is(#summary,#shards,#team,#history,#settings) button[type=submit],#team #add-pokemon,#settings #export{background:#695322;border-color:#695322;color:#fff;min-height:48px;font-weight:600}
+:is(#summary,#shards,#team,#history,#settings) button[type=submit]:active,#team #add-pokemon:active,#settings #export:active{background:#51401b}
+#team #add-pokemon:disabled{background:#f1f1eb;color:#85887e;border-color:#e0e0d6}
+/* 集計：合計を主役に、単位と補足は控えめに揃える。 */
+:is(#summary,#shards) .total{color:#20221c;font-weight:700;font-variant-numeric:tabular-nums}
+:is(#summary,#shards) .quantity-number{color:#292b24;font-variant-numeric:tabular-nums}
+:is(#summary,#shards) :is(.quantity-unit,.heading-total,.weekly-weekday,.weekly-date,.weekly-range){color:#5c6056}
+:is(#summary,#shards) .total-breakdown :is(th,td){padding-top:6px;padding-bottom:6px}
+:is(#summary,#shards) .total-breakdown thead th{color:#5c6056;font-size:12px}
+:is(#summary,#shards) h3::before{background:#8c763f}
+:is(#summary,#shards,#history) .period-picker-top>button{background:transparent;border-color:transparent}
+:is(#summary,#shards,#history) .period-picker-date{color:#24251f;font-weight:600}
+:is(#summary,#shards,#history) .period-quick-buttons button{color:#5c6056;background:transparent;border-color:transparent;font-weight:400}
+:is(#summary,#shards,#history) .period-quick-buttons [aria-pressed=true]{color:#51401b;background:#eee7d5;font-weight:600}
+#summary .summary-section-head button{background:#eee7d5;color:#51401b;border-color:#c9bc94}
+#summary #analysis-card label{color:#5c6056}
+#summary #analysis-card select{color:#24251f;border-color:#bdbeb0}
+#summary .mew-rate strong{color:#20221c}
+#summary :is(.mew-position-head>span,.mew-target-table th,.mew-target-table caption,.mew-comparison summary,.mew-distribution td small){color:#5c6056}
+:is(#summary,#shards) :is(.weekly-track,.row,.shard-individual){border-color:#c9c8bc}
+:is(#summary,#shards) .resource-calendar .candy-values{border-color:#c9c8bc}
+:is(#summary,#shards) .resource-calendar .day-number{color:#24251f}
+:is(#summary,#shards) .resource-calendar .day.selected{background:#eee7d5;outline-color:#ad9254}
+#summary .day.selected .candy-values{border-color:#ad9254}
+/* 管理：一覧・フォームを別の階層として整え、Rは既存の暖色で強調。 */
+#team>h2{color:#695322;font-size:17px;margin:20px 0 12px}
+#team .registered-row{border-color:#c9c8bc;color:#24251f}
+#team .row-actions button{font-weight:500}
+#team #team-slots>.leader-slot{border-color:#8c763f!important;background:#fffdf7;border-radius:12px}
+#team .catalog button{background:#fff;font-weight:500}
+#team .section-head h2,#team .card h2{font-size:17px}
+#team .danger,#history .history-actions button:last-child{color:#985e52}
+/* 履歴：日時、内容、数字、補助操作の順で読める濃淡。 */
+#history .history-head>strong{color:#24251f;font-size:15px;font-weight:600}
+#history #history-list .card>p{color:#24251f;font-size:14px;line-height:1.6}
+#history #history-list .card>p:first-of-type::first-line{color:#5c6056}
+#history .history-actions button{font-weight:500;color:#5c6056;border-color:transparent}
+#history :is(details,summary){border-color:#c9c8bc;color:#5c6056}
+:is(#history,#team,#settings) .quantity-number{color:#292b24}
+:is(#history,#team,#settings) .quantity-unit{color:#5c6056}
+/* 設定：細い区切りと同じ操作部品。カテゴリー色は小さな目印にする。 */
+#settings .card>h3,#settings .check{border-color:#c9c8bc}
+#settings .check{color:#24251f;min-height:48px}
+#settings .check input{min-height:0;accent-color:#695322}
+#settings .check.mew{border-left:3px solid #946078;padding-left:8px}
+#settings .check.delibird{border-left:3px solid #9c6559;padding-left:8px}
+#settings #import::file-selector-button{color:#51401b;background:#eee7d5;border-color:#c9bc94;font-weight:600}
+/* パネルは記録日時パネルと同じ部品ルール。記録日時自身は変更しない。 */
+:is(.range-dialog,.period-picker-dialog,#history-editor){--accent:#695322;--edge:#c9c8bc;color:#24251f;background:#fffefa;border-color:#c9c8bc;border-radius:16px}
+:is(.range-dialog,.period-picker-dialog,#history-editor) :is(h2,h3){color:#695322;font-size:20px}
+:is(.range-dialog,.period-picker-dialog,#history-editor) label{font-size:14px;color:#5c6056}
+:is(.range-dialog,.period-picker-dialog,#history-editor) :is(input,select){font-size:16px;min-height:48px;color:#24251f;border-color:#bdbeb0;background:#fff;border-radius:10px}
+:is(.range-dialog,.period-picker-dialog,#history-editor) input[type=checkbox]{min-height:0;accent-color:#695322}
+:is(.range-dialog,.period-picker-dialog,#history-editor) button{min-height:44px;border-radius:10px;color:#51401b;font-weight:600}
+:is(.range-dialog,.period-picker-dialog,#history-editor) button[type=submit]{min-height:48px;color:#fff;background:#695322;border-color:#695322}
+.period-picker-dialog [aria-pressed=true]{background:#e8d9ae;border-color:#ad9254;color:#51401b}
+#history-edit-form>.section-head{background:#fffefa}
+/* ナビの寸法・並びを保ち、記録タブと同じ選択色を全画面で使う。 */
+body:has(#record[hidden]) .tabs{background:#fffcf1;border-top-color:#dfd2a5}
+body:has(#record[hidden]) .tabs button{color:#725619;min-height:44px}
+body:has(#record[hidden]) .tabs [aria-current=page]{color:#51401b;background:#e8d9ae;border-color:#ad9254}
+body:has(#record[hidden]) #notice:not(:empty){background:#695322;color:#fff}
+
+/* アプリ名の階層も記録タブに合わせる。記録側の指定はそのまま。 */
+body:has(#record[hidden]) .app>header{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;row-gap:4px;align-items:center;margin:0 0 20px;padding:8px 0 20px;border-bottom:1px solid #e4e3da}
+body:has(#record[hidden]) .app>header .series-icon{display:block;grid-column:1;grid-row:1/3;width:44px;height:44px;object-fit:contain}
+body:has(#record[hidden]) .app>header h1{grid-column:2;grid-row:1;font-size:20px;font-weight:700;line-height:1.4;letter-spacing:0;margin:0;color:#725619}
+body:has(#record[hidden]) .app>header small{grid-column:2;grid-row:2;font-size:10px;line-height:1.5;letter-spacing:1.6px;color:#756027}
+:is(#summary,#shards) .overview-header>.hero>.total{font-size:clamp(28px,8.2vw,34px);line-height:1.2;color:#20221c}
+:is(#summary,#shards) .overview-header .total .quantity-number{font-size:inherit;font-weight:700}
+:is(#summary,#shards) .overview-header .total .quantity-unit{font-size:13px;color:#5c6056}
+@media(max-width:360px){body:has(#record[hidden]) .app>header{column-gap:8px}body:has(#record[hidden]) .app>header h1{font-size:18px}}
+
+/* バックアップの保存・復元は同寸法で横並び。処理は既存のまま。 */
+#settings .backup-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#settings .backup-actions button{width:100%;min-height:48px;margin:0;font-size:16px}
+#settings #restore-backup{background:#eee7d5;border-color:#c9bc94;color:#51401b}
+
+/* 分析は結果を主役にし、分母・除外情報は1か所の短い補足へ。 */
+#summary .mew-position{padding:12px 0}
+#summary .mew-position h5{font-size:12px;font-weight:500;color:#5c6056;margin:10px 0 2px}
+#summary .mew-position .analysis-note{font-size:11px;line-height:1.5;margin:6px 0}
+#summary .analysis-footnote{display:block;font-size:11px;line-height:1.5;margin-top:12px}
+#summary .mew-target-table caption{padding:8px 0 4px;font-weight:500}
+#summary .mew-distribution td strong{font-size:clamp(13px,3.6vw,15px);font-weight:700}
+#summary .mew-distribution td small{font-size:11px;font-weight:400}
+#summary .mew-distribution th:first-child{width:42px}
+#summary .mew-distribution :is(th,td){padding:6px 1px}
+
+/* ミュウのアメ分析：割合を主役にし、実個数は補助行で比較する。 */
+#summary .mew-distribution th:first-child{width:68px;white-space:normal;font-size:11px;line-height:1.4}
+#summary .mew-distribution td{white-space:nowrap}
+#summary .mew-distribution td small{display:block;line-height:1.4}
+#summary .mew-distribution td small .quantity-number{font-size:11px;font-weight:400}
+#summary .mew-distribution .mew-cell-amount{color:#695322}
+#summary .mew-distribution tfoot :is(th,td){border-top:1px solid #d4d1c4;border-bottom:0;padding-top:9px}
+#summary .mew-distribution tfoot .quantity-number{font-size:13px;font-weight:600}
+#summary .mew-distribution tfoot .quantity-unit{font-size:10px}
+#summary .mew-distribution caption{font-size:13px;font-weight:600;color:#695322;padding-top:14px}
+
+#summary .mew-distribution td strong{font-size:12px;letter-spacing:-.2px}
+#summary .mew-distribution :is(td,th:not(:first-child)){text-align:center}
+
+#summary .mew-six-targets th:first-child{width:58px}
+#summary .mew-six-targets td strong{font-size:10px}
+#summary .mew-six-targets :is(td small,.quantity-number){font-size:10px}
+#summary .mew-six-targets th:not(:first-child){font-size:10px}
+
+#summary .mew-six-targets tfoot .quantity-number{font-size:10px}
+#summary .mew-six-targets tfoot .quantity-unit{font-size:9px}
+
+/* アメゲット記録は場所の分布を主役、獲得数の割合は補足にする。 */
+#summary .mew-distribution .mew-all td strong{font-size:13px;font-weight:700;color:#20221c;letter-spacing:-.8px}
+#summary .mew-distribution tbody tr:not(.mew-all) td strong{font-size:11px;font-weight:600;color:#5c6056}
+#summary .mew-distribution .mew-all th{font-weight:600;color:#695322}
+#summary .mew-distribution .mew-totals :is(th,td){padding:7px 1px 10px;border-bottom:1px solid #d4d1c4}
+#summary .mew-distribution .mew-totals .quantity-number{font-size:13px;font-weight:600;color:#292b24}
+#summary .mew-distribution .mew-totals .quantity-unit{font-size:10px}
+#summary .mew-amount-note{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;line-height:1.5;color:#5c6056;font-variant-numeric:tabular-nums}
+#summary .mew-amount-note span{white-space:nowrap}
+#summary .mew-six-targets .mew-all td strong{font-size:11px}
+#summary .mew-six-targets tbody tr:not(.mew-all) td strong{font-size:10px}
+#summary .mew-six-targets .mew-totals .quantity-number{font-size:10px}
+
+/* アメ種類別合計：名前と数値を同じ行で比較する。 */
+#summary #candy-list{max-height:none;overflow:visible}
+#summary .candy-table-scroll{max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:12px}
+#summary .candy-totals-table{width:100%;min-width:0;table-layout:fixed;border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums}
+#summary .candy-totals-table th,#summary .candy-totals-table td{padding:8px 3px;border:0;border-bottom:1px solid #d4d1c4;text-align:right;vertical-align:middle;background:transparent}
+#summary .candy-totals-table thead th{position:sticky;top:0;background:#fff;font-size:11px;font-weight:500;color:#5c6056;height:40px;box-sizing:border-box}
+#summary .candy-totals-table th:first-child{width:40%;text-align:left;padding-left:0}
+#summary .candy-totals-table tbody th{font-size:14px;font-weight:500;color:#292b24;overflow-wrap:anywhere;line-height:1.4}
+#summary .candy-totals-table tbody tr{height:48px}
+#summary .candy-totals-table td{font-size:13px;color:#5c6056;white-space:nowrap;letter-spacing:-.02em}
+#summary .candy-totals-table td.candy-table-total{font-size:15px;font-weight:700;color:#20221c}
+#summary .candy-totals-table th:last-child,#summary .candy-totals-table td:last-child{padding-right:0}
+
+/* 編成は目的別に切り替え、普段使う5枠をコンパクトな一覧にする。 */
+#team .team-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;background:#eee7d5;border-radius:12px;margin-bottom:20px}
+#team .team-switch button{border:0;background:transparent;min-height:44px;padding:8px 4px;font-size:14px;color:#5c6056}
+#team .team-switch button[aria-selected=true]{background:#fff;color:#695322;box-shadow:inset 0 0 0 1px #b6a16b;font-weight:700}
+#team [role=tabpanel]>h2{margin:0 0 12px}
+#team #team-slots>label{display:grid;grid-template-columns:30px minmax(0,1fr);gap:4px 8px;align-items:center;margin:0;padding:10px 0;border:0;border-bottom:1px solid #d4d1c4;border-radius:0;background:transparent;color:#695322;font-weight:600}
+#team #team-slots>.leader-slot{border:0!important;border-bottom:1px solid #d4d1c4!important;border-radius:0;background:transparent;box-shadow:none;padding:10px 0}
+#team #team-slots select{margin:0;width:100%;height:48px}
+#team #team-slots .main-skill-label{grid-column:2;font-weight:400;line-height:1.4}
+#team #roster-panel>.section-head{margin:16px 0 8px}
+#team #roster-search{margin-top:8px}
+#team .registered-row{display:flex;align-items:center;flex-wrap:nowrap;gap:12px;padding:12px 0;border-bottom:1px solid #d4d1c4}
+#team .registered-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;overflow-wrap:anywhere}
+#team .registered-info strong{font-size:15px;line-height:1.5;font-weight:600}
+#team .registered-info small{font-size:12px;line-height:1.5}
+#team .row-actions{flex-shrink:0;display:flex;gap:4px;max-width:144px}
+#team .row-actions button{min-height:44px;min-width:44px}
+#team #individual-editor>h2{margin:20px 0 8px}
+#team #profile-remove{display:block;margin-top:20px;background:transparent;color:#985e52}
+#team #registration-fields{margin-top:20px}
+#team #registration-fields>p{font-size:17px;font-weight:600;color:#292b24}
+#team #register-panel .catalog{max-height:240px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* 設定：記録表示、イベント、データを分け、項目は薄い区切りの1行にする。 */
+#settings .card{padding:16px;margin-bottom:20px}
+#settings .settings-intro{font-size:12px;line-height:1.5;color:#5c6056;margin:4px 0 12px}
+#settings .settings-group+.settings-group{margin-top:20px}
+#settings .settings-group h4{font-size:13px;font-weight:600;color:#695322;margin:0 0 4px}
+#settings .setting-row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px;margin:0;padding:4px 0;box-sizing:border-box;border:0;border-bottom:1px solid #d4d1c4;background:transparent;border-radius:0;font-size:15px;font-weight:400;color:#24251f;cursor:pointer}
+#settings .setting-row:last-child{border-bottom:0}
+#settings .setting-control{display:flex;align-items:center;gap:8px;flex-shrink:0}
+#settings .setting-control input{appearance:none;-webkit-appearance:none;position:relative;display:block;width:44px;height:26px;min-height:26px;margin:0;padding:0;border:1px solid #bdbeb0;border-radius:13px;background:#eee7d5;cursor:pointer;flex-shrink:0;box-shadow:none}
+#settings .setting-control input::before{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(32 34 28 / 12%)}
+#settings .setting-control input:checked{background:#695322;border-color:#695322}
+#settings .setting-control input:checked::before{left:21px}
+#settings .setting-control input:focus-visible{outline:3px solid #b6a16b;outline-offset:3px}
+#settings .setting-state{width:26px;font-size:10px;font-weight:600;color:#5c6056;text-align:right}
+#settings .setting-state::after{content:"OFF"}
+#settings input:checked+.setting-state::after{content:"ON";color:#695322}
+
+/* 履歴：方法と個数 → 時刻と操作 → アメと個体 → スキル補足。 */
+#history #history-list .card{padding:14px 16px;margin-bottom:12px}
+#history .history-head{align-items:baseline;margin-bottom:4px;gap:12px}
+#history .history-head .history-method{font-size:16px;font-weight:600;color:#695322;overflow-wrap:anywhere}
+#history .history-head .history-amount{flex-shrink:0;font-size:24px;font-weight:700;line-height:1.3;white-space:nowrap;font-variant-numeric:tabular-nums;color:#20221c}
+#history .history-amount .quantity-number{font-size:24px;font-weight:700;color:#20221c}
+#history .history-amount .quantity-unit{font-size:12px;font-weight:400}
+#history .history-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px}
+#history .history-primary{display:block;margin:6px 0 4px;font-size:15px;font-weight:600;color:#24251f;min-width:0;overflow-wrap:anywhere}
+#history .history-actions{gap:0}
+#history .history-actions button{min-width:44px;min-height:44px;padding:8px 6px;font-size:12px;background:transparent}
+#history #history-list .card>.history-target{margin:0 0 4px;font-size:14px;line-height:1.5;color:#24251f}
+#history #history-list .card>.history-target::first-line{color:inherit}
+#history .history-time{display:block;font-size:12px;color:#5c6056;margin:0;font-variant-numeric:tabular-nums}
+#history #history-list .card>.history-supplement{font-size:12px;line-height:1.5;color:#5c6056;margin:3px 0;overflow-wrap:anywhere}
+#history #history-list details{padding:8px 0 0;margin-top:8px;border-top:1px solid #d4d1c4}
+#history #history-list summary{font-size:12px;min-height:44px;display:list-item;line-height:44px;padding:0}
+#history #history-list details p{margin:6px 0;font-size:12px;overflow-wrap:anywhere}
+
+/* チームの選択は検索付きの一覧。名前と個体IDは既存の登録情報を使う。 */
+#team #team-slots>.team-slot-row{display:grid;grid-template-columns:30px minmax(0,1fr);gap:4px 8px;align-items:center;padding:10px 0;border-bottom:1px solid #d4d1c4;color:#695322;font-weight:600}
+#team #team-slots>.team-slot-row.leader-slot{background:transparent;box-shadow:none;border:0!important;border-bottom:1px solid #d4d1c4!important;border-radius:0}
+#team .team-slot-button{width:100%;min-height:48px;text-align:left;font-size:16px;font-weight:400;background:#fff;border:1px solid #bdbeb0;padding:10px 12px;overflow-wrap:anywhere}
+#team-picker{box-sizing:border-box;width:min(520px,calc(100vw - 24px));height:min(680px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);padding:0;border:1px solid #d4d1c4;border-radius:16px;background:#fffefa;color:#24251f;overflow:hidden}
+#team-picker[open]{display:flex;flex-direction:column}
+#team-picker::backdrop{background:rgb(32 34 28 / 38%)}
+#team-picker .team-picker-header{flex:none;padding:16px;border-bottom:1px solid #d4d1c4;background:#fffefa}
+#team-picker .team-picker-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#team-picker h2{font-size:20px;color:#695322;margin:0;font-weight:600}
+#team-picker-close{min-width:44px;min-height:44px;background:transparent;color:#5c6056;border-color:transparent;font-size:13px;padding:8px}
+#team-picker-context{font-size:13px;line-height:1.5;margin:8px 0 12px;color:#5c6056;overflow-wrap:anywhere}
+#team-picker label{font-size:12px;color:#5c6056;margin:0}
+#team-picker-search{box-sizing:border-box;min-height:48px;margin-top:6px;font-size:16px;border:1px solid #bdbeb0;border-radius:10px;color:#24251f;background:#fff;width:100%}
+#team-picker-error{margin:0;color:#985e52;font-size:12px}
+#team-picker-error:empty{display:none}
+#team-picker-list{overflow-y:auto;min-height:0;flex:1;padding:0 16px 16px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#team-picker .team-picker-row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;padding:12px 8px;background:transparent;border:0;border-bottom:1px solid #d4d1c4;border-radius:0;font-size:15px;text-align:left;color:#24251f}
+#team-picker .team-picker-name{min-width:0;overflow-wrap:anywhere;line-height:1.5}
+#team-picker .team-picker-status{flex-shrink:0;font-size:12px;color:#5c6056}
+#team-picker .team-picker-row[aria-pressed=true]{background:#eee7d5;color:#695322;font-weight:600}
+#team-picker .team-picker-row[aria-pressed=true] .team-picker-status{color:#695322;font-size:16px}
+#team-picker .team-picker-row:disabled{opacity:1;color:#85887e;cursor:default}
+#team-picker :is(button,input):focus-visible{outline:3px solid #b6a16b;outline-offset:-3px}
+@supports not (height:100dvh){#team-picker{height:calc(100vh - 32px);max-height:calc(100vh - 32px)}}
+
+/* 履歴は2列。通常表示を4段にまとめ、詳しい情報は下部から開く。 */
+#history #history-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+#history #history-list .card{min-width:0;margin:0;padding:10px;border-left-width:1px}
+#history .history-head{gap:4px;margin-bottom:5px;align-items:center;flex-wrap:wrap}
+#history .history-head .history-method{font-size:14px;line-height:1.4}
+#history .history-head .history-amount,#history .history-amount .quantity-number{font-size:22px}
+#history .history-meta{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:2px 6px;min-height:0;margin-bottom:5px;align-items:baseline}
+#history .history-primary{font-size:13px;line-height:1.5;margin:0;flex:1 1 70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+#history .history-time{font-size:12px;white-space:nowrap}
+#history #history-list .card>.history-target{font-size:13px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#history .history-footer{position:relative;margin-top:8px;border-top:1px solid #d4d1c4}
+#history #history-list .history-footer details{margin:0;padding:0;border:0}
+#history #history-list .history-footer summary{width:calc(100% - 88px);min-width:44px;min-height:44px;line-height:44px;list-style:none;cursor:pointer;color:#695322}
+#history .history-footer .history-actions{position:absolute;right:0;top:0;gap:0}
+#history .history-footer .history-actions button{width:44px;min-width:44px;padding:8px 0}
+#history #history-list details p{white-space:pre-line;line-height:1.5;font-size:13px}
+#history #history-list details .history-supplement{margin:6px 0;color:#5c6056}
+@media(max-width:359px){#history #history-list{grid-template-columns:minmax(0,1fr)}}
+
+/* 確定カテゴリ配色。共通UI・系列色・危険操作とは分離する。 */
+:root{--resource-candy:#A66B83;--resource-candy-bg:#F8EDF1;--resource-shard:#B58A37;--resource-shard-bg:#FBF4E4}
+#summary{--resource-color:var(--resource-candy);--resource-bg:var(--resource-candy-bg)}
+#shards{--resource-color:var(--resource-shard);--resource-bg:var(--resource-shard-bg)}
+:is(#summary,#shards) :is(.card,.hero,.overview-header){background:var(--resource-bg);box-shadow:inset 0 0 0 1px var(--resource-color)}
+/* 上部は既存の一つの面を維持し、内部に枠を重ねない。 */
+:is(#summary,#shards) .overview-header :is(.hero,.period-picker){background:transparent;box-shadow:none}
+:is(#summary,#shards) h3::before{background:var(--resource-color)}
+#summary .candy-totals-table thead th{background:var(--resource-candy-bg)}
+/* カテゴリ操作は白面。選択状態は従来のゴールドを優先する。 */
+:is(#summary,#shards) button:not(:disabled){background:#fff;border-color:var(--resource-color);color:#51401b}
+:is(#summary,#shards) .period-picker-top>button{background:#fff;border-color:var(--resource-color)}
+:is(#summary,#shards) .period-quick-buttons button{background:#fff;border-color:var(--resource-color)}
+:is(#summary,#shards) .period-quick-buttons [aria-pressed=true]{background:#e8d9ae;border-color:#ad9254;color:#51401b;font-weight:600}
+:is(#summary,#shards) button:active:not(:disabled){background:#e3dac0}
+#record #record-methods{--resource-color:var(--resource-candy)}
+#record #shard-records{--resource-color:var(--resource-shard)}
+#record :is(#record-methods,#shard-records) button:not(.help-card):not(:disabled){background:#fff;border-color:var(--resource-color);color:#51401b}
+#record :is(#record-methods,#shard-records) button:not(.help-card):active:not(:disabled){background:#e3dac0}
+#record :is(#record-methods,#shard-records) button[aria-pressed=true]{background:#e8d9ae;border-color:#ad9254}
+/* 履歴の種別は既存クラスで判別。本文・個数・警告色は変えない。 */
+#history #history-list .card{--resource-color:var(--resource-candy);background:var(--resource-candy-bg);box-shadow:inset 0 0 0 1px var(--resource-color)}
+#history #history-list .card.shards{--resource-color:var(--resource-shard);background:var(--resource-shard-bg)}
+#history .card.help .history-head .history-method{color:#276242}
+#history .card.mew .history-head .history-method{color:#963b68}
+#history .card.delibird .history-head .history-method{color:#ad3d39}
+#history #history-list .history-actions button:not(.danger){background:#fff;border-color:var(--resource-color)}
+/* 設定は見出しだけ。スイッチ・イベント・データ管理は共通の暖色。 */
+#settings .settings-group:first-of-type h4{color:color-mix(in srgb,#A66B83 75%,#24251f)}
+#settings .settings-group:nth-of-type(2) h4{color:color-mix(in srgb,#B58A37 70%,#24251f)}
+
+
+/* 上部集計とスキル内訳は共通の3列。長い名前は左列内で折り返す。 */
+:is(#summary,#shards) .overview-header .total-breakdown{table-layout:fixed}
+:is(#summary,#shards) .overview-header .total-breakdown thead th:nth-child(1){width:44%}
+:is(#summary,#shards) .overview-header .total-breakdown thead th:nth-child(2){width:20%}
+:is(#summary,#shards) .overview-header .total-breakdown thead th:nth-child(3){width:36%}
+:is(#summary,#shards) .overview-header .total-breakdown :is(th,td){box-sizing:border-box;text-align:right;white-space:nowrap}
+:is(#summary,#shards) .overview-header .total-breakdown th:first-child{padding-left:0;text-align:left;white-space:normal;overflow-wrap:anywhere}
+#shards .overview-header .total-breakdown .shard-member th{padding-left:0;color:#5c6056;font-weight:400}
+
+/* 保存の反応は記録操作だけ。元の寸法・内容・連続タップを維持。 */
+#record :is(#record-methods,#shard-records) .record-save-button{position:relative;transition:background-color .15s,transform .15s}
+#record :is(#record-methods,#shard-records) .record-save-button[data-record-category="candy"]:not(:disabled){background:#fff;border-color:#A66B83}
+#record :is(#record-methods,#shard-records) .record-save-button[data-record-category="shards"]:not(:disabled){background:#fff;border-color:#B58A37}
+#record :is(#record-methods,#shard-records) .record-save-button[data-record-category="candy"]:active:not(:disabled){background:#F4DCE5;transform:translateY(1px)}
+#record :is(#record-methods,#shard-records) .record-save-button[data-record-category="shards"]:active:not(:disabled){background:#FBF4E4;transform:translateY(1px)}
+#record :is(#record-methods,#shard-records) .record-save-button.record-saved::after{content:"✓";position:absolute;right:3px;top:3px;width:18px;height:18px;display:grid;place-items:center;background:#fff;color:#695322;border:1px solid currentColor;border-radius:50%;font-size:13px;line-height:1;pointer-events:none}
+#record-save-notices{--toast-safe-top:env(safe-area-inset-top,0px);position:fixed;left:16px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:41;pointer-events:none}
+.record-save-toast{background:#fffdf7;color:#51401b;border:1px solid #c9bc94;border-radius:10px;padding:5px 12px;font-size:16px;line-height:1.35;box-shadow:0 1px 4px #51401b15;animation:record-toast-in 120ms ease-out}
+@media(prefers-reduced-motion:reduce){#record :is(#record-methods,#shard-records) .record-save-button{transition:none}#record :is(#record-methods,#shard-records) .record-save-button[data-record-category]:active:not(:disabled){transform:none}}
+
+/* 保存内容の通知：カテゴリ面とチェックだけに色を使う。 */
+#record-save-notices{max-width:608px;margin-inline:auto}
+.record-save-toast{display:flex;align-items:flex-start;gap:8px;overflow-wrap:anywhere;background:#F3DFE7;border-color:#A66B83}
+.record-save-toast[data-category="shards"]{background:#F5E7C5;border-color:#B58A37}
+.record-toast-check{color:#A66B83;flex:none;font-weight:600}
+[data-category="shards"]>.record-toast-check{color:#B58A37}
+body:has(#record:not([hidden])) #notice.record-error:not(:empty),#notice.record-error:not(:empty){background:#fff1ee;color:#985e52;border:1px solid #985e52}
+
+/* 履歴2列：日時と方法 → 種類と個数 → 個体。操作は均等な文字ボタン。 */
+#history #history-list .card{container-type:inline-size}
+#history .history-head{display:flex;flex-wrap:nowrap;align-items:baseline;justify-content:space-between}
+#history .history-head .history-time{min-width:0;white-space:normal;line-height:1.4}
+#history .history-head .history-method{min-width:0;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+#history .history-meta{flex-wrap:nowrap;align-items:baseline;justify-content:space-between;gap:4px}
+#history .history-primary{min-width:0;flex:1 1 0}
+#history .history-meta .history-amount{flex:none;white-space:nowrap;font-size:20px}
+#history .history-meta .history-amount .quantity-number{font-size:clamp(14px,12cqi,20px)}
+#history #history-list .history-footer summary{width:33.333%;text-align:center;font-size:12px;font-weight:500;background:none;border:0;color:#695322}
+#history .history-footer .history-actions{width:66.667%;display:flex}
+#history #history-list .history-footer .history-actions button{flex:1;width:50%;min-width:44px;min-height:44px;margin:0;padding:8px 0;background:none;border:0;box-shadow:none;color:#695322;font-size:12px;font-weight:500}
+#history #history-list .history-footer .history-actions button.danger{color:#985e52}
+
+/* 履歴の詳細はカード内で展開せず、下部の全幅パネルで表示。 */
+#history #history-list .history-footer>.history-detail-button{width:33.333%;min-height:44px;padding:8px 0;margin:0;background:none;border:0;box-shadow:none;color:#695322;font-size:12px;font-weight:500;white-space:nowrap}
+#history-details-panel{--detail-color:#A66B83;--detail-bg:#F8EDF1;position:fixed;inset:auto 0 var(--history-nav-height,80px);margin:0 auto;width:100%;max-width:640px;max-height:calc(100dvh - var(--history-nav-height,80px) - 12px);padding:0;border:1px solid var(--detail-color);border-radius:16px 16px 0 0;background:#fffdf7;color:#51401b;overflow:hidden;box-sizing:border-box}
+#history-details-panel[open]{display:flex;flex-direction:column;animation:history-panel-in 160ms ease-out}
+#history-details-panel[data-category=shards]{--detail-color:#B58A37;--detail-bg:#FBF4E4}
+#history-details-panel::backdrop{background:#342b204d}
+#history-details-panel .history-detail-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--detail-bg);border-bottom:1px solid var(--detail-color);flex:none}
+#history-details-panel h2{margin:0;font-size:18px;color:#51401b}
+#history-details-panel .history-detail-heading button{min-height:44px;min-width:64px;background:#fff;border:1px solid var(--detail-color);border-radius:10px;color:#695322;margin:0}
+#history-details-panel .history-detail-content{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 16px 16px;min-height:0}
+#history-details-panel section+section{border-top:1px solid #d4d1c4;margin-top:16px}
+#history-details-panel h3{font-size:13px;font-weight:600;color:#695322;margin:16px 0 10px}
+#history-details-panel .history-detail-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;margin:8px 0;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+#history-details-panel .history-detail-row>span{font-size:12px;color:#706653}
+#history-details-panel strong{font-weight:600;white-space:pre-line}
+#history-details-panel .history-detail-pokemon{padding:8px 0;overflow-wrap:anywhere}
+#history-details-panel .history-detail-pokemon strong{display:block;font-size:15px}
+#history-details-panel small{display:block;font-size:12px;line-height:1.6;color:#706653;white-space:pre-line;margin-top:3px}
+#history-details-panel.closing{animation:history-panel-out 160ms ease-in forwards}
+@keyframes history-panel-in{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes history-panel-out{to{opacity:0;transform:translateY(20px)}}
+@media(prefers-reduced-motion:reduce){#history-details-panel[open],#history-details-panel.closing{animation:none}}
+
+.record-toast-message{min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.record-save-toast.record-toast-leaving{animation:record-toast-out 160ms ease-in forwards}
+@keyframes record-toast-in{from{opacity:0}to{opacity:1}}
+@keyframes record-toast-out{to{opacity:0}}
+@media(prefers-reduced-motion:reduce){.record-save-toast,.record-save-toast.record-toast-leaving{animation:none}}
+
+/* ゆめのかたまり：既存のかけら入力面・44px操作を継承。 */
+#record #cluster-panel input,#record #cluster-panel select{background:#fff}
+#record #cluster-amount{font-weight:600;color:#51401b}
+.rank-hint{font-size:13px;color:#695322;margin-block:8px}
+#research-rank-form{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
+#research-rank-form label{min-width:0}#research-rank-form button{min-height:44px}
+#shards #shard-weekly-chart .shard-source-cluster{background:#B58A37}
+[data-source="shard-cluster"]{color:#B58A37}
+
+.rank-hint button{font-size:13px;min-height:44px;background:#fff;border:1px solid #B58A37;margin-left:4px}
+.source-count{font-size:12px;font-weight:400;color:#695322}.source-subtotal{font-size:12px;color:#695322;padding-left:12px}
+
+/* 外枠は睡眠リサーチ・その他と同じ .card を継承し、二重の境界を作らない。 */
+#record #shard-cluster-form>.filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
+#record #shard-cluster-form>.filters :is(input,select){height:48px;min-height:48px;box-sizing:border-box}
+#record #shard-cluster-form>.cluster-result-label{margin:12px 0 6px}
+#record #shard-cluster-form .cluster-result-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;margin-bottom:12px}
+#record #shard-cluster-form .cluster-result-row :is(input,button){height:48px;min-height:48px;margin:0;box-sizing:border-box}
+#record #cluster-amount{font-size:16px;min-width:0}

@@ -1,0 +1,166 @@
+/* 月間表示は両タブで共通。表示設定は保存済みの合計を変更しません。 */
+:is(#summary,#shards) .resource-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+:is(#summary,#shards) .resource-calendar .day{min-width:0;padding:5px 1px;background:transparent;border:0;min-height:44px;font-variant-numeric:tabular-nums}
+:is(#summary,#shards) .resource-calendar .weekday{font-size:10px;text-align:center}
+:is(#summary,#shards) .resource-calendar .day-number{display:block;font-size:13px;font-weight:650;margin-bottom:4px}
+:is(#summary,#shards) .resource-calendar .candy-values{display:flex;flex-direction:column;gap:2px;border:1px solid #e4e3da;border-radius:8px;padding:3px 0;min-width:0}
+:is(#summary,#shards) .resource-calendar .month-value{display:block;white-space:nowrap;font-weight:600;line-height:1.4;letter-spacing:-.3px}
+:is(#summary,#shards) .resource-calendar .day.selected{background:#f2eddf;border-radius:8px}
+:is(#summary,#shards) .month-legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin:8px 0 12px;font-size:11px;line-height:1.5}
+.month-legend-item:before{content:'';display:inline-block;width:7px;height:7px;border-radius:2px;background:currentColor;margin-right:4px}
+[data-source="candy-help"],[data-source="shard-skill"]{color:#567563}
+[data-source="candy-mew"],[data-source="shard-other"]{color:#a46f85}
+[data-source="candy-delibird"]{color:#ae7568}
+[data-source="candy-skill"]{color:#686b63}
+[data-source="shard-research"]{color:#a89461}
+:is(#summary,#shards) .weekly-bar>span{position:relative;min-height:0;overflow:hidden;flex-shrink:0}
+:is(#summary,#shards) .stack-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;font-size:10px;line-height:14px;font-weight:600;color:white;visibility:hidden;letter-spacing:-.3px}
+#summary .summary-section-head{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:12px}
+#summary .summary-section-head h3{flex:1;min-width:0;margin:0}
+#summary .summary-section-head button{width:auto;min-height:44px;min-width:44px;padding:8px 12px;font-size:13px;border-radius:10px;background:#f5f3ec;border:1px solid #e4e3da;color:#756027;flex-shrink:0}
+#summary #candy-list{max-height:240px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#summary .candy-breakdown{padding:0;margin:0;border:0;border-bottom:1px solid #e4e3da;border-radius:0;background:transparent}
+#summary .candy-breakdown summary{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:48px;padding:6px 0;font-size:14px;cursor:pointer}
+#summary .candy-breakdown summary>span{min-width:0}
+#summary .candy-breakdown summary strong{white-space:nowrap;font-variant-numeric:tabular-nums}
+#summary .candy-source-row{font-size:12px;padding:5px 8px;min-height:28px}
+/* 合計直下の補足内訳。数値は正確な値を右揃えで表示。 */
+:is(#summary,#shards) .source-totals{margin:4px 0 12px}
+:is(#summary,#shards) .source-total-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:3px 0;font-size:13px;line-height:1.5}
+:is(#summary,#shards) .source-total-row strong{font-weight:500;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+:is(#summary,#shards) .source-total-row .quantity-number{font-size:14px}
+:is(#summary,#shards) .source-total-row .quantity-unit{font-size:11px;color:#686b63}
+.source-total-row>span:before{content:'';display:inline-block;width:6px;height:6px;border-radius:2px;background:currentColor;margin-right:6px}
+#summary .position-table{width:100%;min-width:0;table-layout:fixed}
+#summary .position-table :is(th,td){padding:5px 1px;overflow-wrap:anywhere}
+#summary .position-table th:first-child{width:27px}
+#summary .position-table th:last-child{width:34px}
+#summary .position-table .quantity-number{font-size:12px}
+/* 個体別内訳は名前・回数・数量を同じ行に置く。 */
+#shards .shard-individual{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px 0}
+#shards .shard-individual h4{margin:0;min-width:0;font-size:14px;line-height:1.5}
+#shards .shard-individual p{display:flex;gap:12px;align-items:baseline;justify-content:flex-end;white-space:nowrap;margin:0;font-variant-numeric:tabular-nums}
+#shards .shard-individual .quantity-number{font-size:16px}
+#shards .shard-individual .quantity-unit{font-size:11px}
+#team #register-details .filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#team #register-subskill-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#shards .shard-individual p{flex-wrap:nowrap}
+#shards .shard-individual p>.quantity{white-space:nowrap;overflow-wrap:normal}
+:is(#summary,#shards) .custom-range .period-picker-date{font-size:14px;line-height:1.5;white-space:normal;overflow-wrap:normal;padding:8px 2px}
+:is(#summary,#shards) .custom-range .period-picker-top{grid-template-columns:36px minmax(0,1fr) 36px;gap:2px}
+.range-today{display:flex;justify-content:flex-end;margin-top:4px}
+.range-today button{min-height:44px;font-size:13px;padding:8px 12px}
+.range-dialog{width:min(390px,calc(100% - 24px));box-sizing:border-box;padding:20px;border:1px solid #e4e3da;border-radius:16px;background:#fff;color:#292a26}
+.range-dialog label{display:block;margin:12px 0;font-size:14px}
+.range-dialog input{width:100%;min-height:48px;font-size:16px;box-sizing:border-box}
+.range-actions{display:flex;gap:8px;margin:12px 0}
+.range-actions button{min-height:48px;flex:1;padding:8px;font-size:14px}
+.range-actions button[type=submit]{background:#756027;color:white}
+#record #today-total .daily-resource{margin-top:8px}
+#record #today-total .daily-resource+.daily-resource{border-top:1px solid #e4e3da;padding-top:8px}
+#record #today-total .daily-resource .total{font-size:30px;margin:4px 0}
+#record #today-total .source-totals{margin:0}
+#record #today-total .source-total-row{display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:13px;font-variant-numeric:tabular-nums}
+#record #today-total .source-total-row strong{white-space:nowrap;font-weight:500}
+#record #today-total .source-total-row .quantity-number{font-size:16px}
+#record #today-total .source-total-row .quantity-unit{font-size:11px}
+.range-dialog h2{font-size:20px;margin:0 0 16px;outline:none}
+.range-dialog input[type=date]{display:block;position:static;opacity:1;min-width:0;width:100%;min-height:48px;margin-top:6px;color:#292a26;background:#fff;border-color:#d3d5ca}
+:is(#summary,#shards) .custom-range .period-quick-buttons{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:8px}
+/* 上部だけの配置調整。集計値と日付ボタンは既存の要素をそのまま使用。 */
+:is(#summary,#shards) .overview-header{display:grid;grid-template-columns:minmax(0,1fr);row-gap:8px;padding:12px 16px;margin-bottom:20px;background:#fff;border-radius:16px;min-width:0}
+:is(#summary,#shards) .overview-header>:is(.hero,.custom-range){display:contents}
+:is(#summary,#shards) .overview-header>.hero>small{display:none}
+:is(#summary,#shards) .overview-header>.hero>.total{grid-column:1;grid-row:3;justify-self:end;align-self:center;margin:4px 0 0;font-size:22px;font-weight:700;white-space:nowrap;letter-spacing:-.5px;line-height:1.2}
+:is(#summary,#shards) .overview-header>.hero>.total:before{content:'合計';font-size:11px;font-weight:400;color:#686b63;margin-right:4px;letter-spacing:0}
+:is(#summary,#shards) .overview-header .total .quantity{white-space:nowrap}
+:is(#summary,#shards) .overview-header .total .quantity-unit{font-size:11px;margin-left:2px}
+:is(#summary,#shards) .overview-header .period-picker-top{grid-column:1;grid-row:1;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px;min-width:0;align-self:center}
+:is(#summary,#shards) .overview-header .period-picker-top>button{padding:8px 0;min-height:48px}
+:is(#summary,#shards) .overview-header .period-picker-date{font-size:20px;font-weight:600;line-height:1.4;overflow-wrap:normal;white-space:normal}
+:is(#summary,#shards) .overview-header .period-quick-buttons{grid-column:1/-1;grid-row:2;margin:0}
+:is(#summary,#shards) .overview-header .total-breakdown{grid-column:1/-1;grid-row:4;margin:0;width:100%}
+#record #today-total .daily-resource{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:center}
+#record #today-total .daily-resource>small{grid-column:1;grid-row:1;font-size:14px;color:#292a26}
+#record #today-total .daily-resource>.total{grid-column:2;grid-row:1;font-size:clamp(20px,6vw,28px);margin:0;white-space:nowrap;letter-spacing:-.5px}
+#record #today-total .daily-resource>.total:before{content:'合計';font-size:11px;font-weight:400;letter-spacing:0;color:#686b63;margin-right:4px}
+#record #today-total .daily-resource>.total .quantity{white-space:nowrap}
+#record #today-total .daily-resource>:is(.total-breakdown,.source-totals){grid-column:1/-1;margin-top:4px}
+#record .record-picker-trigger{font-size:18px;min-height:48px;letter-spacing:-.5px}
+@media(max-width:400px){
+ :is(#summary,#shards) .overview-header{padding:12px;column-gap:4px}
+ :is(#summary,#shards) .overview-header .total .quantity-number{font-size:22px}
+ #record .record-date-card{gap:4px}
+ #record .record-picker-trigger{font-size:18px;padding-left:4px;padding-right:4px}
+}
+
+#record #today-total>small{display:block;font-size:16px;font-weight:600;line-height:1.5;color:#292a26;margin-bottom:8px}
+
+/* 入力ラベルを省いても、入力と記録操作を同じまとまりに保つ。 */
+#record .shard-skill-form{align-items:center;gap:8px;margin-top:8px}
+#record .shard-skill-form label{margin:0}
+#record .shard-skill-form button{margin:0;min-height:44px}
+#record .research-fields>label:nth-child(-n+2){text-align:center;min-width:0}
+#record .research-fields>label:nth-child(-n+2) input{ text-align:center }
+#record .research-fields>label:first-child .formatted-date-field{justify-content:center;text-align:center}
+#shards .total-breakdown .shard-member th{padding-left:12px;font-size:13px;font-weight:400;line-height:1.5}
+#shards .total-breakdown .shard-member td{white-space:nowrap}
+#shards .total-breakdown .shard-member .quantity-number{font-size:16px}
+#shards .total-breakdown .shard-member .quantity-unit{font-size:11px}
+#summary .analysis-note{font-size:12px;line-height:1.6;color:#686b63;margin:8px 0 12px}
+
+/* その日の記録：合計→取得元→個体別の3段階。 */
+#record #today-total .daily-resource .total-breakdown{margin-top:4px;font-size:13px}
+#record #today-total .daily-resource .total-breakdown :is(th,td){padding-top:4px;padding-bottom:4px}
+#record #today-total .daily-resource .total-breakdown thead th{font-size:11px;padding-top:0;padding-bottom:2px;color:#686b63}
+#record #today-total .daily-resource .total-breakdown .quantity-number{font-size:16px;font-weight:500}
+#record #today-total .daily-resource .total-breakdown .quantity-unit{font-size:11px}
+#record #today-total .daily-resource .shard-member th{padding-left:10px;font-size:12px;line-height:1.4;color:#686b63}
+#record #today-total .daily-resource .shard-member .quantity-number{font-size:14px;font-weight:400}
+#summary #slot-counts .slot-note{font-size:12px;line-height:1.5;color:#686b63;margin:0 0 8px}
+#summary #slot-counts .slot-group+.slot-group{margin-top:16px}
+#summary #slot-counts .slot-group h4{font-size:14px;margin:0 0 4px}
+#summary #slot-counts .slot-group>.row{padding:3px 0;font-size:12px;line-height:1.4}
+#summary #slot-counts .slot-table{width:100%;min-width:0;table-layout:fixed;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+#summary #slot-counts .slot-table :is(th,td){padding:4px 2px;border:0;border-bottom:1px solid #e4e3da;background:transparent;text-align:right;white-space:nowrap}
+#summary #slot-counts .slot-table th:first-child{width:20%;text-align:left;white-space:normal;font-weight:400}
+#summary #slot-counts .slot-table thead th{font-size:12px;color:#686b63;font-weight:400}
+#summary #slot-counts .slot-table .quantity-number{font-size:14px;font-weight:500}
+#summary #slot-counts .slot-table .quantity-unit{font-size:11px}
+
+#summary #slot-counts .slot-table th:nth-child(2){width:20%}
+#summary #slot-counts .slot-table th:nth-child(3){width:22%}
+
+/* 最重要の2合計を内訳より強くする。余白・カード数は維持。 */
+#record #today-total .daily-resource>small{font-size:16px;font-weight:600}
+#record #today-total .daily-resource>.total{font-size:clamp(28px,8.2vw,34px);font-weight:700;line-height:1.2;letter-spacing:-.7px}
+#record #today-total .daily-resource>.total:before{content:none}
+#record #today-total .daily-resource>.total .quantity-number{font-size:inherit;font-weight:700}
+#record #today-total .daily-resource>.total .quantity-unit{font-size:13px;font-weight:400;letter-spacing:0;margin-left:3px}
+/* ミュウ位置分析：確率が主、獲得先は回数の比較。 */
+#summary .mew-position{padding:12px 0;border-bottom:1px solid #e4e3da}
+#summary .mew-position:last-child{border-bottom:0}
+#summary .mew-position-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+#summary .mew-position-head h4{font-size:15px;margin:0;font-weight:600}
+#summary .mew-position-head>span{font-size:13px;color:#686b63;white-space:nowrap}
+#summary .mew-rates{margin:6px 0}
+#summary .mew-rate{display:grid;grid-template-columns:minmax(0,1fr) auto 76px;align-items:baseline;gap:12px;padding:3px 0;font-size:14px;font-variant-numeric:tabular-nums}
+#summary .mew-rate>:not(:first-child){text-align:right;white-space:nowrap}
+#summary .mew-rate strong{font-size:22px;font-weight:700;color:#292a26}
+#summary .mew-rate .quantity-number{font-size:16px}
+#summary .mew-rate .quantity-unit{font-size:12px}
+#summary .mew-target-table{width:100%;min-width:0;table-layout:fixed;font-size:13px;font-variant-numeric:tabular-nums}
+#summary .mew-target-table caption{text-align:left;font-size:12px;color:#686b63;padding:4px 0}
+#summary .mew-target-table :is(th,td){padding:4px 2px;border:0;border-bottom:1px solid #e4e3da;text-align:right;background:transparent;white-space:nowrap}
+#summary .mew-target-table th{font-weight:400;color:#686b63}
+#summary .mew-target-table th:first-child{width:60px;text-align:left}
+#summary .mew-comparison{margin-top:4px;padding:0;border:0;background:transparent}
+#summary .mew-comparison summary{min-height:44px;padding:10px 0;font-size:12px;line-height:24px;color:#686b63}
+
+/* 獲得先は割合を主、回数を補足にして3分類を比較。 */
+#summary .mew-distribution :is(th,td){padding:6px 1px}
+#summary .mew-distribution th:first-child{width:46px;font-size:12px}
+#summary .mew-distribution td strong{display:block;font-size:14px;font-weight:600;line-height:1.3;letter-spacing:-.4px;white-space:nowrap}
+#summary .mew-distribution td small{display:block;font-size:11px;color:#686b63;line-height:1.4;white-space:nowrap}
+#summary .mew-distribution td .quantity-number{font-size:11px;font-weight:400}
+#summary .mew-distribution td .quantity-unit{font-size:10px}
