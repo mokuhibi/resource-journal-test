@@ -96,7 +96,7 @@ function renderRecord(){
   team.forEach((p,i)=>{
    if(p&&!speciesEnabled(p.species))return;
    const box=el(method==='mew'?'div':'button',undefined,'help-card candy-target-row'+(i===0?' leader-slot':'')),content=el('span',undefined,'record-row-content');
-   content.append(el('strong',p?candyMap[p.species]:'未設定'));
+   content.append(el('strong',p?(method==='help'?(p.nickname?.trim()||C.speciesName(p.species)):candyMap[p.species]):'未設定'));
    if(p){box.title=recordPosition(i+1)+' · '+label(p)+' · '+candyMap[p.species];if(method==='help')box.setAttribute('aria-label',box.title+'を2個記録');}
    box.append(el('small',recordPosition(i+1)),content);if(method==='delibird')box.append(qel('span','+4個','record-row-action'));
    if(method==='mew'){const actions=el('div',undefined,'mew-actions');for(const amount of context?C.mewAmounts(actorOf(context).profile.skillLevel):[1]){const b=button('',()=>record(method,i+1,amount));quantityText(b,'+'+amount+'個');b.disabled=!p||!context;actions.append(b);}box.append(actions);}
