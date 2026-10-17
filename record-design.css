@@ -81,7 +81,7 @@
 /* アメ名と枠番号を同じ見出し行へ。直接記録と2列は維持する。 */
 #record #record-methods :is(#help-slots,#mew-slots){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}
 #record #record-methods :is(#help-slots,#mew-slots) .help-card{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'name slot' 'action action';gap:8px 6px;align-items:start;padding:10px 0;min-height:98px}
-#record #record-methods #help-slots{row-gap:8px}
+#record #record-methods #help-slots{row-gap:8px;padding-top:12px;padding-bottom:16px}
 #record #record-methods #help-slots .help-card{grid-template-areas:'name slot';min-height:64px;align-content:center;cursor:pointer;background:var(--record-action);border-bottom:0!important;border-radius:var(--record-control-radius);padding:10px 12px;transition:background .15s,transform .15s}
 #record :is(#help-slots,#mew-slots) .record-row-content{display:contents}
 #record :is(#help-slots,#mew-slots) .record-row-content>strong{grid-area:name;display:block;min-width:0;font-size:14px;font-weight:650;line-height:22px;white-space:normal;overflow-wrap:anywhere;color:var(--record-text)}

@@ -8,6 +8,7 @@ const WeeklyChart={
  segmentLabel(segment,amount,shards){if(amount){const label=el('span',shards?this.shortAmount(amount):amount.toLocaleString('ja-JP'),'stack-label');segment.append(label);}},
  shortAmount(n){return n>=10000?(n/10000).toFixed(1)+'万':n.toLocaleString('ja-JP');},
  renderShards(root,records,day){
+  CandyGraphs.closePopover();
   const sources=SummaryExtras.shardSources;
   const days=C.weeklyTotals(records,day),max=Math.max(1,...days.map(d=>d.amount));
   const parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>key==='skill'?['skill','lucky'].includes(r.method):r.method===key),day));
@@ -17,13 +18,15 @@ const WeeklyChart={
   const legend=el('div',undefined,'shard-chart-legend');
   for(const [key,name] of sources){const item=el('span'),swatch=el('i',undefined,'shard-source-'+key);swatch.setAttribute('aria-hidden','true');item.append(swatch,el('span',name));legend.append(item);}root.append(legend);
   const chart=el('div',undefined,'weekly-bars shard-stacked-chart');
+  const popup=el('div',undefined,'graph-detail');popup.id='shard-week-detail';popup.hidden=true;
+  const columns=[];
   days.forEach((d,i)=>{
-   const col=el('div',undefined,'weekly-column'),value=el('span',this.shortAmount(d.amount),'weekly-value'),track=el('div',undefined,'weekly-track'),bar=el('div',undefined,'weekly-bar');
+   const col=button('',()=>{this.shardSelection=d.date;columns.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.date===d.date)));CandyGraphs.popover(popup,col,records,d.date,sources,'shard');},'weekly-column'),value=el('span',this.shortAmount(d.amount),'weekly-value'),track=el('div',undefined,'weekly-track'),bar=el('div',undefined,'weekly-bar');
    const detail=C.displayDate(d.date)+'：合計 '+d.amount.toLocaleString('ja-JP')+'個。'+sources.map(([key,name],j)=>name+' '+parts[j][i].amount.toLocaleString('ja-JP')+'個').filter(Boolean).join('、');
-   col.setAttribute('role','img');col.setAttribute('aria-label',detail);col.title=detail;bar.style.height=(d.amount/max*100)+'%';
+   col.dataset.date=d.date;col.setAttribute('aria-controls',popup.id);col.setAttribute('aria-expanded','false');col.setAttribute('aria-pressed',String(this.shardSelection===d.date));columns.push(col);col.setAttribute('aria-label',detail);col.title=detail;bar.style.height=(d.amount/max*100)+'%';
    for(const [j,[key]] of sources.entries()){const segment=el('span',undefined,'shard-source-'+key);segment.style.height=(d.amount?parts[j][i].amount/d.amount*100:0)+'%';this.segmentLabel(segment,parts[j][i].amount,true);bar.append(segment);}
-   track.append(bar);col.append(value,track,el('span',['月','火','水','木','金','土','日'][i],'weekly-weekday'));chart.append(col);
-  });root.append(chart);this.fitLabels(root);
+   track.append(bar);col.append(value,track,el('span',['月','火','水','木','金','土','日'][i],'weekly-weekday'),el('small',Number(d.date.slice(-2)),'weekly-day-number'));chart.append(col);
+  });root.append(chart,popup);this.fitLabels(root);
  },
  renderCandy(root,records,day){
   return CandyGraphs.weekly(root,records,day);

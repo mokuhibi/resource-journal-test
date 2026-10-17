@@ -139,7 +139,6 @@ function renderSlotCounts(records){
  const root=$('slot-counts');root.replaceChildren();
  const source=records.filter(r=>r.method==='help');
  if(!source.length){root.append(el('p','この期間の記録はありません。'));return;}
- root.append(el('p','割合：位置1〜5がわかるアメ拾いの記録回数に対する比率','slot-note'));
  const group=el('div',undefined,'slot-group help');group.append(qel('h4',`アメ拾い · ${source.length}回`));
  const table=el('table',undefined,'slot-table'),head=el('thead'),headRow=el('tr'),body=el('tbody');
  for(const name of ['位置','回数','割合','アメ']){const th=el('th',name);th.scope='col';headRow.append(th);}head.append(headRow);table.append(head,body);
@@ -203,7 +202,7 @@ function historyPlace(slot){return slot===1?'1R':slot>=2&&slot<=5?slot+'番':slo
 function historyCard(card,r,method,primary,target,actions){
  const head=el('div',undefined,'history-head');head.append(el('time',historyTime(r.datetime),'history-time'),el('strong',method,'history-method'));
  const meta=el('div',undefined,'history-meta'),name=el('strong',primary,'history-primary');name.title=primary;
- meta.append(name,qel('strong',r.amount+'個','history-amount'));card.append(meta,head);
+ meta.append(name,qel('strong',r.amount+'個','history-amount'),el('small',card.classList.contains('shards')?'ゆめのかけら':'アメ','history-category'));card.append(meta,head);
  if(target){const line=el('p',target,'history-target');line.title=target;card.append(line);}
  card.historyActions=actions;card.historyInfo={r,method,primary,target,shards:card.classList.contains('shards')};
 }

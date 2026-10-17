@@ -338,3 +338,13 @@ body #image-preview-dialog{width:calc(100% - 24px);max-width:780px;max-height:ca
 #image-preview-dialog .image-preview-hint:empty{display:none}
 #image-preview-dialog .image-preview-actions{display:flex;gap:12px;margin:8px 0}
 #image-preview-dialog .image-preview-actions>*{display:flex;align-items:center;justify-content:center;flex:1;min-height:44px;font-size:14px;font-weight:500;color:var(--editorial-ink);background:var(--editorial-soft);border:0;border-radius:6px;text-decoration:none;padding:0 12px}
+
+/* 日付操作は長いサマリーの外に置き、各タブ内で固定する。 */
+:is(#summary,#shards,#history)>.period-picker{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#fffffff5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 0;margin:0 0 16px;border:0;border-radius:0;box-shadow:none}
+#history .history-meta .history-category{order:-1;display:inline-block;align-self:flex-start;font-size:11px;font-weight:500;line-height:18px;padding:0 6px;border-radius:3px;background:var(--editorial-soft);color:var(--editorial-muted)}
+#history .card:not(.shards) .history-category{color:var(--editorial-candy)}
+#history .card.shards .history-category{color:var(--editorial-shard)}
+#shards #shard-weekly-chart .weekly-column{min-width:0;width:100%;padding:6px 0 10px;border:0;background:transparent;color:var(--editorial-ink);border-radius:8px;font-variant-numeric:tabular-nums}
+#shards #shard-weekly-chart .weekly-column[aria-pressed=true]{background:var(--editorial-soft)}
+#shards #shard-weekly-chart .weekly-column:active{background:#EFF1F1}
+#shards .weekly-day-number{font-size:10px;font-weight:400;color:var(--editorial-muted);line-height:1.5}
