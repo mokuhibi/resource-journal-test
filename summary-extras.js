@@ -71,26 +71,7 @@ const SummaryExtras=(()=>{
    table.append(body);scroll.append(table);root.append(scroll);
   }
  }
- let selectedShardDay=null;
- function monthly(kind,records,day){
-  if(kind==='candy')return CandyGraphs.monthly(records,day);
-  CandyGraphs.closePopover();
-  const candy=false;
-  const month=day.slice(0,7),root=$(kind+'-calendar'),legend=$(kind+'-month-legend');
-  $(kind+'-month').textContent=month.replace('-','年')+'月';root.classList.add('resource-calendar');legend.replaceChildren();
-  const sources=candy?visibleCandySources():shardSources;
-  for(const [key,name] of sources){const item=el('span',name,'month-legend-item');item.dataset.source=kind+'-'+key;legend.append(item);}
-  const grouped=new Map();for(const r of records){const date=C.gameDay(r.datetime);if(!date.startsWith(month))continue;if(!grouped.has(date))grouped.set(date,{});const key=candy?r.method:shardKey(r.method),g=grouped.get(date);g[key]=(g[key]||0)+r.amount;}
-  let popup=$('shard-month-detail');if(!popup){popup=el('div',undefined,'graph-detail');popup.id='shard-month-detail';root.after(popup);}popup.hidden=true;
-  if(!selectedShardDay?.startsWith(month))selectedShardDay=day;
-  const buttons=[];
-  calendar(root,month,date=>{const amounts=grouped.get(date)||{},b=button('',()=>{selectedShardDay=date;buttons.forEach(x=>{x.classList.toggle('selected',x.dataset.date===date);x.setAttribute('aria-pressed',String(x.dataset.date===date));});CandyGraphs.popover(popup,b,records,date,sources,'shard');},'day');b.dataset.date=date;b.setAttribute('aria-controls',popup.id);b.setAttribute('aria-expanded','false');b.setAttribute('aria-pressed',String(date===selectedShardDay));buttons.push(b);b.append(el('strong',Number(date.slice(-2)),'day-number'));const values=el('span',undefined,'candy-values');const description=[];
-   for(const [key,name] of sources){const amount=amounts[key]||0,text=candy?amount.toLocaleString('ja-JP'):WeeklyChart.shortAmount(amount),value=el('span',text,'month-value');value.dataset.source=kind+'-'+key;value.title=name+'：'+amount.toLocaleString('ja-JP')+'個';value.style.fontSize=Math.max(8,Math.min(11,65/text.length))+'px';values.append(value);description.push(value.title);}
-   b.append(values);b.setAttribute('aria-label',C.displayDate(date)+' '+description.join('、'));b.title=C.displayDate(date)+' '+description.join('、');if(date===selectedShardDay)b.classList.add('selected');return b;
-  });
-  const monthlyRecords=records.filter(r=>C.gameDay(r.datetime).startsWith(month));
-  headingTotal(kind+'-calendar',C.sum(monthlyRecords));sourceTotals($(kind+'-month-totals'),kind,monthlyRecords);
- }
+ function monthly(kind,records,day){return CandyGraphs.monthly(records,day,kind);}
  // 画像専用レイアウト。実数・取得元の列は画面と同じ集計結果から描画する。
  function imagePages(groups,period){
   const panels=candyColumns(groups),pages=[],canvas=document.createElement('canvas');canvas.width=1200;

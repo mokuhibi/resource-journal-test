@@ -3,7 +3,7 @@
 const CandyGraphs=(()=>{
  const colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63'},selection={week:null,month:null};
  const fmt=n=>n.toLocaleString('ja-JP');
- function legend(sources,records){const root=el('div',undefined,'candy-chart-legend');for(const [key,name] of sources){const item=el('span'),dot=el('i');dot.style.background=colors[key];dot.setAttribute('aria-hidden','true');item.append(dot,el('span',name));if(records)item.append(qel('strong',fmt(C.sum(records.filter(r=>r.method===key)))+'個'));root.append(item);}return root;}
+ function legend(sources,records,kind='candy'){const root=el('div',undefined,'candy-chart-legend');for(const [key,name] of sources){const item=el('span'),dot=el('i',undefined,kind==='shard'?'shard-source-'+key:undefined);if(kind!=='shard')dot.style.background=colors[key];dot.setAttribute('aria-hidden','true');item.append(dot,el('span',name));if(records)item.append(qel('strong',fmt(C.sum(records.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):r.method)===key)))+'個'));root.append(item);}return root;}
  function details(root,records,date,sources,kind='candy'){
   root.replaceChildren();const rs=records.filter(r=>C.gameDay(r.datetime)===date),head=el('div',undefined,'graph-detail-head');
   const title=el('h4',C.displayDate(date));head.append(title,qel('strong',fmt(C.sum(rs))+'個','detail-total'));root.append(head);
@@ -47,17 +47,20 @@ const CandyGraphs=(()=>{
   visual.append(grid,columns);root.append(visual,detail);if(!C.sum(weekRecords))root.append(el('p',sources.length?'この週の記録はありません。':'表示する獲得方法がすべてOFFです。','graph-empty-note'));update();
  }
  function heatLevel(value,min,max){return !value?0:min===max?4:Math.min(4,1+Math.floor((value-min)/(max-min)*4));}
- function monthly(records,day){
-  closePopover();records=SummaryExtras.candyRecords(records);const month=day.slice(0,7),root=$('candy-calendar'),sources=SummaryExtras.visibleCandySources(),rs=records.filter(r=>C.gameDay(r.datetime).startsWith(month)),totals=new Map();
+ // Both resources share the day-total calendar; each retains its own records and selection.
+ function monthly(records,day,kind='candy'){
+  closePopover();const shard=kind==='shard',prefix=shard?'shard':'candy',selectionKey=shard?'shardMonth':'month';
+  if(!shard)records=SummaryExtras.candyRecords(records);
+  const month=day.slice(0,7),root=$(prefix+'-calendar'),sources=shard?SummaryExtras.shardSources:SummaryExtras.visibleCandySources(),rs=records.filter(r=>C.gameDay(r.datetime).startsWith(month)),totals=new Map();
   for(const r of rs){const date=C.gameDay(r.datetime);totals.set(date,(totals.get(date)||0)+r.amount);}
   const positives=[...totals.values()].filter(n=>n>0),min=Math.min(...positives),max=Math.max(0,...positives);
-  $('candy-month').textContent=month.replace('-','年')+'月';$('candy-month-legend').replaceChildren(...legend(sources,rs).children);headingTotal(root.id,C.sum(rs));$('candy-month-totals').replaceChildren();$('candy-month-totals').hidden=true;
-  if(!selection.month?.startsWith(month))selection.month=day;
-  let detail=$('candy-month-detail');if(!detail){detail=el('div',undefined,'graph-detail');detail.id='candy-month-detail';root.after(detail);}
-  detail.hidden=true;
-  let key=$('candy-heat-key');if(!key){key=el('div',undefined,'heat-key');key.id='candy-heat-key';root.after(key);}key.replaceChildren(el('span','少ない'));for(let level=0;level<5;level++){const swatch=el('i');swatch.dataset.level=level;swatch.setAttribute('aria-hidden','true');key.append(swatch);}key.append(el('span','多い'));
-  const buttons=[];calendar(root,month,date=>{const amount=totals.get(date)||0,b=button('',()=>{selection.month=date;update();popover(detail,b,records,date,sources);},'day');b.dataset.level=heatLevel(amount,min,max);b.dataset.date=date;b.setAttribute('aria-controls',detail.id);b.setAttribute('aria-expanded','false');b.setAttribute('aria-label',C.displayDate(date)+' 合計'+fmt(amount)+'個');b.append(el('span',Number(date.slice(-2)),'day-number'),el('strong',fmt(amount),'day-total'));buttons.push(b);return b;});
-  function update(){buttons.forEach(b=>b.setAttribute('aria-pressed',b.dataset.date===selection.month?'true':'false'));}update();
+  $(prefix+'-month').textContent=month.replace('-','年')+'月';$(prefix+'-month-legend').replaceChildren(...legend(sources,rs,kind).children);headingTotal(root.id,C.sum(rs));$(prefix+'-month-totals').replaceChildren();$(prefix+'-month-totals').hidden=true;
+  if(!selection[selectionKey]?.startsWith(month))selection[selectionKey]=day;
+  let detail=$(prefix+'-month-detail');if(!detail){detail=el('div',undefined,'graph-detail');detail.id=prefix+'-month-detail';root.after(detail);}detail.hidden=true;
+  let key=$(prefix+'-heat-key');if(!key){key=el('div',undefined,'heat-key');key.id=prefix+'-heat-key';root.after(key);}key.replaceChildren(el('span','少ない'));for(let level=0;level<5;level++){const swatch=el('i');swatch.dataset.level=level;swatch.setAttribute('aria-hidden','true');key.append(swatch);}key.append(el('span','多い'));
+  const buttons=[];calendar(root,month,date=>{const amount=totals.get(date)||0,b=button('',()=>{selection[selectionKey]=date;update();popover(detail,b,records,date,sources,kind);},'day');b.dataset.level=heatLevel(amount,min,max);b.dataset.date=date;b.setAttribute('aria-controls',detail.id);b.setAttribute('aria-expanded','false');b.setAttribute('aria-label',C.displayDate(date)+' 合計'+fmt(amount)+'個');b.title=C.displayDate(date)+' 合計'+fmt(amount)+'個';b.append(el('span',Number(date.slice(-2)),'day-number'),el('strong',shard&&amount>=100000?new Intl.NumberFormat('ja-JP',{notation:'compact',maximumFractionDigits:1}).format(amount):fmt(amount),'day-total'));buttons.push(b);return b;});
+  function update(){buttons.forEach(b=>b.setAttribute('aria-pressed',b.dataset.date===selection[selectionKey]?'true':'false'));}update();
  }
+
  return {weekly,monthly,heatLevel,popover,closePopover};
 })();
