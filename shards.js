@@ -54,6 +54,10 @@ const ShardUI=(()=>{
     const form=el('form',undefined,'shard-skill-form'),l=el('label'),input=amountInput('shard-amount-'+slot,1);input.setAttribute('aria-label',individual(p)+'のゆめのかけら');input.dataset.pokemon=p.id;input.value=drafts.get(p.id)||'';l.append(input);const b=el('button','記録');b.type='submit';form.append(l,b);
     form.onsubmit=e=>{e.preventDefault();try{if(saveSkill(number(input.id,1))){drafts.delete(p.id);const fresh=$('shard-amount-'+slot);if(fresh)fresh.value='';}}catch(err){notice(err.message);}};card.append(form);
    }else if(!level){card.append(button('スキルレベルを設定',()=>{openIndividualEditor(p);}));}
+   else if(type==='lucky'){
+    card.classList.add('shard-lucky-row');const actions=el('div',undefined,'shard-lucky-actions');
+    for(const amount of C.shardAmounts(type,level)){const b=button(amount===0?'スキルのみ':amount.toLocaleString('ja-JP'),()=>saveSkill(amount));b.setAttribute('aria-label',individual(p)+'・'+(amount===0?'スキルのみ':amount.toLocaleString('ja-JP')+'個')+'を記録');actions.append(b);}card.append(actions);
+   }
    else{const actions=el('div',undefined,'shard-amount-buttons');for(const amount of C.shardAmounts(type,level)){const option=el('div',undefined,'shard-amount-option'),b=button('記録',()=>saveSkill(amount));b.setAttribute('aria-label',individual(p)+'・'+(amount===0?'スキルのみ':amount.toLocaleString('ja-JP')+'個')+'を記録');option.append(amount===0?el('span','スキルのみ'):qel('span',amount+'個'),b);actions.append(option);}card.append(actions);}
    root.append(card);
   }
