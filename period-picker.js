@@ -9,14 +9,13 @@ const PeriodPicker=(()=>{
   const last=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate();
   d.setUTCDate(Math.min(Number(day.slice(8)),last));return d.toISOString().slice(0,10);
  }
- function rangeText(kind,day){
-  const range=C.range(kind,day);if(!range)return '全期間';
-  const [start,exclusive]=range,end=C.addDays(exclusive,-1);
-  const short=s=>Number(s.slice(5,7))+'/'+Number(s.slice(8))+C.displayDate(s).slice(10);
-  if(kind==='day')return short(start);
-  if(kind==='month')return C.displayDate(start)+'〜'+C.displayDate(end).slice(5);
-  return start.slice(0,4)===end.slice(0,4)?short(start)+'〜'+short(end):C.displayDate(start)+'〜'+C.displayDate(end);
+ // 同一年の今年はMM/DD、別年・年またぎは年も表示する。集計用の日付は変更しない。
+ function datesText(start,end=start){
+  const year=C.gameDay(new Date()).slice(0,4),showYear=start.slice(0,4)!==year||end.slice(0,4)!==year;
+  const format=d=>showYear?C.displayDate(d):d.slice(5).replace('-','/')+C.displayDate(d).slice(10);
+  return format(start)+(start===end?'':'〜'+format(end));
  }
+ function rangeText(kind,day){const range=C.range(kind,day);return range?datesText(range[0],C.addDays(range[1],-1)):'全期間';}
  function sync(){RangePicker.sync();for(const item of instances)item.sync();}
  function mount(config){
   const period=document.getElementById(config.period),date=document.getElementById(config.date),old=period.closest('.card');
@@ -32,14 +31,14 @@ const PeriodPicker=(()=>{
   period.hidden=true;dialog.append(title,choices,label,close);root.append(period,dialog);old.remove();
   const compact=config.period!=='history-period';if(compact){root.classList.add('period-picker-compact');range.hidden=true;}
   let validDay=date.value||C.gameDay(new Date());date.value=validDay;
-  const item={sync(){if(C.dateOnly(date.value))validDay=date.value;center.textContent=period.value!=='day'?rangeText(period.value,validDay):C.displayDate(validDay);range.textContent=rangeText(period.value,validDay);prev.hidden=next.hidden=period.value==='all';const unit={day:'日',week:'週',month:'月'}[period.value]||'';prev.setAttribute('aria-label','前の'+unit);next.setAttribute('aria-label','次の'+unit);for(const b of choices.children)b.setAttribute('aria-pressed',String(b.dataset.period===period.value));}};
+  const item={sync(){if(C.dateOnly(date.value))validDay=date.value;center.textContent=rangeText(period.value,validDay);range.textContent=rangeText(period.value,validDay);prev.hidden=next.hidden=period.value==='all';const unit={day:'日',week:'週',month:'月'}[period.value]||'';prev.setAttribute('aria-label','前の'+unit);next.setAttribute('aria-label','次の'+unit);for(const b of bottom.querySelectorAll('[data-period]'))b.setAttribute('aria-pressed',String(b.dataset.period===period.value));}};
   const refresh=()=>{if(!C.dateOnly(date.value))date.value=validDay;validDay=date.value;item.sync();config.render();item.sync();DateUI.update();};
   for(const [key,text] of [['day','日'],['week','週'],['month','月'],['all','全期間']]){const b=make('button',text);b.type='button';b.dataset.period=key;b.onclick=()=>{period.value=key;refresh();};choices.append(b);}
   period.onchange=refresh;date.onchange=refresh;
   prev.onclick=()=>{date.value=shift(validDay,period.value,-1);refresh();};next.onclick=()=>{date.value=shift(validDay,period.value,1);refresh();};
   today.onclick=()=>{const kind=period.value;date.value=C.gameDay(new Date());period.value=kind;refresh();};center.onclick=()=>{date.value=validDay;DateUI.update();dialog.showModal();};close.onclick=()=>dialog.close();
   if(compact){label.hidden=true;dialog.hidden=true;const draftChoices=choices.cloneNode(true);let draftKind=period.value;const open=RecordPicker.init({input:date,dateOnly:true,choices:draftChoices,commit:()=>{period.value=draftKind;refresh();}});for(const b of draftChoices.children)b.onclick=()=>{draftKind=b.dataset.period;for(const c of draftChoices.children)c.setAttribute('aria-pressed',String(c===b));};center.onclick=()=>{draftKind=period.value;for(const b of draftChoices.children)b.setAttribute('aria-pressed',String(b.dataset.period===draftKind));open();};}
-  bottom.replaceChildren(choices,today);bottom.classList.add('period-quick-buttons');
+  bottom.replaceChildren(...choices.children,today);bottom.classList.add('period-quick-buttons');
   instances.push(item);item.sync();
  }
  function init(){
@@ -48,5 +47,5 @@ const PeriodPicker=(()=>{
   mount({period:'history-period',date:'history-date',render:renderHistory});
   DateUI.update();
  }
- return {init,sync,shift,rangeText};
+ return {init,sync,shift,rangeText,datesText};
 })();

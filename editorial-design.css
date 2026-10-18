@@ -14,14 +14,6 @@ body .app>:is(#record,#summary,#shards,#team,#history,#settings)>.editorial-page
 :is(#summary,#shards) .overview-header{display:flex;flex-direction:column;padding:0 0 28px}
 :is(#summary,#shards) .overview-header>.hero{order:2;display:block;width:100%;padding:0}
 :is(#summary,#shards) .overview-header>.period-picker{order:1;width:100%;padding:0;margin:0 0 16px}
-:is(#summary,#shards) .period-picker-top{grid-template-columns:44px minmax(0,1fr) 44px;gap:0;max-width:420px}
-:is(#summary,#shards) .period-picker-top>button{min-height:44px;background:none;border:0;border-radius:6px;color:var(--editorial-ink);font-size:20px}
-:is(#summary,#shards) .period-picker-top>.period-picker-date{font-size:16px;font-weight:600;white-space:normal;line-height:1.5;letter-spacing:0}
-:is(#summary,#shards) .period-picker .period-quick-buttons{display:flex;gap:4px;margin:12px 0 0;border-bottom:1px solid var(--editorial-line)}
-:is(#summary,#shards) .period-quick-buttons>button{background:none;border:0;border-radius:0;min-width:44px;padding:10px 12px;position:relative;font-size:13px;font-weight:400;color:var(--editorial-muted)}
-:is(#summary,#shards) .period-quick-buttons>button:last-child{margin-left:auto}
-:is(#summary,#shards) .period-quick-buttons>button[aria-pressed=true]{color:var(--editorial-ink);font-weight:600}
-:is(#summary,#shards) .period-quick-buttons>button[aria-pressed=true]:after{content:'';position:absolute;bottom:-1px;height:2px;background:#222;left:12px;right:12px}
 :is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>small{font-size:12px;color:var(--editorial-muted);font-weight:400;display:block;margin-bottom:12px}
 :is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>.total{font-size:54px;line-height:1.15;letter-spacing:-2px;font-weight:650;color:var(--editorial-ink);margin:0 0 24px;text-align:left;background:none}
 :is(#summary,#shards) .overview-header :is(#summary-total,#shard-total) .total .quantity-number{font-size:inherit;font-weight:inherit;color:inherit}
@@ -94,7 +86,6 @@ body .tabs [aria-current=page]:before{content:'';position:absolute;top:0;left:ca
 :is(#summary,#shards) .overview-header>.custom-range.period-picker{display:block}
 :is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>.total{width:100%;align-self:stretch;justify-self:start}
 :is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>.total:before{content:none}
-:is(#summary,#shards) .period-quick-buttons>button[aria-pressed=true]{background:none;border-color:transparent}
 :is(#summary,#shards) .day-summary-link:not(:disabled){background:none;color:var(--editorial-muted);border:0}
 :is(#summary,#shards) :is(.candy-chart-legend,#candy-month-legend,#shard-month-legend) strong{font-size:12px;font-weight:500;color:var(--editorial-ink);font-variant-numeric:tabular-nums}
 :is(#summary,#shards) :is(.candy-chart-legend,#candy-month-legend,#shard-month-legend) strong .quantity-number{font-size:inherit;font-weight:inherit}
@@ -169,15 +160,6 @@ body .tabs [aria-current=page]:before{content:'';position:absolute;top:0;left:ca
 :is(#team,#history,#settings) .quantity-number{color:var(--editorial-ink);font-variant-numeric:tabular-nums}
 :is(#team,#history,#settings) .quantity-unit{color:var(--editorial-muted);font-weight:400}
 /* 同じ期間操作を集計と履歴で共用。 */
-#history .period-picker{background:none;padding:0;margin:0 0 24px;box-shadow:none;border:0}
-#history .period-picker-top{grid-template-columns:44px minmax(0,1fr) 44px;gap:0}
-#history .period-picker-top>button{background:none;border:0;color:var(--editorial-ink);font-size:20px}
-#history .period-picker-top>.period-picker-date{font-size:16px;font-weight:600}
-#history .period-quick-buttons{gap:4px;border-bottom:1px solid var(--editorial-line)}
-#history .period-quick-buttons button{position:relative;background:none;border:0;border-radius:0;color:var(--editorial-muted);font-weight:400;padding:10px 12px;font-size:13px}
-#history .period-quick-buttons>button:last-child{margin-left:auto}
-#history .period-quick-buttons [aria-pressed=true]{color:var(--editorial-ink);background:none;font-weight:600}
-#history .period-quick-buttons [aria-pressed=true]:after{content:'';position:absolute;bottom:-1px;height:2px;background:#222;left:12px;right:12px}
 /* かけら：大きな合計・同じ3列・区分色は保持。 */
 #shards .overview-header #shard-total>.total{font-size:clamp(36px,12vw,54px);white-space:normal;overflow-wrap:anywhere}
 #shards .overview-header #shard-total>small{color:var(--editorial-muted)}
@@ -316,12 +298,6 @@ body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-pane
 #team #registered-pokemon-list>p{grid-column:1/-1}
 
 /* 全タブの見出しは上の単一ルール。期間操作は3画面共通。 */
-:is(#summary,#shards,#history) .period-picker-top{grid-template-columns:44px minmax(0,1fr) 44px;gap:0;max-width:420px;margin:0}
-:is(#summary,#shards,#history) .period-picker-top>.period-picker-date{font-size:16px;font-weight:600;line-height:1.5;white-space:normal;padding:8px 4px;letter-spacing:0}
-:is(#summary,#shards,#history) .period-picker-top>button{min-height:44px}
-:is(#summary,#shards,#history) .period-quick-buttons{display:flex;align-items:center;gap:4px;margin:8px 0 0;border-bottom:1px solid var(--editorial-line)}
-#history .period-quick-buttons .period-picker-choices{display:flex;gap:4px}
-#history .period-picker{margin-bottom:16px}
 #record #today-total{padding-top:16px}
 #record #today-total .record-day-note{display:block;font-size:12px;font-weight:400;line-height:1.5;color:var(--editorial-muted);margin-top:4px}
 
@@ -340,7 +316,6 @@ body #image-preview-dialog{width:calc(100% - 24px);max-width:780px;max-height:ca
 #image-preview-dialog .image-preview-actions>*{display:flex;align-items:center;justify-content:center;flex:1;min-height:44px;font-size:14px;font-weight:500;color:var(--editorial-ink);background:var(--editorial-soft);border:0;border-radius:6px;text-decoration:none;padding:0 12px}
 
 /* 日付操作は長いサマリーの外に置き、各タブ内で固定する。 */
-:is(#summary,#shards,#history)>.period-picker{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#fffffff5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 0;margin:0 0 16px;border:0;border-radius:0;box-shadow:none}
 #history .history-meta .history-category{order:-1;display:inline-block;align-self:flex-start;font-size:11px;font-weight:500;line-height:18px;padding:0 6px;border-radius:3px;background:var(--editorial-soft);color:var(--editorial-muted)}
 #history .card:not(.shards) .history-category{color:var(--editorial-candy)}
 #history .card.shards .history-category{color:var(--editorial-shard)}
@@ -351,3 +326,17 @@ body #image-preview-dialog{width:calc(100% - 24px);max-width:780px;max-height:ca
 
 /* Compact shard totals fit seven columns; day details retain exact values. */
 #shards #shard-calendar .day-total{font-size:12px;letter-spacing:-.4px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+
+/* 3タブの期間操作を同じDOM・同じ寸法で管理する。 */
+html{scrollbar-gutter:stable}
+:root{--page-title-gap:16px;--period-row-gap:8px;--period-control-height:44px;--period-content-gap:16px}
+body .app>:is(#record,#summary,#shards,#team,#history,#settings)>.editorial-page-title{margin-bottom:var(--page-title-gap)}
+:is(#summary,#shards,#history)>.period-picker{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#fffffff5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 0;margin:0 0 var(--period-content-gap);border:0;border-radius:0;box-shadow:none;width:100%;min-width:0}
+:is(#summary,#shards,#history) .period-picker .period-picker-top{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:0;width:100%;max-width:none;margin:0}
+:is(#summary,#shards,#history) .period-picker .period-picker-top>button{min-height:var(--period-control-height);height:auto;margin:0;padding:8px 4px;border:0;border-radius:6px;background:none;color:var(--editorial-ink);font-size:20px;font-weight:400;line-height:1.5}
+:is(#summary,#shards,#history) .period-picker .period-picker-top>.period-picker-date{font-size:16px;font-weight:600;white-space:normal;overflow-wrap:anywhere;line-height:1.5;letter-spacing:0;font-variant-numeric:tabular-nums}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons{display:flex;align-items:center;gap:4px;margin:var(--period-row-gap) 0 0;padding:0;border-bottom:1px solid var(--editorial-line);justify-content:flex-start}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button{position:relative;min-width:44px;min-height:var(--period-control-height);margin:0;padding:10px 12px;border:0;border-radius:0;background:none;color:var(--editorial-muted);font-size:13px;font-weight:400;line-height:1.5;white-space:nowrap}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button:last-child{margin-left:auto}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]{color:var(--editorial-ink);font-weight:600}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]::after{content:'';position:absolute;bottom:-1px;left:12px;right:12px;height:2px;background:var(--editorial-ink)}

@@ -2,7 +2,7 @@
 const RangePicker=(()=>{
  const items=new Map(),dateId=id=>id==='period'?'summary-date':'shard-date';
  function bounds(start,end){if(!C.dateOnly(start)||!C.dateOnly(end)||end<start)throw Error('終了日は開始日以降の日付を選んでください。');return [start,C.addDays(end,1)];}
- function text(start,end){const year=C.gameDay(new Date()).slice(0,4),cross=start.slice(0,4)!==end.slice(0,4);const format=d=>!cross&&d.slice(0,4)===year?Number(d.slice(5,7))+'/'+Number(d.slice(8))+C.displayDate(d).slice(10):C.displayDate(d);return format(start)+(start===end?'':'〜'+format(end));}
+ function text(start,end){return PeriodPicker.datesText(start,end);}
  function get(id){const item=items.get(id),day=$(dateId(id)).value||C.gameDay(new Date());return item?(item.kind==='all'?null:bounds(item.start,item.end)):bounds(day,day);}
  function refresh(id){const item=items.get(id);$(dateId(id)).value=item.anchor;item.sync();item.render();DateUI.update();}
  function select(id,kind,anchor){const item=items.get(id);if(!item)return;item.kind=kind;item.anchor=anchor||item.anchor;const range=C.range(kind,item.anchor);item.start=range?range[0]:item.anchor;item.end=range?C.addDays(range[1],-1):item.anchor;refresh(id);}
