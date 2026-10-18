@@ -225,9 +225,6 @@ body .tabs [aria-current=page]:before{content:'';position:absolute;top:0;left:ca
 #settings .setting-state,#settings input:checked+.setting-state::after{color:var(--editorial-muted)}
 #settings #restore-backup{background:var(--editorial-soft);color:var(--editorial-ink);border-color:transparent}
 #settings .backup-actions button{font-size:15px;min-height:48px;border-radius:6px}
-#settings #event-calendar .day{background:#F7F8F8;color:var(--editorial-muted);border-radius:4px;min-height:44px}
-#settings #event-calendar .event-day{background:#F8EDF1;color:#40333A}
-#settings #event-list .row{border-color:var(--editorial-line)}
 /* すべてのネイティブダイアログ：寸法・スクロール・保存動作は維持。 */
 body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-panel){--accent:#555;--edge:var(--editorial-input-line);--tint:var(--editorial-soft);background:#fff;color:var(--editorial-ink);border:1px solid var(--editorial-line);border-radius:12px;padding:20px;box-shadow:0 8px 32px #20212414}
 body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-panel)::backdrop{background:#20212455}
@@ -340,3 +337,16 @@ body .app>:is(#record,#summary,#shards,#team,#history,#settings)>.editorial-page
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button:last-child{margin-left:auto}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]{color:var(--editorial-ink);font-weight:600}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]::after{content:'';position:absolute;bottom:-1px;left:12px;right:12px;height:2px;background:var(--editorial-ink)}
+
+#settings #research-rank-form{grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
+#settings #research-rank-form label{display:flex;flex-direction:column;gap:6px;margin:0;min-width:0}
+#settings #research-rank-form :is(input,button){box-sizing:border-box;height:48px;min-height:48px;margin:0}
+#settings #research-rank-setting{font-size:16px;font-weight:650;text-align:center;font-variant-numeric:tabular-nums}
+#settings #data-sources .source-entry{padding:14px 0;border-bottom:1px solid var(--editorial-line)}
+#settings #data-sources h4{margin:0 0 6px;font-size:14px;line-height:1.6;font-weight:600}
+#settings #data-sources a{color:var(--editorial-ink);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+#settings #data-sources p{margin:6px 0 0;font-size:13px;line-height:1.7;color:var(--editorial-muted);overflow-wrap:anywhere}
+#settings #data-sources .source-url{font-size:12px}
+#settings #mit-license{margin-top:16px;border:0;border-radius:0;background:none;padding:0}
+#settings #mit-license summary{min-height:44px;padding:10px 0;font-size:14px;font-weight:500}
+#settings #mit-license pre{font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--editorial-ink);margin:12px 0}
