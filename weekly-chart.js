@@ -5,8 +5,9 @@ const WeeklyChart={
   const fit=()=>{for(const label of root.querySelectorAll('.stack-label')){const segment=label.parentElement;label.style.visibility=segment.clientHeight>=16&&segment.clientWidth>=label.scrollWidth+2?'visible':'hidden';}};
   if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(fit);observer.observe(root);this.observers.set(root,observer);}fit();
  },
- segmentLabel(segment,amount,shards){if(amount){const label=el('span',shards?this.shortAmount(amount):amount.toLocaleString('ja-JP'),'stack-label');segment.append(label);}},
- shortAmount(n){return n>=10000?(n/10000).toFixed(1)+'万':n.toLocaleString('ja-JP');},
+ segmentLabel(segment,amount,shards){if(amount&&(!shards||amount>=10000)){const label=el('span',shards?this.manAmount(amount):amount.toLocaleString('ja-JP'),'stack-label');segment.append(label);}},
+ // Display only: discard whole-item remainders before formatting the decimal.
+ manAmount(n,suffix=''){return n===0?'0':(Math.floor(n/1000)/10).toFixed(1)+suffix;},
  renderShards(root,records,day){
   CandyGraphs.closePopover();
   const sources=SummaryExtras.shardSources;
@@ -16,12 +17,12 @@ const WeeklyChart={
   SummaryExtras.sourceTotals($('shard-week-totals'),'shard',records.filter(r=>C.inRange(r,C.range('week',day))));
   root.append(el('p',`${C.displayDate(days[0].date)} 〜 ${C.displayDate(days[6].date)}`,'weekly-range'));
   const legend=el('div',undefined,'shard-chart-legend');
-  for(const [key,name] of sources){const item=el('span'),swatch=el('i',undefined,'shard-source-'+key);swatch.setAttribute('aria-hidden','true');item.append(swatch,el('span',name));legend.append(item);}root.append(legend);
+  for(const [key,name] of sources){const item=el('span'),swatch=el('i',undefined,'shard-source-'+key);swatch.setAttribute('aria-hidden','true');item.append(swatch,el('span',name));legend.append(item);}root.append(legend,el('small','万個','shard-chart-unit'));
   const chart=el('div',undefined,'weekly-bars shard-stacked-chart');
   const popup=el('div',undefined,'graph-detail');popup.id='shard-week-detail';popup.hidden=true;
   const columns=[];
   days.forEach((d,i)=>{
-   const col=button('',()=>{this.shardSelection=d.date;columns.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.date===d.date)));CandyGraphs.popover(popup,col,records,d.date,sources,'shard');},'weekly-column'),value=el('span',this.shortAmount(d.amount),'weekly-value'),track=el('div',undefined,'weekly-track'),bar=el('div',undefined,'weekly-bar');
+   const col=button('',()=>{this.shardSelection=d.date;columns.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.date===d.date)));CandyGraphs.popover(popup,col,records,d.date,sources,'shard');},'weekly-column'),value=el('span',this.manAmount(d.amount),'weekly-value'),track=el('div',undefined,'weekly-track'),bar=el('div',undefined,'weekly-bar');
    const detail=C.displayDate(d.date)+'：合計 '+d.amount.toLocaleString('ja-JP')+'個。'+sources.map(([key,name],j)=>name+' '+parts[j][i].amount.toLocaleString('ja-JP')+'個').filter(Boolean).join('、');
    col.dataset.date=d.date;col.setAttribute('aria-controls',popup.id);col.setAttribute('aria-expanded','false');col.setAttribute('aria-pressed',String(this.shardSelection===d.date));columns.push(col);col.setAttribute('aria-label',detail);col.title=detail;bar.style.height=(d.amount/max*100)+'%';
    for(const [j,[key]] of sources.entries()){const segment=el('span',undefined,'shard-source-'+key);segment.style.height=(d.amount?parts[j][i].amount/d.amount*100:0)+'%';this.segmentLabel(segment,parts[j][i].amount,true);bar.append(segment);}

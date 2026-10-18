@@ -349,5 +349,7 @@ body #image-preview-dialog{width:calc(100% - 24px);max-width:780px;max-height:ca
 #shards #shard-weekly-chart .weekly-column:active{background:#EFF1F1}
 #shards .weekly-day-number{font-size:10px;font-weight:400;color:var(--editorial-muted);line-height:1.5}
 
-/* Full shard totals stay legible in seven columns; exact values remain in day details. */
-#shards #shard-calendar .day-total{font-size:12px;letter-spacing:-.4px}
+/* Compact shard totals fit seven columns; day details retain exact values. */
+#shards #shard-calendar .day-total{font-size:12px;letter-spacing:-.4px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+
+#shards .shard-chart-unit{display:block;font-size:12px;font-weight:400;line-height:1.5;color:var(--editorial-muted);margin:0 0 -12px;font-variant-numeric:tabular-nums}
