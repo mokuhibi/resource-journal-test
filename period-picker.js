@@ -15,6 +15,15 @@ const PeriodPicker=(()=>{
   const format=d=>showYear?C.displayDate(d):d.slice(5).replace('-','/')+C.displayDate(d).slice(10);
   return format(start)+(start===end?'':'〜'+format(end));
  }
+ // 日単位の入力にも同じ配置・日付表記を使う。元のdate入力とchange処理は維持する。
+ function dayHeader(input){
+  const root=el('div',undefined,'period-picker single-day'),top=el('div',undefined,'period-picker-top'),center=el('label',undefined,'period-picker-date period-picker-day'),text=el('span',datesText(input.value));
+  input.dataset.nativeRange='true';
+  input.addEventListener('change',()=>{if(C.dateOnly(input.value))text.textContent=datesText(input.value);});
+  const move=amount=>{input.value=shift(input.value,'day',amount);input.dispatchEvent(new Event('change',{bubbles:true}));};
+  const prev=button('＜',()=>move(-1)),next=button('＞',()=>move(1));prev.setAttribute('aria-label','前の日');next.setAttribute('aria-label','次の日');
+  center.append(text,input);top.append(prev,center,next);root.append(top);return root;
+ }
  function rangeText(kind,day){const range=C.range(kind,day);return range?datesText(range[0],C.addDays(range[1],-1)):'全期間';}
  function sync(){RangePicker.sync();for(const item of instances)item.sync();}
  function mount(config){
@@ -47,5 +56,5 @@ const PeriodPicker=(()=>{
   mount({period:'history-period',date:'history-date',render:renderHistory});
   DateUI.update();
  }
- return {init,sync,shift,rangeText,datesText};
+ return {init,sync,shift,rangeText,datesText,dayHeader};
 })();
