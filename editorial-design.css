@@ -350,3 +350,8 @@ body .app>:is(#record,#summary,#shards,#team,#history,#settings)>.editorial-page
 #settings #mit-license{margin-top:16px;border:0;border-radius:0;background:none;padding:0}
 #settings #mit-license summary{min-height:44px;padding:10px 0;font-size:14px;font-weight:500}
 #settings #mit-license pre{font:12px/1.7 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--editorial-ink);margin:12px 0}
+
+:is(#summary,#shards) .summary-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+:is(#summary,#shards) .summary-section-head>h3{min-width:0;margin:0;flex:1;flex-wrap:wrap}
+:is(#summary,#shards) .section-image-button{flex:none;background:#fff;color:var(--editorial-ink);border:1px solid #E3E4E5;border-radius:6px;min-width:44px;min-height:44px;font-size:12px;font-weight:500;padding:6px 10px;margin:0}
+:is(#summary,#shards) .export-overview-heading{order:1;margin:0 0 12px}
