@@ -355,3 +355,23 @@ body .app>:is(#record,#summary,#shards,#team,#history,#settings)>.editorial-page
 :is(#summary,#shards) .summary-section-head>h3{min-width:0;margin:0;flex:1;flex-wrap:wrap}
 :is(#summary,#shards) .section-image-button{flex:none;background:#fff;color:var(--editorial-ink);border:1px solid #E3E4E5;border-radius:6px;min-width:44px;min-height:44px;font-size:12px;font-weight:500;padding:6px 10px;margin:0}
 :is(#summary,#shards) .export-overview-heading{order:1;margin:0 0 12px}
+
+/* 画像範囲・更新履歴は同じ閲覧パネルを共用する。 */
+.app>header{position:relative}
+#app-version{position:absolute;right:0;top:0;min-height:44px;min-width:56px;padding:8px 0;background:none;border:0;color:var(--editorial-muted);font-size:12px;font-weight:400}
+.app>header h1{max-width:calc(100% - 64px)}
+#app-panel{width:min(540px,calc(100% - 32px));max-height:calc(100dvh - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:0;border:1px solid var(--editorial-line);border-radius:10px;color:var(--editorial-ink);background:white;overflow:hidden}
+#app-panel::backdrop{background:rgba(0,0,0,.35)}
+.app-panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--editorial-line)}
+.app-panel-head h2{margin:0;font-size:18px;font-weight:600}
+.app-panel-head button{min-height:44px}
+.app-panel-body{padding:16px;overflow-y:auto;max-height:calc(100dvh - 160px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overscroll-behavior:contain}
+.panel-muted{font-size:14px;color:var(--editorial-muted);margin:0 0 12px}
+.export-scope-option{display:block;width:100%;min-height:48px;text-align:left;margin:8px 0;padding:12px;background:var(--editorial-soft);border:0;border-radius:6px;font-size:15px;white-space:normal}
+.release-entry h3{font-size:20px;margin:0 0 6px}.release-entry time{font-size:13px;color:var(--editorial-muted)}
+.release-entry ul{padding-left:20px;font-size:15px;line-height:1.7}.release-entry+.release-entry{border-top:1px solid var(--editorial-line);padding-top:20px;margin-top:20px}
+#team #registered-pokemon-list>.roster-purpose-heading{grid-column:1/-1;margin:24px 0 0;font-size:15px;line-height:1.5;font-weight:600}
+#team .registration-method-heading{font-size:15px;font-weight:600;margin:20px 0 12px}
+#team .individual-import-entry{margin-top:24px;border-top:1px solid var(--editorial-line);padding-top:16px}
+#record #shard-skill-inputs .shard-fixed-option{display:flex;justify-content:flex-end}
+#record #shard-skill-inputs .shard-fixed-option button{min-width:80px;font-size:16px;font-weight:600;padding:8px 12px}

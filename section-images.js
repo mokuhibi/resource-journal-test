@@ -20,7 +20,7 @@ const SectionImages=(()=>{
   const cols=[...e.querySelectorAll(shard?'.weekly-column':'.capsule-day')];
   return {type:'week',topAtBar:!shard,days:cols.map(d=>{
    const bar=d.querySelector(shard?'.weekly-bar':'.capsule-stack'),h=shard?parseFloat(bar.style.height)/100:parseFloat(d.querySelector('.capsule-stack-group').style.height)/164;
-   return {total:text(d.querySelector(shard?'.weekly-value':'.capsule-total')),weekday:text(d.querySelector(shard?'.weekly-weekday':'.capsule-weekday')),date:text(d.querySelector(shard?'.weekly-day-number':'.capsule-date')),height:h,selected:d.getAttribute('aria-pressed')==='true',segments:[...(bar?.children||[])].map(s=>({ratio:parseFloat(s.style.height)/100,color:getComputedStyle(s).backgroundColor,label:[...s.children].filter(x=>getComputedStyle(x).visibility!=='hidden').map(text).join(' ')}))};
+   return {total:text(d.querySelector(shard?'.weekly-value':'.capsule-total')),weekday:text(d.querySelector(shard?'.weekly-weekday':'.capsule-weekday')),date:text(d.querySelector(shard?'.weekly-day-number':'.capsule-date')),height:h,selected:d.getAttribute('aria-pressed')==='true',segments:[...(bar?.children||[])].map(s=>({ratio:parseFloat(s.style.height)/100,color:getComputedStyle(s).backgroundColor,label:[...s.children].filter(x=>s.clientHeight>=16&&s.clientWidth>=x.scrollWidth+2).map(text).join(' ')}))};
   })};
  }
  function month(e){const children=[...e.children],first=children.findIndex(x=>x.matches('button.day'));return {type:'month',offset:Math.max(0,first-7),days:children.filter(x=>x.matches('button.day')).map(d=>({day:text(d.querySelector('.day-number')),total:text(d.querySelector('.day-total')),color:getComputedStyle(d).backgroundColor,selected:d.getAttribute('aria-pressed')==='true'})),key:[...e.parentElement.querySelectorAll('.heat-key i')].map(x=>getComputedStyle(x).backgroundColor)};}
@@ -42,9 +42,9 @@ const SectionImages=(()=>{
    for(const child of e.children)visit(child);
   }visit(root);return out;
  }
- function capture(key){
+ function captureVisible(key){
   const d=definitions.find(d=>d[0]===key);if(!d)throw Error('画像の項目が見つかりません。');
-  const [id,title,selector,kind]=d,root=document.querySelector(selector);if(!root||root.closest('section').hidden)throw Error('対象のタブを表示してください。');
+  const [id,title,selector,kind]=d,root=document.querySelector(selector);if(!root)throw Error('対象のタブを表示してください。');
   const graph=/-week$|-month$/.test(id),section=root.closest('.card'),period=RangePicker.get(kind==='shard'?'shard-period':'period');
   let label=period?C.displayDate(period[0])+(C.addDays(period[1],-1)===period[0]?'':' 〜 '+C.displayDate(C.addDays(period[1],-1))):'全期間';
   if(id.endsWith('-week'))label=text(root.querySelector('.weekly-range'));
@@ -58,6 +58,17 @@ const SectionImages=(()=>{
   if(!result.length)result.push({type:'text',text:'この条件の記録はありません。',muted:true});
   return {title:(kind==='candy'?'アメ':'ゆめのかけら')+'｜'+title,period:label,blocks:result};
  }
+ // 非表示タブも同じ幅で一時測定する。表示タブ・スクロール・保存状態は変更しない。
+ function capture(key){
+  const d=definitions.find(d=>d[0]===key),root=d&&document.querySelector(d[2]),section=root?.closest('section');
+  if(!section?.hidden)return captureVisible(key);
+  const css=section.style.cssText,width=document.querySelector('section:not([hidden])')?.getBoundingClientRect().width||350;
+  try{section.style.cssText=`position:fixed;left:-10000px;top:0;width:${width}px;pointer-events:none;`;section.hidden=false;return captureVisible(key);}
+  finally{section.hidden=true;section.style.cssText=css;}
+ }
+ function combined(keys,title){
+  return {title,period:'各項目の対象期間を表示',blocks:keys.flatMap(key=>{const m=capture(key);return [{type:'section',text:m.title,period:m.period},...m.blocks];})};
+ }
  function pages(model){
   const W=600,M=28,inner=W-M*2,limit=1800,ink='#202124',muted='#777C80',line='#ECEDEE',font='-apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif';
   const probe=document.createElement('canvas').getContext('2d');if(!probe)throw Error('この環境では画像を生成できません。');
@@ -65,7 +76,8 @@ const SectionImages=(()=>{
   function wrap(value,width,size){setFont(probe,size);const lines=[];for(const paragraph of String(value).split('\n')){let row='';for(const ch of paragraph){if(row&&probe.measureText(row+ch).width>width){lines.push(row);row='';}row+=ch;}lines.push(row);}return lines;}
   const tasks=[];
   for(const b of model.blocks){
-   if(b.type==='table'){
+   if(b.type==='section'){const lines=wrap(b.text,inner,23),periodLines=wrap(b.period,inner,16);tasks.push({...b,lines,periodLines,height:lines.length*31+periodLines.length*24+26});}
+   else if(b.type==='table'){
     if(!b.rows.length)continue;const n=b.rows[0].cells.length,first=n>=6?108:n===4?220:Math.min(250,inner*.46),widths=[first,...Array(n-1).fill((inner-first)/(n-1))];
     const prepare=r=>({...r,lines:r.cells.map((c,i)=>wrap(c.text,widths[i]-14,n>=6?14:16))});const header=b.rows.find(r=>r.header),head=header?prepare(header):null;
     if(b.caption)tasks.push({type:'text',text:b.caption,bold:true,lines:wrap(b.caption,inner,18),size:18,height:38});
@@ -75,8 +87,20 @@ const SectionImages=(()=>{
    else tasks.push({...b,height:b.type==='week'?370:Math.ceil((b.offset+b.days.length)/7)*84+70});
   }
   const titleLines=wrap(model.title,inner,24),periodLines=wrap(model.period,inner,16),top=36+titleLines.length*32+periodLines.length*24+22;
-  const batches=[];let batch=[],y=top;
-  for(const t of tasks){if(y+t.height+50>limit&&batch.length){batches.push(batch);batch=[];y=top;if(t.type==='row'&&!t.row.header&&t.head){const repeated={...t,row:t.head,height:Math.max(42,Math.max(...t.head.lines.map(x=>x.length))*23+18)};batch.push(repeated);y+=repeated.height;}}batch.push(t);y+=t.height;}if(batch.length||!batches.length)batches.push(batch);
+  const batches=[];let batch=[],y=top,sectionHead=null;
+  function nextPage(t){batches.push(batch);batch=[];y=top;
+   if(sectionHead&&t.type!=='section'){batch.push(sectionHead);y+=sectionHead.height;}
+   if(t.type==='row'&&!t.row.header&&t.head){const repeated={...t,row:t.head,height:Math.max(42,Math.max(...t.head.lines.map(x=>x.length))*23+18)};batch.push(repeated);y+=repeated.height;}
+  }
+  for(let i=0;i<tasks.length;i++){const t=tasks[i];
+   if(t.type==='section'){
+    let end=i+1;while(end<tasks.length&&tasks[end].type!=='section')end++;
+    const groupHeight=tasks.slice(i,end).reduce((n,x)=>n+x.height,0),needed=groupHeight+top+60<=limit?groupHeight:t.height+(tasks[i+1]?.height||0)+(tasks[i+2]?.height||0);
+    if(batch.length&&y+needed+60>limit)nextPage(t);sectionHead=t;
+   }
+   if(y+t.height+60>limit&&batch.length)nextPage(t);
+   batch.push(t);y+=t.height;
+  }if(batch.length||!batches.length)batches.push(batch);
   return batches.map((batch,page)=>{
    const h=Math.max(300,top+batch.reduce((n,t)=>n+t.height,0)+54),canvas=document.createElement('canvas');canvas.width=W*2;canvas.height=Math.ceil(h*2);const c=canvas.getContext('2d');if(!c)throw Error('画像を生成できません。');c.scale(2,2);c.fillStyle='#FFFFFF';c.fillRect(0,0,W,h);
    function txt(value,x,y,size=17,bold=false,color=ink,align='left'){setFont(c,size,bold);c.fillStyle=color;c.textAlign=align;c.fillText(String(value),x,y);}
@@ -84,6 +108,7 @@ const SectionImages=(()=>{
    function rounded(x,y,w,h,r,color){if(w<=0||h<=0)return;c.beginPath();c.roundRect(x,y,w,h,Math.min(r,w/2,h/2));c.fillStyle=color;c.fill();}
    let y=36;for(const s of titleLines){txt(s,M,y,24,true);y+=32;}for(const s of periodLines){txt(s,M,y,16,false,muted);y+=24;}y=top;
    for(const t of batch){
+    if(t.type==='section'){let yy=y+23;for(const line of t.lines){txt(line,M,yy,23,true);yy+=31;}for(const line of t.periodLines){txt(line,M,yy,16,false,muted);yy+=24;}}
     if(t.type==='text')t.lines.forEach((s,i)=>txt(s,M,y+t.size+i*(t.size+8),t.size,t.bold,t.muted?muted:ink));
     if(t.type==='legend')for(const item of t.items){rounded(M+item.x,y+item.y+7,7,7,4,item.color==='rgba(0, 0, 0, 0)'?muted:item.color);item.lines.forEach((s,i)=>txt(s,M+item.x+14,y+item.y+15+i*21,14,false,muted));}
     if(t.type==='row'){let x=M;for(let j=0;j<t.row.cells.length;j++){const color=t.row.header?muted:ink;t.row.lines[j].forEach((s,i)=>txt(s,j?x+t.widths[j]-7:x,y+25+i*23,t.size,t.row.strong||(!t.row.header&&j===1),color,j?'right':'left'));x+=t.widths[j];}rule(y+t.height-5);}
@@ -102,12 +127,27 @@ const SectionImages=(()=>{
    const url=canvas.toDataURL('image/png');if(!url.startsWith('data:image/png'))throw Error('画像が大きすぎるため生成できませんでした。');canvas.width=canvas.height=1;return url;
   });
  }
- function open(key){try{const model=capture(key);ImagePreview.open(model.title,pages(model));}catch(e){notice('画像を作成できませんでした：'+e.message);}}
+ function exportScope(key,scope){
+  try{const d=definitions.find(d=>d[0]===key);if(!d)throw Error('画像の項目が見つかりません。');
+   const keys=definitions.filter(x=>scope==='all'||x[3]===d[3]).map(x=>x[0]);
+   const model=scope==='single'?capture(key):combined(keys,scope==='all'?'アメ＋ゆめのかけら':d[3]==='candy'?'アメのまとめ':'ゆめのかけらのまとめ');
+   ImagePreview.open(model.title,pages(model));
+  }catch(e){notice('画像を作成できませんでした：'+e.message);}
+ }
+ function open(key){
+  const d=definitions.find(d=>d[0]===key);if(!d)return;
+  AppPanels.open('画像出力',body=>{
+   body.append(el('p',d[1],'panel-muted'));
+   for(const [scope,label] of [['single','個別画像'],['tab','このタブをまとめて出力'],['all','アメ＋ゆめのかけらをまとめて出力']]){
+    const b=button(label,()=>{AppPanels.close(()=>exportScope(key,scope));});b.className='export-scope-option';body.append(b);
+   }
+  });
+ }
  function init(){for(const [key,title,selector,kind,oldId] of definitions){const root=document.querySelector(selector);let head,b=oldId?document.getElementById(oldId):null;
    if(key.endsWith('-breakdown')){head=el('div',undefined,'summary-section-head export-overview-heading');head.append(el('h3',title));root.before(head);}
    else{const h=root.closest('.card').querySelector('h3');head=h.parentElement.classList.contains('summary-section-head')?h.parentElement:null;if(!head){head=el('div',undefined,'summary-section-head');h.before(head);head.append(h);}}
    if(!b){b=el('button','画像');b.type='button';b.id='export-'+key;head.append(b);}b.classList.add('section-image-button');b.dataset.sectionImage=key;b.setAttribute('aria-label',(kind==='candy'?'アメ':'ゆめのかけら')+'：'+title+'の画像を作成');b.onclick=()=>open(key);
   }}
- return {init,capture,pages,open,definitions};
+ return {init,capture,pages,open,exportScope,combined,definitions};
 })();
 SectionImages.init();

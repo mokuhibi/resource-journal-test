@@ -22,7 +22,10 @@ const TeamUI=(()=>{
   const root=$('registered-pokemon-list'),q=normalize($('roster-search').value);root.replaceChildren();
   const normal=state.pokemon.filter(p=>!special(p));
   const visible=orderedPokemon().filter(p=>speciesEnabled(p.species)&&(q||showOtherPokemon||relatedPokemon(p))&&(!q||normalize(p.species).includes(q)||normalize(C.speciesName(p.species)).includes(q)||normalize(p.nickname||'').includes(q)));
-  for(const p of visible){
+  const candy=p=>special(p)||SK.id(SK.forPokemon(p))==='metronome'||CopySkills.sources(p,'candy').length>0;
+  const groups=[['アメゲットのポケモン',visible.filter(candy)],['ゆめのかけらゲットのポケモン',visible.filter(p=>!candy(p)&&relatedPokemon(p))],['その他のポケモン',visible.filter(p=>!candy(p)&&!relatedPokemon(p))]];
+  for(const [title,members] of groups){if(!members.length)continue;root.append(el('h3',title,'roster-purpose-heading'));
+  for(const p of members){
    const line=el('div',undefined,'registered-row'),info=el('div',undefined,'registered-info'),actions=el('div',undefined,'row-actions');
    info.append(el('small','No.'+String(nationalDex[p.species]).padStart(3,'0'),'individual-number'),name(p));
    if(sorting&&!special(p)){
@@ -30,6 +33,7 @@ const TeamUI=(()=>{
     up.setAttribute('aria-label',label(p)+'を上へ');down.setAttribute('aria-label',label(p)+'を下へ');up.disabled=i===0;down.disabled=i===normal.length-1;actions.append(up,down);
    }
    actions.append(button('編集',()=>openIndividualEditor(p)));line.append(info,actions);root.append(line);
+  }
   }
   if(!visible.length)root.append(el('p',q?'一致する登録ポケモンがありません。':'表示できる登録ポケモンがありません。'));
  }

@@ -58,7 +58,7 @@ const ShardUI=(()=>{
     card.classList.add('shard-lucky-row');const actions=el('div',undefined,'shard-lucky-actions');
     for(const amount of C.shardAmounts(type,level)){const b=button(amount===0?'スキルのみ':amount.toLocaleString('ja-JP'),()=>saveSkill(amount));b.setAttribute('aria-label',individual(p)+'・'+(amount===0?'スキルのみ':amount.toLocaleString('ja-JP')+'個')+'を記録');actions.append(b);}card.append(actions);
    }
-   else{const actions=el('div',undefined,'shard-amount-buttons');for(const amount of C.shardAmounts(type,level)){const option=el('div',undefined,'shard-amount-option'),b=button('記録',()=>saveSkill(amount));b.setAttribute('aria-label',individual(p)+'・'+(amount===0?'スキルのみ':amount.toLocaleString('ja-JP')+'個')+'を記録');option.append(amount===0?el('span','スキルのみ'):qel('span',amount+'個'),b);actions.append(option);}card.append(actions);}
+   else{const actions=el('div',undefined,'shard-amount-buttons');for(const amount of C.shardAmounts(type,level)){const option=el('div',undefined,'shard-amount-option'),b=button(amount===0?'スキルのみ':amount.toLocaleString('ja-JP'),()=>saveSkill(amount));b.setAttribute('aria-label',individual(p)+'・'+(amount===0?'スキルのみ':amount.toLocaleString('ja-JP')+'個')+'を記録');option.classList.add('shard-fixed-option');option.append(b);actions.append(option);}card.append(actions);}
    root.append(card);
   }
   CopySkills.render(root,'shards');
