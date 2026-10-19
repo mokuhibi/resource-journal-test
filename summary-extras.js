@@ -1,6 +1,6 @@
 // 表示用の集計は履歴から都度作り、localStorageには保存しません。
 const SummaryExtras=(()=>{
- const candySources=[['help','アメ拾い'],['mew','ミュウ'],['delibird','デリバード'],['skill','その他']];
+ const candySources=[['help','アメ拾い'],['mew','ミュウ'],['delibird','デリバード'],['skill','その他'],['research','睡眠リサーチ']];
  const shardSources=[['research','睡眠リサーチ'],['skill','スキル'],['cluster','ゆめのかたまり'],['other','その他']];
  const settingKeys={skill:'showShardSkill',research:'showShardResearch',cluster:'showShardCluster',other:'showShardOther'};
  const shardKey=method=>method==='lucky'?'skill':method;
@@ -15,7 +15,7 @@ const SummaryExtras=(()=>{
    if(!total||!sourceVisible(key)||(kind==='candy'&&!enabled(key)))continue;
    const line=el('div',undefined,'source-total-row'),label=el('span',name);label.dataset.source=kind+'-'+key;
    if(kind==='shard')label.append(el('small',' '+records.filter(r=>shardKey(r.method)===key).length+'回','source-count'));
-   line.append(label,qel('strong',total.toLocaleString('ja-JP')+'個'));root.append(line);
+   if(kind==='candy')label.append(el('small',' '+(100*total/C.sum(records)).toFixed(1)+'%','sleep-proportions'));line.append(label,qel('strong',total.toLocaleString('ja-JP')+'個'));root.append(line);
    if(kind==='shard'&&key==='other')for(const [otherKind,name] of Object.entries(DreamClusters.otherKinds)){const xs=records.filter(r=>r.method==='other'&&DreamClusters.otherKind(r)===otherKind);if(!xs.length)continue;const row=el('div',undefined,'source-total-row source-subtotal');row.append(el('span',name+' '+xs.length+'回'),qel('strong',C.sum(xs).toLocaleString('ja-JP')+'個'));root.append(row);}
   }
   root.hidden=!root.children.length;
@@ -26,7 +26,7 @@ const SummaryExtras=(()=>{
   const date=recordDate();if(!Number.isFinite(date.getTime()))return;
   const day=C.gameDay(date),period=C.range('day',day),root=$('today-total'),wasOpen=root.querySelector('details')?.open||false;const heading=el('small',day===C.gameDay(new Date())?'今日の獲得数':'選択日の獲得数');if(C.localInput(date).slice(0,10)!==day)heading.append(el('span','集計日：'+C.displayDate(day)+'（04:00切替）','record-day-note'));root.replaceChildren(heading);
   const candy=el('div',undefined,'daily-resource'),shard=el('div',undefined,'daily-resource');
-  totals(candy,state.records.filter(r=>C.inRange(r,period)),'アメ',true);
+  totals(candy,allCandyRecords().filter(r=>C.inRange(r,period)),'アメ',true);
   const records=ShardUI.summaryRecords().filter(r=>C.inRange(r,period)),total=C.sum(records);
   // 未記録の日だけ省略。0個のスキル記録がある日は回数・内訳も表示します。
   if(records.length||total!==0){
@@ -76,7 +76,7 @@ const SummaryExtras=(()=>{
  function imagePages(groups,period){
   const panels=candyColumns(groups),pages=[],canvas=document.createElement('canvas');canvas.width=1200;
   const c=canvas.getContext('2d');if(!c)throw Error('画像描画に対応していません。');
-  const ink='#202124',muted='#777C80',line='#ECEDEE',colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63'};
+  const ink='#202124',muted='#777C80',line='#ECEDEE',colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461'};
   const font=(size,bold=false)=>{c.font=`${bold?600:400} ${size}px -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif`;};
   const wrap=(value,width,size)=>{font(size);const rows=[''];for(const ch of String(value)){const i=rows.length-1,trial=rows[i]+ch;if(rows[i]&&(c.measureText?c.measureText(trial).width:trial.length*size)>width)rows.push(ch);else rows[i]=trial;}return rows;};
   const text=(value,x,y,size=34,bold=false,right=false,color=ink)=>{font(size,bold);c.fillStyle=color;c.textAlign=right?'right':'left';c.fillText(String(value),x,y);};

@@ -6,7 +6,7 @@ const HistoryDetails=(()=>{
   const {r,method,primary,target}=info,root=el('div',undefined,'history-detail-content');root.tabIndex=0;
   const group=title=>{const s=el('section');s.append(el('h3',title));root.append(s);return s;};
   const item=(s,name,value)=>{if(value===undefined||value===null||value==='')return;const row=el('div',undefined,'history-detail-row');row.append(el('span',name),el('strong',String(value)));s.append(row);};
-  const record=group('記録内容');item(record,'日時',DateUI.datetime(r.datetime));item(record,'獲得方法',method);item(record,info.shards?'種類':'アメの種類',primary);item(record,'獲得個数',r.amount.toLocaleString('ja-JP')+'個');if(!r.targetDate&&r.method!=='cluster')item(record,'対象・編成位置',target);
+  const record=group('記録内容');if(!r.sleepSession)item(record,'日時',DateUI.datetime(r.datetime));item(record,'獲得方法',method);item(record,info.shards?'種類':'アメの種類',primary);item(record,'獲得個数',r.amount.toLocaleString('ja-JP')+'個');if(!r.sleepSession&&!r.targetDate&&r.method!=='cluster')item(record,'対象・編成位置',target);
   if(r.shardAmount!==undefined)item(record,'ゆめのかけら',r.shardAmount.toLocaleString('ja-JP')+'個');
   if(r.targetDate)item(record,'リサーチ日',C.displayDate(r.targetDate));
   if(r.recordedAt)item(record,'入力日時',DateUI.datetime(r.recordedAt));
@@ -17,6 +17,7 @@ const HistoryDetails=(()=>{
   if(r.usedCount!==undefined)item(record,'使用個数',r.usedCount.toLocaleString('ja-JP')+'個');
   if(r.method==='other')item(record,'その他の入手方法',DreamClusters.otherKinds[DreamClusters.otherKind(r)]);
   if(r.memo)item(record,'メモ',r.memo);
+  if(r.sleepSession){const s=r.sleepSession;item(record,'リサーチ日',C.displayDate(s.date));item(record,'回数',s.number+'回目');item(record,'フィールド',s.field);item(record,'睡眠タイプ',s.sleepType);item(record,'ゆめのかけら',s.amount.toLocaleString('ja-JP')+'個');item(record,'記録時ランク',s.researchRank);item(record,'リサーチEXP',s.researchExp);const candy=group('見つけたポケモン');for(const e of s.entries)item(candy,e.species+' ★'+e.stars,e.candy+' '+e.amount.toLocaleString('ja-JP')+'個'+(e.calculatedAmount!==null&&e.amount!==e.calculatedAmount?'（手動修正）':''));}
   const c=r.context,actor=actorOf(c)||r.pokemonSnapshot||(info.shards&&['skill','lucky'].includes(r.method)&&r.species?historicalPokemon(r):null);
   if(!['help','research','cluster','other'].includes(r.method)){
    const skill=group('スキル情報');if(actor)item(skill,'発動したポケモン',label(actor));

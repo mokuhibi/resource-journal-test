@@ -1,7 +1,7 @@
 'use strict';
 // 記録操作の表示だけを担当。保存・ID生成・連続タップの制御は行わない。
 const RecordFeedback=(()=>{
- const selector='#record-methods .record-slots button, #record .copy-skill-card button[type="submit"], #record .shard-skill-form button[type="submit"], #record .shard-amount-buttons button, #research-save, #shard-other-form button[type="submit"], #shard-cluster-form button[type="submit"]';
+ const selector='#record-methods .record-slots button, #record .copy-skill-card button[type="submit"], #record .shard-skill-form button[type="submit"], #record .shard-amount-buttons button, #research-save, #shard-other-form button[type="submit"], #shard-cluster-form button[type="submit"], #sleep-form button[type="submit"]';
  const pulses=new Map();let pending=null,rail;
  function decorate(){
   for(const b of document.querySelectorAll(selector)){
@@ -41,6 +41,8 @@ const RecordFeedback=(()=>{
     if(name)return {category,message:name+amount.toLocaleString('ja-JP')+'個を記録しました'};
    }
   }
+  const oldSleep=new Map((previous.sleepSessions||[]).map(s=>[s.id,s]));
+  for(const s of saved.sleepSessions||[]){if(JSON.stringify(oldSleep.get(s.id))===JSON.stringify(s))continue;const candy=s.entries.reduce((n,e)=>n+e.amount,0);return {category:candy?'candy':'shards',message:'睡眠リサーチ：アメ'+candy.toLocaleString('ja-JP')+'個・ゆめのかけら'+s.amount.toLocaleString('ja-JP')+'個を記録しました'};}
   return null;
  }
  function success(saved,previous){

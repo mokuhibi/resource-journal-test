@@ -1,0 +1,72 @@
+/* MOKU HIBI shared design tokens. See DESIGN_GUIDELINES.md.
+   This final layer migrates shared UI only; chart series and saved data are unchanged. */
+:root{
+ --mh-bg:#FAF9F6;--mh-surface:#FFFFFF;--mh-text:#333333;--mh-muted:#777777;
+ --mh-accent:#80643B;--mh-border:#E5E5E5;--mh-selected:#F3EEE5;--mh-error:#B45353;
+ --mh-font:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+ --mh-text-size:15px;--mh-input-size:16px;--mh-caption-size:13px;--mh-title-size:28px;
+ --mh-radius:8px;--mh-shadow:none;--mh-gutter:16px;--mh-card-padding:16px;--mh-section-gap:24px;
+ --mh-control-height:44px;--mh-space-xs:4px;--mh-space-sm:8px;--mh-space-md:12px;--mh-content-width:840px;
+ /* Existing components migrate through aliases rather than parallel theme values. */
+ --editorial-ink:var(--mh-text);--editorial-muted:var(--mh-muted);--editorial-line:var(--mh-border);
+ --editorial-soft:var(--mh-selected);--editorial-radius:var(--mh-radius);--editorial-input-line:var(--mh-border);
+ --editorial-danger:var(--mh-error);--editorial-space:var(--mh-gutter);--editorial-section:var(--mh-section-gap);
+ --page-title-gap:var(--mh-gutter);--period-content-gap:var(--mh-gutter);--period-control-height:var(--mh-control-height);
+ background:var(--mh-bg);
+}
+body:has(:is(#record,#sleep,#summary,#shards,#history,#team,#settings):not([hidden])){
+ background:var(--mh-bg);color:var(--mh-text);font-family:var(--mh-font);font-size:var(--mh-text-size);line-height:1.6;
+}
+body:has(:is(#record,#sleep,#summary,#shards,#history,#team,#settings):not([hidden])) .app{
+ background:var(--mh-surface);max-width:var(--mh-content-width);min-height:100svh;padding-inline:var(--mh-gutter);box-shadow:var(--mh-shadow);
+}
+body .app>:is(#record,#sleep,#summary,#shards,#history,#team,#settings)>.editorial-page-title{font-size:var(--mh-title-size);color:var(--mh-text)}
+:is(#record,#sleep,#summary,#shards,#history,#team,#settings){--accent:var(--mh-accent);--edge:var(--mh-border);--tint:var(--mh-selected)}
+/* Text for acquisition methods and graph series keeps the existing category colours. */
+:is(#record,#sleep,#summary,#shards,#history,#team,#settings) :is(input:not([type=checkbox]):not([type=radio]),select,textarea),body dialog :is(input:not([type=checkbox]):not([type=radio]),select,textarea){
+ font-family:var(--mh-font);font-size:var(--mh-input-size);color:var(--mh-text);background:var(--mh-surface);border-color:var(--mh-border);border-radius:var(--mh-radius);min-height:var(--mh-control-height);
+}
+:is(#record,#sleep,#summary,#shards,#history,#team,#settings) input::placeholder,body dialog input::placeholder{color:var(--mh-muted)}
+body .app :is(p,label){font-family:var(--mh-font)}
+:is(#team,#history,#settings) :is(p,label),#sleep label{font-size:var(--mh-text-size)}
+:is(#record,#sleep) :is(.record-slots button,.mew-actions button,.shard-skill-form button,.shard-amount-buttons button,.shard-lucky-actions button,.sleep-save),
+:is(#summary,#shards) .section-image-button,#settings .backup-actions button,#settings #research-rank-form button,#team .row-actions button,
+body :is(#app-panel,.record-picker,#period-range-dialog,#team-picker,#history-editor,#shard-editor) button:not(.team-picker-row):not([role=tab]){
+ border-radius:var(--mh-radius);font-family:var(--mh-font);min-height:var(--mh-control-height);box-shadow:var(--mh-shadow);
+}
+#record :is(.record-date-card,.record-datetime-field,.formatted-date-field),#sleep .sleep-date{border-color:var(--mh-border);background:var(--mh-surface)}
+#record .record-datetime-field{border-radius:var(--mh-radius)}
+:is(#record,#sleep,#team,#settings) :is(button[type=submit],.sleep-save){font-size:var(--mh-text-size)}
+/* Preserve flat list rows; do not introduce cards around every section. */
+:is(#record,#sleep,#summary,#shards,#team,#history,#settings) .card{box-shadow:var(--mh-shadow)}
+#team .team-switch button[aria-selected=true],#team-picker .team-picker-row[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);box-shadow:var(--mh-shadow)}
+#team-picker .team-picker-row[aria-pressed=true] .team-picker-status{color:var(--mh-accent)}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]{color:var(--mh-accent)}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]:after{background:var(--mh-accent)}
+body .tabs,body:has(#record[hidden]) .tabs{background:var(--mh-surface);border-color:var(--mh-border);padding-inline:var(--mh-space-xs)}
+body .tabs [aria-current=page],body:has(#record[hidden]) .tabs [aria-current=page]{color:var(--mh-accent)}
+body .tabs [aria-current=page]:before{background:var(--mh-accent)}
+body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-panel,#image-preview-dialog,#app-panel){
+ background:var(--mh-surface);color:var(--mh-text);border-color:var(--mh-border);border-radius:var(--mh-radius);box-shadow:var(--mh-shadow);font-family:var(--mh-font);
+}
+body #history-details-panel{border-radius:var(--mh-radius) var(--mh-radius) 0 0}
+body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-panel) :is(.record-picker-grid,.period-picker-choices) button[aria-pressed=true],body .period-picker-dialog [aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);border-color:var(--mh-accent)}
+:is(#summary,#shards) .candy-day-popover{background:var(--mh-surface);border-color:var(--mh-border);border-radius:var(--mh-radius);box-shadow:var(--mh-shadow);padding:var(--mh-space-md)}
+#record-save-notices .record-save-toast{background:var(--mh-surface);color:var(--mh-text);border-color:var(--mh-border);border-radius:var(--mh-radius);box-shadow:var(--mh-shadow)}
+body .danger,body #history .history-actions .danger,body #sleep button.danger{color:var(--mh-error)}
+body #notice.record-error,body:has(#record[hidden]) #notice.record-error{background:var(--mh-error);color:var(--mh-surface)}
+body :is(.import-error,#edit-error,#shard-edit-error){color:var(--mh-error)}
+body :is(button,input,select,textarea,a):focus-visible{outline:2px solid var(--mh-accent);outline-offset:2px}
+#record-methods>div,#record #shard-records>.card{margin-bottom:var(--mh-section-gap)}
+/* Calendar cells and pill stacks keep their purpose-specific shape and size. */
+@media(max-width:360px){
+ :is(#summary,#shards,#history) .period-picker .period-quick-buttons{gap:0}
+ :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button{padding-inline:8px;font-size:13px}
+ :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]:after{left:8px;right:8px}
+ #record .record-row-content strong,#record .record-row-content{overflow-wrap:anywhere;min-width:0}
+ .tabs button{overflow-wrap:normal}
+}
+@media(prefers-reduced-motion:reduce){:is(#record,#sleep,#summary,#shards,#history,#team,#settings) button{transition:none}}
+/* Switches keep their familiar pill shape and ON/OFF text. */
+#settings .setting-control input:checked{background:var(--mh-accent);border-color:var(--mh-accent)}
+#settings .setting-control input:focus-visible{outline-color:var(--mh-accent)}

@@ -16,7 +16,7 @@ const ShardUI=(()=>{
  const typeOf=p=>SK.shardMode(p);
  const skillName=type=>SK.name(type==='lucky'?'super_luck':'dream_shard_s');
  const records=()=>state.shardRecords||[];
- const summaryRecords=()=>[...records(),...C.mewShardRecords(state.records)];
+ const summaryRecords=()=>[...records(),...C.mewShardRecords(state.records),...(typeof SleepResearch!=='undefined'?SleepResearch.shardRecords(state):[])];
  const individual=p=>label(p);
  const amountInput=(id,min=0)=>{const input=el('input');Object.assign(input,{id,type:'number',inputMode:'numeric',min:String(min),max:'1000000000',step:'1',required:true});return input;};
  function number(id,min=0,max=1000000000){const raw=$(id).value.trim(),n=Number(raw);if(raw===''||!Number.isSafeInteger(n)||n<min||n>max)throw Error('入力値を確認してください。');return n;}
@@ -64,7 +64,7 @@ const ShardUI=(()=>{
   CopySkills.render(root,'shards');
   root.hidden=!SummaryExtras.shardVisible('skill')||!root.children.length;
   $('cluster-panel').hidden=!SummaryExtras.shardVisible('cluster');
-  $('research-panel').hidden=!SummaryExtras.shardVisible('research');
+  $('research-panel').hidden=typeof SleepUI!=='undefined'||!SummaryExtras.shardVisible('research');
   $('shard-other-form').closest('details').hidden=!SummaryExtras.shardVisible('other');
  }
  function addSkillSetting(card,p){card.append(el('small',mainSkillText(p)+(p.profile?` · Lv.${p.profile.skillLevel}`:''),'shard-setting'));}

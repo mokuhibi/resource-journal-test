@@ -3,7 +3,7 @@
  'use strict';
  const slot=n=>Number.isInteger(n)&&n>=1&&n<=5;
  function aggregate(records,map=typeof candyMap!=='undefined'?candyMap:{}){
-  const analysis=typeof AnalysisData!=='undefined'?AnalysisData:require('./analysis-data.js');
+  const analysis=typeof AnalysisData!=='undefined'?AnalysisData:require('./candy-analysis.js');
   const rows=records.filter(r=>r.method==='mew');
   const counts=Array(5).fill(0),one=Array(5).fill(0),four=Array(5).fill(0),matrix=Array.from({length:5},()=>Array(5).fill(0));
   let selected=0,located=0,self=0;

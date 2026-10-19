@@ -1,14 +1,14 @@
 'use strict';
 // 表示専用。既存の通常集計フィルター・ゲーム内日付・保存済み獲得数を使用する。
 const CandyGraphs=(()=>{
- const colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63'},selection={week:null,month:null};
+ const colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461'},selection={week:null,month:null};
  const fmt=n=>n.toLocaleString('ja-JP');
  function legend(sources,records,kind='candy'){const root=el('div',undefined,'candy-chart-legend');for(const [key,name] of sources){const item=el('span'),dot=el('i',undefined,kind==='shard'?'shard-source-'+key:undefined);if(kind!=='shard')dot.style.background=colors[key];dot.setAttribute('aria-hidden','true');item.append(dot,el('span',name));if(records)item.append(qel('strong',fmt(C.sum(records.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):r.method)===key)))+'個'));root.append(item);}return root;}
  function details(root,records,date,sources,kind='candy'){
   root.replaceChildren();const rs=records.filter(r=>C.gameDay(r.datetime)===date),head=el('div',undefined,'graph-detail-head');
   const title=el('h4',C.displayDate(date));head.append(title,qel('strong',fmt(C.sum(rs))+'個','detail-total'));root.append(head);
   const table=el('table',undefined,'graph-detail-table'),thead=el('thead'),tr=el('tr'),body=el('tbody');for(const text of ['獲得方法','回数',kind==='shard'?'ゆめのかけら':'アメ'])tr.append(el('th',text));thead.append(tr);table.append(thead,body);
-  for(const [key,name] of sources){const xs=rs.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):r.method)===key),row=el('tr'),label=el('th',name);label.scope='row';const dot=el('i',undefined,'source-dot'+(kind==='shard'?' shard-source-'+key:''));if(kind!=='shard')dot.style.background=colors[key];label.prepend(dot);row.append(label,qel('td',xs.length+'回'),qel('td',fmt(C.sum(xs))+'個'));body.append(row);}root.append(table);
+  for(const [key,name] of sources){const xs=rs.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):r.method)===key),row=el('tr'),label=el('th',name);label.scope='row';const dot=el('i',undefined,'source-dot'+(kind==='shard'?' shard-source-'+key:''));if(kind!=='shard')dot.style.background=colors[key];label.prepend(dot);row.append(label,qel('td',(typeof SleepResearch!=='undefined'?SleepResearch.countSessions(xs):xs.length)+'回'),qel('td',fmt(C.sum(xs))+'個'));body.append(row);}root.append(table);
   if(!sources.length||!rs.length)root.append(el('p',sources.length?'この日の記録はありません。':'表示する獲得方法がすべてOFFです。','graph-empty-note'));
   root.append(button('この日の集計を見る →',()=>{RangePicker.set(kind==='shard'?'shard-period':'period',date);DateUI.update();window.scrollTo({top:0,behavior:'auto'});},'day-summary-link'));
  }

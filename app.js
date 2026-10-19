@@ -1,6 +1,6 @@
 'use strict';
 const C=CandyCore, SK=MainSkillMaster, KEY='pokesleep-candy-v1', $=id=>document.getElementById(id);
-const methods={help:'アメ拾い',mew:'ミュウ',delibird:'デリバード',skill:'スキル'},names=Object.keys(candyMap);
+const methods={help:'アメ拾い',mew:'ミュウ',delibird:'デリバード',skill:'スキル',research:'睡眠リサーチ'},names=Object.keys(candyMap);
 const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2);
 const clone=x=>JSON.parse(JSON.stringify(x)), el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)nameText(n,text);if(cls)n.className=cls;return n;};
 // 表示名だけを変更し、保存用の名前・内部IDは従来どおり保持します。
@@ -31,8 +31,10 @@ window.addEventListener('scroll',positionNotice,{passive:true});window.addEventL
 function notice(s,error=false){const n=$('notice');n.classList.toggle('record-error',error);quantityText(n,s);positionNotice();n.classList.remove('shown');void n.offsetWidth;n.classList.add('shown');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>n.classList.remove('shown'),5000);}
 // 記録入力とアメ通常集計で共用。履歴・場所分析・登録個体は設定で隠さない。
 const enabled=method=>Object.hasOwn(methods,method);
-const recordSettingKeys={help:'showCandyHelp',mew:'mew',delibird:'delibird',skill:'showOtherCandy'};
+const recordSettingKeys={help:'showCandyHelp',mew:'mew',delibird:'delibird',skill:'showOtherCandy',research:'showCandyResearch'};
 const recordVisible=method=>state.settings[recordSettingKeys[method]]!==false;
+const allCandyRecords=()=>[...state.records,...SleepResearch.candyRecords(state)];
+const recordCount=rs=>typeof SleepResearch!=='undefined'?SleepResearch.countSessions(rs):rs.length;
 const speciesEnabled=()=>true;
 const special=p=>p.species==='ミュウ'||p.species==='デリバード';
 const visibleRecord=r=>enabled(r.method)&&speciesEnabled(r.species);
@@ -46,7 +48,7 @@ let sorting=false,editingId=null,editPool=[];
 
 function load(){try{const raw=localStorage.getItem(KEY);if(raw){const old=JSON.parse(raw);state=C.migrate(old,candyMap);if(old.version===1){localStorage.setItem(KEY+'-before-v2',raw);localStorage.setItem(KEY,JSON.stringify(state));}}else{for(let i=0;i<5;i++){const species=localStorage.getItem('pokemon-slot-'+i);if(names.includes(species)){const p={id:uid(),species,nickname:'',profile:null};state.pokemon.push(p);state.team[i]=p.id;}}localStorage.setItem(KEY,JSON.stringify(state));}}catch(e){blocked=true;notice('保存データを読み込めません。上書きを停止しました。設定からバックアップを書き出してください。');}}
 // 履歴と編成をまとめて保存。保存できた時だけ画面の状態を確定します。
-function commit(next,message){if(blocked){notice('保存を停止しています。設定からバックアップの復元が必要です。',true);return false;}try{const checked=C.migrate(next,candyMap);localStorage.setItem(KEY,JSON.stringify(checked));const previous=state;state=checked;render();if(typeof RecordFeedback==='undefined'||!RecordFeedback.success(checked,previous))notice(message);return true;}catch(e){notice('保存できませんでした：'+e.message,true);return false;}}
+function commit(next,message){if(blocked){notice('保存を停止しています。設定からバックアップの復元が必要です。',true);return false;}try{const checked=C.migrate(next,candyMap);localStorage.setItem(KEY,JSON.stringify(checked));const previous=state;state=checked;if(typeof SleepUI!=='undefined'&&message==='バックアップを復元しました。')SleepUI.reset();render();if(typeof RecordFeedback==='undefined'||!RecordFeedback.success(checked,previous))notice(message);return true;}catch(e){notice('保存できませんでした：'+e.message,true);return false;}}
 function button(text,action,cls){const b=el('button',text,cls);b.type='button';b.onclick=action;return b;}
 function row(parent,name,value,cls){const r=el('div',undefined,'row '+(cls||''));r.append(el('span',name),qel('strong',value));parent.append(r);}
 function quantityText(node,text){
@@ -72,7 +74,7 @@ function record(method,slot,amount){const date=recordDate();if(!Number.isFinite(
 // 合計カードだけで使う表示用の表。集計済みの値を列に分けます。
 function totalBreakdown(parent,amountLabel){const table=el('table',undefined,'total-breakdown'),head=el('thead'),tr=el('tr'),body=el('tbody');for(const text of ['', '回数',amountLabel]){const th=el('th',text);th.scope='col';tr.append(th);}head.append(tr);table.append(head,body);parent.append(table);return body;}
 function totalBreakdownRow(body,name,count,amount,cls=''){const tr=el('tr',undefined,cls),nameCell=el('th',name);nameCell.scope='row';tr.append(nameCell,qel('td',count===null?'―':count+'回'),qel('td',amount+'個'));body.append(tr);}
-function totals(parent,records,title,hideEmpty=false,sourceVisible=enabled){parent.replaceChildren(el('small',title),qel('div',`${C.sum(records)}個`,'total'));const body=totalBreakdown(parent,'アメ');for(const [method,name] of Object.entries(methods)){if(!enabled(method)||!sourceVisible(method))continue;const rs=records.filter(r=>r.method===method);if((method==='skill'||hideEmpty)&&!rs.length)continue;totalBreakdownRow(body,name,rs.length,C.sum(rs),method);}}
+function totals(parent,records,title,hideEmpty=false,sourceVisible=enabled){parent.replaceChildren(el('small',title),qel('div',`${C.sum(records)}個`,'total'));const body=totalBreakdown(parent,'アメ');for(const [method,name] of Object.entries(methods)){if(!enabled(method)||!sourceVisible(method))continue;const rs=records.filter(r=>r.method===method);if((method==='skill'||hideEmpty)&&!rs.length)continue;totalBreakdownRow(body,name,recordCount(rs),C.sum(rs),method);}}
 
 
 function renderRecord(){
@@ -81,7 +83,7 @@ function renderRecord(){
  SummaryExtras.recordSummary();
  const root=$('record-methods');root.replaceChildren();const team=currentTeam();
  for(const [method,name] of Object.entries(methods)){
-  if(method==='skill'||!recordVisible(method))continue;
+  if(method==='skill'||method==='research'||!recordVisible(method))continue;
   const section=el('div',undefined,method);section.id=method+'-section';section.append(el('h2',name));let context=null;
   if(method!=='help'){
    const candidates=method==='mew'?state.pokemon.filter(p=>p.species==='ミュウ').slice(0,1).map(p=>({id:p.id,text:label(p)})):team.map((p,i)=>p&&p.species===name?{id:p.id,text:`${recordPosition(i+1)} · ${label(p)}`} : null).filter(Boolean);
@@ -116,7 +118,7 @@ function renderActorFilters(){
  const a=$('analysis-actor');optionList(a,historicalActors(m.value),a.value,'全個体');a.closest('label').hidden=m.value==='mew';
  $('analysis-card').hidden=!enabled('mew')&&!enabled('delibird');
 }
-function filteredRecords(){const period=RangePicker.get('period');return state.records.filter(r=>C.inRange(r,period));}
+function filteredRecords(){const period=RangePicker.get('period');return allCandyRecords().filter(r=>C.inRange(r,period));}
 
 function calendar(parent,month,cell){parent.replaceChildren();if(!/^\d{4}-\d{2}$/.test(month))return;for(const d of ['月','火','水','木','金','土','日'])parent.append(el('span','（'+d+'）','weekday'));const first=month+'-01',offset=(new Date(first).getUTCDay()+6)%7;for(let i=0;i<offset;i++)parent.append(el('span'));for(let day=first;day.startsWith(month);day=C.addDays(day,1)){const date=day;parent.append(cell(date));}}
 // 終了日は翌朝4時のため、見出しではその前日を表示します。
@@ -125,7 +127,7 @@ function renderSummary(){
  PeriodPicker.sync();
  $('create-mew-image').hidden=!enabled('mew')&&!enabled('delibird');
  const all=filteredRecords(),rs=SummaryExtras.candyRecords(all),period=RangePicker.get('period');$('range-label').textContent=period?`${C.displayDate(period[0])} 04:00 〜 ${C.displayDate(period[1])} 04:00`:'全期間';totals($('summary-total'),rs,SummaryExtras.periodCaption(period),false,recordVisible);
- const calendarRs=SummaryExtras.candyRecords(state.records);
+ const calendarRs=SummaryExtras.candyRecords(allCandyRecords());
  const month=($('summary-date').value||C.gameDay(new Date())).slice(0,7);$('candy-month').textContent=month.replace('-','年')+'月';
  WeeklyChart.render($('candy-weekly-chart'),calendarRs,$('summary-date').value||C.gameDay(new Date()));
  SummaryExtras.monthly('candy',calendarRs,$('summary-date').value||C.gameDay(new Date()));
@@ -215,7 +217,7 @@ function renderHistory(){PeriodPicker.sync();const period=historyRange();$('hist
  const card=el('div',undefined,'card '+r.method);card.dataset.datetime=r.datetime;const actions=el('div',undefined,'history-actions');
  actions.append(button('訂正',()=>openHistoryEditor(r)),button('削除',()=>{if(confirm('この記録を削除しますか？'))commit({...state,records:state.records.filter(x=>x.id!==r.id)},'削除しました。');},'danger'));
  historyCard(card,r,methods[r.method],r.amount===0?'スキルのみ':r.candy||'アメ',r.amount===0?historyPlace(r.slot):historyPlace(r.slot)+'　'+oldLabel(r),actions);finishHistoryCard(card);root.append(card);
- }ShardUI.appendHistory(root,period);if($('history-period').value!=='day'){let previous;for(const card of [...root.children]){const day=C.gameDay(new Date(card.dataset.datetime));if(day!==previous){root.insertBefore(el('h3',C.displayDate(day),'history-date-divider'),card);previous=day;}}}if(!root.children.length)root.append(el('p','履歴なし'));}
+ }if(typeof SleepUI!=='undefined')SleepUI.appendHistory(root,period);ShardUI.appendHistory(root,period);if($('history-period').value!=='day'){let previous;for(const card of [...root.children]){const day=C.gameDay(new Date(card.dataset.datetime));if(day!==previous){root.insertBefore(el('h3',C.displayDate(day),'history-date-divider'),card);previous=day;}}}if(!root.children.length)root.append(el('p','履歴なし'));}
 function movePokemon(id,delta){const xs=state.pokemon.filter(p=>!special(p)),i=xs.findIndex(p=>p.id===id);if(i<0||i+delta<0||i+delta>=xs.length)return;[xs[i],xs[i+delta]]=[xs[i+delta],xs[i]];commit({...state,pokemon:[...state.pokemon.filter(special),...xs]},'並べ替えました。');}
 function renderTeam(){const root=$('team-slots');root.replaceChildren();state.team.forEach((id,i)=>{const l=el('div',undefined,'team-slot-row'),current=state.pokemon.find(p=>p.id===id);l.append(el('span',i===0?'1R':String(i+1)));if(i===0)l.classList.add('leader-slot');const b=button('',()=>TeamPicker.open(i),'team-slot-button');b.append(TeamUI.name(current));b.title=current?label(current):'未設定';b.id='team-slot-'+i;b.setAttribute('aria-label','チーム位置'+(i===0?'1R':i+1)+'のポケモンを選択');b.setAttribute('aria-haspopup','dialog');l.append(b);root.append(l);});TeamPicker.refresh();
  $('roster-other-toggle').textContent=showOtherPokemon?'その他のポケモンを閉じる':'その他のポケモンを表示';
@@ -227,15 +229,15 @@ function renderCatalog(){const q=normalize($('pokemon-search').value),root=$('po
 const natures='がんばりや さみしがり ゆうかん いじっぱり やんちゃ ずぶとい すなお のんき わんぱく のうてんき おくびょう せっかち まじめ ようき むじゃき ひかえめ おっとり れいせい てれや うっかりや おだやか おとなしい なまいき しんちょう きまぐれ'.split(' ');
 const subskills='きのみの数S おてつだいボーナス スキルレベルアップS スキルレベルアップM スキル確率アップS スキル確率アップM おてつだいスピードS おてつだいスピードM 食材確率アップS 食材確率アップM 最大所持数アップS 最大所持数アップM 最大所持数アップL げんき回復ボーナス 睡眠EXPボーナス リサーチEXPボーナス ゆめのかけらボーナス'.split(' ');
 function editProfile(){const p=state.pokemon.find(p=>p.id===$('profile-select').value);$('profile-form').hidden=!p;if(!p)return;const v=p.profile||C.profileDefault(p.species);nameText($('profile-species'),label(p));SkillUI.editProfile(p);$('profile-form').className=p.species==='ミュウ'?'mew':p.species==='デリバード'?'delibird':'';$('profile-nickname').value=p.nickname;$('profile-level').value=v.level;$('profile-nature').value=p.species==='ミュウ'?'きまぐれ':v.nature;$('profile-nature').disabled=p.species==='ミュウ';$('profile-skill').max=C.skillCap(p.species);$('profile-skill').value=Math.min(v.skillLevel,C.skillCap(p.species));v.subskills.forEach((s,i)=>$('subskill-'+i).value=s);SkillUI.refreshDetails(p);IndividualImportUI.editor(p);}
-function renderSettings(){ SummaryExtras.settings(); $('enable-help').checked=recordVisible('help'); $('show-other-candy').checked=state.settings.showOtherCandy!==false; $('enable-mew').checked=state.settings.mew;$('enable-delibird').checked=state.settings.delibird;const p=$('profile-select'),old=p.value;optionList(p,orderedPokemon().filter(p=>speciesEnabled(p.species)).map((p,i)=>({id:p.id,text:label(p)})),old);editProfile();TeamUI.sync();}
-function showTab(id){activeTab=id;for(const name of ['record','summary','shards','history','team','settings'])$(name).hidden=name!==id;for(const b of document.querySelectorAll('[data-tab]')){if(b.dataset.tab===id)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(id==='record')renderRecord();if(id==='summary')renderSummary();if(id==='history')renderHistory();if(id==='shards')ShardUI.renderSummary();window.scrollTo({top:0});positionNotice();}
-function render(){ShardUI.renderSummary();renderRecord();renderActorFilters();renderSummary();renderHistory();renderTeam();renderSettings();renderCatalog();DateUI.update();}
+function renderSettings(){ SummaryExtras.settings(); $('enable-help').checked=recordVisible('help');$('enable-research').checked=recordVisible('research'); $('show-other-candy').checked=state.settings.showOtherCandy!==false; $('enable-mew').checked=state.settings.mew;$('enable-delibird').checked=state.settings.delibird;const p=$('profile-select'),old=p.value;optionList(p,orderedPokemon().filter(p=>speciesEnabled(p.species)).map((p,i)=>({id:p.id,text:label(p)})),old);editProfile();TeamUI.sync();}
+function showTab(id){activeTab=id;for(const name of ['record','sleep','summary','shards','history','team','settings'])$(name).hidden=name!==id;for(const b of document.querySelectorAll('[data-tab]')){if(b.dataset.tab===id)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(id==='record')renderRecord();if(id==='sleep')SleepUI.render();if(id==='summary')renderSummary();if(id==='history')renderHistory();if(id==='shards')ShardUI.renderSummary();window.scrollTo({top:0});positionNotice();}
+function render(){if(typeof SleepUI!=='undefined')SleepUI.render();ShardUI.renderSummary();renderRecord();renderActorFilters();renderSummary();renderHistory();renderTeam();renderSettings();renderCatalog();DateUI.update();}
 // 訂正は履歴のコピーを編集し、保存時だけ置き換えます。
 function openHistoryEditor(r){
  if(r.method==='skill'){CopySkills.edit(r);return;}
  editingId=r.id;const pool=new Map();for(const p of [...(r.context?.team||[]),actorOf(r.context),...state.pokemon])if(p&&!pool.has(p.id))pool.set(p.id,clone(p));if(r.method==='mew'&&r.species&&!pool.has(r.pokemonId))pool.set(r.pokemonId,{id:r.pokemonId,species:r.species,nickname:r.nickname||''});editPool=[...pool.values()];
  $('edit-error').textContent='';$('edit-datetime').value=C.localInput(r.datetime);
- const method=$('edit-method');method.replaceChildren();for(const [key,name] of Object.entries(methods))if(key!=='skill'&&enabled(key))method.add(new Option(name,key));method.value=r.method;
+ const method=$('edit-method');method.replaceChildren();for(const [key,name] of Object.entries(methods))if(!['skill','research'].includes(key)&&enabled(key))method.add(new Option(name,key));method.value=r.method;
  const species=$('edit-species');species.replaceChildren();for(const name of names.filter(speciesEnabled))species.add(new Option(C.speciesName(name),name));species.value=r.species||names[0];
  $('edit-context').checked=!!r.context;const root=$('edit-team');root.replaceChildren();
  for(let i=0;i<5;i++){const l=el('label',position(i+1)),s=el('select');s.id='edit-team-'+i;optionList(s,editPool.map((p,n)=>({id:p.id,text:speciesEnabled(p.species)?label(p):'非表示'})),r.context?.team[i]?.id||'','未設定');s.onchange=()=>refreshHistoryEditor();l.append(s);root.append(l);}
@@ -298,14 +300,14 @@ for(const id of ['history-period','history-date'])$(id).onchange=()=>{renderHist
 $('roster-other-toggle').onclick=()=>{showOtherPokemon=!showOtherPokemon;renderTeam();};
 $('sort-toggle').onclick=()=>{sorting=!sorting;renderTeam();};$('sort-reset').onclick=()=>commit({...state,pokemon:[...state.pokemon].sort((a,b)=>a.registrationOrder-b.registrationOrder)},'登録順に戻しました。');
 $('analysis-method').onchange=()=>{$('analysis-actor').value='';renderActorFilters();renderSummary();};
-for(const method of ['help','mew','delibird'])$('enable-'+method).onchange=()=>commit({...state,settings:{...state.settings,[recordSettingKeys[method]]:$('enable-'+method).checked}},'表示設定を保存しました。');
+for(const method of ['help','mew','delibird','research'])$('enable-'+method).onchange=()=>commit({...state,settings:{...state.settings,[recordSettingKeys[method]]:$('enable-'+method).checked}},'表示設定を保存しました。');
 optionList($('profile-nature'),natures.map(n=>({id:n,text:n})),'');for(let i=0;i<5;i++){const l=el('label',`サブスキル · Lv.${[10,25,50,70,80][i]}`),s=el('select');s.id='subskill-'+i;optionList(s,subskills.map(n=>({id:n,text:n})),'','未入力');l.append(s);$('subskill-fields').append(l);}
 $('profile-select').onchange=editProfile;
 $('profile-form').onsubmit=e=>{e.preventDefault();const p=state.pokemon.find(p=>p.id===$('profile-select').value);if(!p)return;let profile;try{profile=$('profile-details').hidden?p.profile:ProfileForm.read('profile-',p.species);}catch(e){notice(e.message);return;}if(commit({...state,pokemon:state.pokemon.map(x=>x.id===p.id?{...p,nickname:$('profile-nickname').value.trim(),profile:$('profile-details').hidden?p.profile:profile,...SkillUI.savedFields(p,$('profile-main-skill').value)}:x)},'個体情報を保存しました。過去の履歴は変更していません。'))TeamUI.show('roster');};
 $('export').onclick=()=>{try{const data=blocked?JSON.parse(localStorage.getItem(KEY)):state;const url=URL.createObjectURL(new Blob([CandyBackup.encode(data)],{type:'text/csv;charset=utf-8'}));const a=el('a');a.href=url;const created=new Date();a.download='pokesleep-candy-'+C.localInput(created).replace(/[-:T]/g,'').replace(/^(\d{8})/,'$1_')+String(created.getSeconds()).padStart(2,'0')+'_'+String(created.getMilliseconds()).padStart(3,'0')+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);notice('CSVバックアップを書き出しました。');}catch(e){notice('バックアップを書き出せませんでした：'+e.message);}};
 $('restore-backup').onclick=()=>$('import').click();
-$('import').onchange=async()=>{const file=$('import').files[0];if(!file)return;try{const data=CandyBackup.read(await file.text());const next=C.migrate(data,candyMap);if(confirm(`登録${next.pokemon.length}匹・アメ履歴${next.records.length}件・ゆめのかけら履歴${next.shardRecords.length}件で現在のデータを置き換えますか？`)){localStorage.setItem(KEY+'-before-import',localStorage.getItem(KEY)||'null');const wasBlocked=blocked;blocked=false;if(!commit(next,'バックアップを復元しました。'))blocked=wasBlocked;}}catch(e){notice('復元できませんでした：'+e.message);}$('import').value='';};
-window.addEventListener('storage',e=>{if(e.key===KEY){blocked=false;state=fresh();load();render();notice(blocked?'他の画面の保存データを読み込めませんでした。':'他の画面での変更を反映しました。');}});
+$('import').onchange=async()=>{const file=$('import').files[0];if(!file)return;try{const data=CandyBackup.read(await file.text());const next=C.migrate(data,candyMap);if(confirm(`登録${next.pokemon.length}匹・アメ履歴${next.records.length}件・ゆめのかけら履歴${next.shardRecords.length}件・睡眠${(next.sleepSessions||[]).length}件で現在のデータを置き換えますか？`)){localStorage.setItem(KEY+'-before-import',localStorage.getItem(KEY)||'null');const wasBlocked=blocked;blocked=false;if(!commit(next,'バックアップを復元しました。'))blocked=wasBlocked;}}catch(e){notice('復元できませんでした：'+e.message);}$('import').value='';};
+window.addEventListener('storage',e=>{if(e.key===KEY){blocked=false;state=fresh();load();if(typeof SleepUI!=='undefined')SleepUI.reset();render();notice(blocked?'他の画面の保存データを読み込めませんでした。':'他の画面での変更を反映しました。');}});
 // 朝4時やイベント期間が切り替わった場合も、開いたままの記録画面を更新します。
 let lastDay=C.gameDay(new Date());setInterval(()=>{const day=C.gameDay(new Date());if(day!==lastDay){lastDay=day;renderRecord();renderSummary();renderHistory();ShardUI.renderSummary();}},30000);
 ProfileForm.init();TeamUI.init();IndividualImportUI.init();MewUI.init();SkillUI.registration('');DateUI.init();$('history-date').value=C.gameDay(new Date());ShardUI.init();$('datetime').value=C.localInput();$('summary-date').value=C.gameDay(new Date());load();renderCatalog();render();DateUI.update();
