@@ -1,21 +1,38 @@
-/* 通常報酬の数値を独自の小さな計算規則に整理。記事本文・画像・出現DBは同梱しない。
+/* ユーザー提供の通常・特別報酬候補値を整理。候補値と寝顔の存在確認は別管理。記事本文・画像・出現DBは同梱しない。
    確認元 https://wikiwiki.jp/poke_sleep/育成/進化/進化区分
-   https://wikiwiki.jp/poke_sleep/寝顔図鑑/寝顔の一覧 (2026-10-19)
-   未確認種・イベントは推測せず手入力。既存candyMapをアメの唯一の参照元とする。 */
+   https://wikiwiki.jp/poke_sleep/寝顔図鑑/寝顔の一覧 (2026-10-20)
+   未確認の★・イベント補正は推測せず手入力。既存candyMapをアメの唯一の参照元とする。 */
 (function(root){
  'use strict';
  const groups={
-  4:'フシギダネ ヒトカゲ ゼニガメ キャタピー コラッタ アーボ ピチュー ピィ ププリン イーブイ リオル',
-  5:'ピカチュウ ピッピ プリン',
-  6:'フシギソウ リザード カメール トランセル ラッタ アーボック バリヤード',
-  7:'カビゴン ガルーラ カイロス メタモン デリバード アブソル イワーク',
-  8:'ルカリオ シャワーズ サンダース ブースター エーフィ ブラッキー リーフィア グレイシア ニンフィア',
-  9:'フシギバナ リザードン カメックス バタフリー ライチュウ プクリン ピクシー'
+  4:"フシギダネ ヒトカゲ ゼニガメ キャタピー コラッタ アーボ ピチュー ピィ ププリン イーブイ リオル ガーディ コイル ミニリュウ チコリータ ウパー ウパー(パルデア) チルット アチャモ ミズゴロウ コリンク グレッグル ユキカブリ イシズマイ タマザラシ タマザラシ(ホリデー) タマゲタケ アブリー ヌイコグマ ホゲータ カヌチャン デルビル ソーナノ タツベイ チゴラス オンバット サンド ロコン ロコン(アローラ) ディグダ ニャース コダック マンキー マダツボミ イシツブテ ヤドン ドードー ゴース カラカラ イーブイ(ハロウィン) イーブイ(ホリデー) ヒノアラシ ワニノコ トゲピー ネイティ メリープ ヨーギラス キモリ ラルトス ナマケロ ココドラ ゴクリン ナックラー カゲボウズ ナエトル ヒコザル ポッチャマ フワンテ ウソハチ マネネ ピンプク ムンナ ワシボン バケッチャ(ちゅうだま) バケッチャ(こだま) バケッチャ(おおだま) バケッチャ(ギガだま) アゴジムシ エレズン ニャオハ クワッス パモ アルクジラ",
+  5:"ピカチュウ ピッピ プリン ソーナンス ピカチュウ(ハロウィン) ピカチュウ(ホリデー) ピカチュウ(キャプテン) トゲチック ウソッキー",
+  6:"フシギソウ リザード カメール トランセル ラッタ アーボック バリヤード オコリザル ヤドラン レアコイル ハクリュー ジュプトル ワカシャモ ヌマクロー ヤルキモノ チルタリス フワライド ルクシオ ドクロッグ イワパレス アブリボン キテルグマ ナカヌチャン ガラガラ ヘルガー トドグラー コモルー オンバーン サンドパン ダグトリオ ペルシアン ゴルダック ウツドン ゴローン ドードリオ ゴースト ベイリーフ マグマラシ アリゲイツ ネイティオ モココ ヌオー サナギラス キルリア コドラ マルノーム ビブラーバ ジュペッタ ハヤシガメ モウカザル ポッタイシ ユキノオー モロバレル ウォーグル デンヂムシ ニャローテ アチゲータ ウェルカモ パモット ドオー",
+  7:"ガルーラ カイロス メタモン デリバード アブソル イワーク カモネギ ヤミラミ ラッキー ツボツボ ヘラクロス ニューラ ルチャブル デデンネ クチート プラスル マイナン ミカルゲ キュワワー トゲデマル ミミッキュ ジジーロン ウッウ ヤミカラス",
+  8:"ルカリオ シャワーズ サンダース ブースター エーフィ ブラッキー リーフィア グレイシア ニンフィア キュウコン キュウコン(アローラ) ウインディ ドンカラス ムシャーナ ハガネール ガチゴラス ヤドキング ハピナス マニューラ パンプジン(ちゅうだま) パンプジン(こだま) パンプジン(おおだま) パンプジン(ギガだま) ストリンダー(ハイ) ストリンダー(ロー) ハルクジラ",
+  9:"フシギバナ リザードン カメックス バタフリー ライチュウ プクリン ピクシー カイリュー オーダイル ジュカイン バシャーモ ケッキング レントラー マスカーニャ デカヌチャン クワガノン エンペルト トドゼルガ ボーマンダ ウツボット ゴローニャ ゲンガー メガニウム バクフーン デンリュウ バンギラス ラグラージ サーナイト ボスゴドラ フライゴン ドダイトス ゴウカザル ジバコイル トゲキッス エルレイド ラウドボーン ウェーニバル パーモット"
  };
+ // Reward candidates and verified sleep-style availability are separate (audit 2026-10-20).
+ // https://wikiwiki.jp/poke_sleep/寝顔図鑑/寝顔の一覧
+ // Size-specific rewards: https://www.serebii.net/pokemonsleep/pokemon/pumpkaboo.shtml
+ // and the corresponding Small/Large/Jumbo Variety and Gourgeist pages.
  const base=Object.fromEntries(Object.entries(groups).flatMap(([amount,species])=>species.split(' ').map(s=>[s,Number(amount)])));
+ const specialRewards=Object.fromEntries('ライコウ エンテイ スイクン ラティアス ラティオス クレセリア ミュウツー ミュウ'.split(' ').map(s=>[s,{1:11,2:13,3:16}]));
+ specialRewards['ダークライ']={1:11,2:16,3:20};
+ // These eight verified size tables deliberately do not inherit a generic form's reward.
+ const sizeRewards={"バケッチャ(ちゅうだま)":{"1":4,"2":6,"3":9,"4":10},"バケッチャ(こだま)":{"1":4,"2":6,"3":9,"4":10},"バケッチャ(おおだま)":{"1":4,"2":6,"3":9,"4":10},"バケッチャ(ギガだま)":{"1":4,"2":6,"3":9,"4":10},"パンプジン(ちゅうだま)":{"1":8,"2":10,"3":13,"4":14},"パンプジン(こだま)":{"1":8,"2":10,"3":13,"4":14},"パンプジン(おおだま)":{"1":8,"2":10,"3":13,"4":14},"パンプジン(ギガだま)":{"1":8,"2":10,"3":13,"4":14}};
+ // Listed exceptions are manual-only. New species are not enabled merely by a candidate value.
+ const excludedStars={"ディグダ":[4],"コイル":[4],"ゴース":[4],"イーブイ(ハロウィン)":[3,4],"イーブイ(ホリデー)":[3,4],"カゲボウズ":[4],"タマザラシ(ホリデー)":[3,4],"フワンテ":[4],"ムンナ":[4],"ピカチュウ(ハロウィン)":[3,4],"ピカチュウ(ホリデー)":[3,4],"ピカチュウ(キャプテン)":[2,3,4],"ダグトリオ":[4],"レアコイル":[4],"ゴースト":[4],"フワライド":[4],"ユキノオー":[4],"イワーク":[4],"ハガネール":[4],"ムシャーナ":[4],"ガチゴラス":[4],"ハルクジラ":[4],"ドダイトス":[4],"ジバコイル":[4],"デカヌチャン":[4]};
+ const absentStars={"ゴース":[4],"イーブイ(ハロウィン)":[3,4],"イーブイ(ホリデー)":[3,4],"ピカチュウ(ハロウィン)":[3,4],"ピカチュウ(ホリデー)":[3,4]};
+ const verifiedNormalNames="フシギダネ ヒトカゲ ゼニガメ キャタピー コラッタ アーボ サンド ロコン ロコン(アローラ) ディグダ ニャース コダック マンキー ガーディ マダツボミ イシツブテ ヤドン コイル ドードー ゴース カラカラ イーブイ イーブイ(ハロウィン) イーブイ(ホリデー) ミニリュウ チコリータ ヒノアラシ ワニノコ ピチュー ピィ ププリン トゲピー ネイティ メリープ ウパー ウパー(パルデア) デルビル ヨーギラス キモリ アチャモ ミズゴロウ ラルトス ナマケロ ココドラ ゴクリン ナックラー チルット カゲボウズ ソーナノ タマザラシ タマザラシ(ホリデー) タツベイ ナエトル ヒコザル ポッチャマ コリンク フワンテ ウソハチ マネネ ピンプク リオル グレッグル ユキカブリ ムンナ イシズマイ タマゲタケ ワシボン チゴラス バケッチャ(ちゅうだま) バケッチャ(こだま) バケッチャ(おおだま) バケッチャ(ギガだま) オンバット アゴジムシ アブリー ヌイコグマ エレズン ニャオハ ホゲータ クワッス パモ カヌチャン アルクジラ ピカチュウ ピカチュウ(ハロウィン) ピカチュウ(ホリデー) ピカチュウ(キャプテン) ピッピ プリン トゲチック ウソッキー ソーナンス フシギソウ リザード カメール トランセル ラッタ アーボック サンドパン ダグトリオ ペルシアン ゴルダック オコリザル ウツドン ゴローン ヤドラン レアコイル ドードリオ ゴースト ガラガラ バリヤード ハクリュー ベイリーフ マグマラシ アリゲイツ ネイティオ モココ ヌオー ヘルガー サナギラス ジュプトル ワカシャモ ヌマクロー キルリア ヤルキモノ コドラ マルノーム ビブラーバ チルタリス ジュペッタ トドグラー コモルー ハヤシガメ モウカザル ポッタイシ ルクシオ フワライド ドクロッグ ユキノオー イワパレス モロバレル ウォーグル オンバーン デンヂムシ アブリボン キテルグマ ニャローテ アチゲータ ウェルカモ パモット ナカヌチャン ドオー カモネギ イワーク ラッキー ガルーラ カイロス メタモン ヤミカラス ツボツボ ヘラクロス ニューラ デリバード ヤミラミ クチート プラスル マイナン アブソル ミカルゲ ルチャブル デデンネ キュワワー トゲデマル ミミッキュ ジジーロン ウッウ キュウコン キュウコン(アローラ) ウインディ シャワーズ サンダース ブースター エーフィ ブラッキー ヤドキング ハガネール ハピナス ドンカラス ルカリオ マニューラ リーフィア グレイシア ムシャーナ ガチゴラス ニンフィア パンプジン(ちゅうだま) パンプジン(こだま) パンプジン(おおだま) パンプジン(ギガだま) ストリンダー(ハイ) ストリンダー(ロー) ハルクジラ フシギバナ リザードン カメックス バタフリー ライチュウ ピクシー プクリン ウツボット ゴローニャ ゲンガー カイリュー メガニウム バクフーン オーダイル デンリュウ バンギラス ジュカイン バシャーモ ラグラージ サーナイト ケッキング ボスゴドラ フライゴン トドゼルガ ボーマンダ ドダイトス ゴウカザル エンペルト レントラー ジバコイル トゲキッス エルレイド クワガノン マスカーニャ ラウドボーン ウェーニバル パーモット デカヌチャン".split(' ');
+ const autoStars=Object.fromEntries([...verifiedNormalNames.map(s=>[s,[1,2,3,4].filter(star=>!excludedStars[s]?.includes(star))]),...Object.keys(specialRewards).map(s=>[s,[1,2,3]])]);
+ function candidateAmount(species,stars){if(!Number.isInteger(stars)||stars<1||stars>4)return null;if(Object.hasOwn(specialRewards,species))return specialRewards[species][stars]??null;if(Object.hasOwn(sizeRewards,species))return sizeRewards[species][stars]??null;return Object.hasOwn(base,species)?base[species]+[0,2,5,6][stars-1]:null;}
+ function rewardStatus(species,stars){if(!Number.isInteger(stars)||stars<1||stars>4)return 'unknown';if(absentStars[species]?.includes(stars))return 'absent';return autoStars[species]?.includes(stars)?'verified':'unknown';}
+ function nextStars(species,stars){for(let i=1;i<=4;i++){const star=(stars-1+i)%4+1;if(rewardStatus(species,star)!=='absent')return star;}return stars;}
  const fmt=n=>n.toLocaleString('ja-JP');
  const normalize=s=>s.normalize('NFKC').trim().replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
- function estimate(species,stars){if(!Number.isInteger(stars)||stars<1||stars>4)return null;return Object.hasOwn(base,species)?base[species]+[0,2,5,6][stars-1]:null;}
+ function estimate(species,stars){return autoStars[species]?.includes(stars)?candidateAmount(species,stars):null;}
+ function changeStars(entry,stars){const calculatedAmount=estimate(entry.species,stars),manual=entry.manualAmount===true||(entry.amount!==''&&(entry.calculatedAmount===null||Number(entry.amount)!==entry.calculatedAmount));return {...entry,stars,calculatedAmount,amount:manual?entry.amount:(calculatedAmount??''),...(manual?{manualAmount:true}:{})};}
  const count=n=>Number.isSafeInteger(n)&&n>=0&&n<=1000000000;
  function validDate(d){if(typeof d!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false;const t=new Date(d+'T12:00:00Z');return Number.isFinite(t.getTime())&&t.toISOString().slice(0,10)===d;}
  function validate(sessions,map,legacy=[]){
@@ -72,6 +89,6 @@
   if(drafts[draftKey])drafts[draftKey]={...drafts[draftKey],id:session.id,...values,researchRank:rank};
   return {...next,...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
  }
- const api={visible,researchRows,researchTotal,updateResearch,base,estimate,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,datetime,fmt};
+ const api={visible,researchRows,researchTotal,updateResearch,base,specialRewards,sizeRewards,autoStars,absentStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,datetime,fmt};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SleepResearch=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
