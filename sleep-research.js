@@ -48,6 +48,30 @@
   const next=[...other,session];validate(next,map);return {...state,sleepSessions:next};
  }
  function day(datetime){const d=new Date(Date.parse(datetime)+5*3600000);return d.toISOString().slice(0,10);}
- const api={base,estimate,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,datetime,fmt};
+ const visible=state=>state.settings?.showSleepTab===true;
+ // Both inputs address these same saved rows. Legacy rows remain in their original array.
+ function researchRows(state,date){
+  const rows=(state.sleepSessions||[]).filter(s=>s.date===date).map(s=>({key:'session:'+s.id,kind:'session',number:s.number,record:s})),used=new Set(rows.map(r=>r.number));
+  const legacy=(state.shardRecords||[]).filter(r=>r.method==='research'&&(r.targetDate||day(r.datetime))===date).slice().sort((a,b)=>Date.parse(a.datetime)-Date.parse(b.datetime));
+  for(const r of legacy){let n=1;while(used.has(n))n++;used.add(n);rows.push({key:'legacy:'+r.id,kind:'legacy',number:n,record:r});}
+  return rows.sort((a,b)=>a.number-b.number);
+ }
+ const researchTotal=(state,date)=>researchRows(state,date).reduce((sum,r)=>sum+r.record.amount,0);
+ function updateResearch(state,date,key,values,map,newId,now){
+  if(!validDate(date)||!count(values.baseAmount)||!count(values.researchExp))throw Error('リサーチ日と個数を確認してください。');
+  const rows=researchRows(state,date),row=rows.find(r=>r.key===key);
+  const rank=row?(row.kind==='legacy'?row.record.researchLevel:row.record.researchRank):state.settings?.researchRank;
+  if(!row&&(!Number.isInteger(rank)||rank<1||rank>70))throw Error('設定でリサーチランクを設定してください。');
+  const amount=values.baseAmount+(rank===70?values.researchExp:0);if(!count(amount))throw Error('獲得数が大きすぎます。');
+  if(row?.kind==='legacy')return {...state,shardRecords:state.shardRecords.map(r=>r.id===row.record.id?{...r,...values,amount,updatedAt:now}:r)};
+  let session;
+  if(row)session={...row.record,...values,amount,updatedAt:now};
+  else{const match=/^new:([12])$/.exec(key),number=match?Number(match[1]):0;if(!number||rows.some(r=>r.number===number))throw Error('編集する睡眠を選び直してください。');session={id:newId,date,number,field:state.settings?.sleepField||'',sleepType:'とくちょうなし',entries:[],recordedAt:now,researchRank:rank,...values,amount};}
+  const next=save(state,session,map),drafts={...(state.sleepDrafts||{})},draftKey=date+':'+session.number;
+  // Keep unsaved candy edits while synchronising only the saved shard fields.
+  if(drafts[draftKey])drafts[draftKey]={...drafts[draftKey],id:session.id,...values,researchRank:rank};
+  return {...next,...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
+ }
+ const api={visible,researchRows,researchTotal,updateResearch,base,estimate,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,datetime,fmt};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SleepResearch=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

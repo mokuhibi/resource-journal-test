@@ -26,6 +26,7 @@ const ShardUI=(()=>{
  }
  // 同日の複数記録は最後に保存されたものを表示。合計ではなく入力値を使います。
  function loadResearch(force=false){
+  if(typeof SleepShards!=='undefined'){SleepShards.render(force);return;}
   const day=$('shard-research-date').value;
   const matches=records().filter(r=>r.method==='research'&&(r.targetDate||C.gameDay(r.datetime))===day);
   const r=[...matches].sort((a,b)=>Date.parse(a.updatedAt||a.recordedAt||a.datetime)-Date.parse(b.updatedAt||b.recordedAt||b.datetime)).at(-1),key=JSON.stringify([day,r||null,sharedRank()]);
@@ -64,7 +65,7 @@ const ShardUI=(()=>{
   CopySkills.render(root,'shards');
   root.hidden=!SummaryExtras.shardVisible('skill')||!root.children.length;
   $('cluster-panel').hidden=!SummaryExtras.shardVisible('cluster');
-  $('research-panel').hidden=typeof SleepUI!=='undefined'||!SummaryExtras.shardVisible('research');
+  $('research-panel').hidden=!SummaryExtras.shardVisible('research');
   $('shard-other-form').closest('details').hidden=!SummaryExtras.shardVisible('other');
  }
  function addSkillSetting(card,p){card.append(el('small',mainSkillText(p)+(p.profile?` · Lv.${p.profile.skillLevel}`:''),'shard-setting'));}
@@ -114,6 +115,7 @@ const ShardUI=(()=>{
   $('shard-date').value=C.gameDay(new Date());for(const id of ['shard-period','shard-date'])$(id).onchange=renderSummary;
   $('shard-today').onclick=()=>{$('shard-date').value=C.gameDay(new Date());renderSummary();};
   $('shard-research-form').onsubmit=e=>{e.preventDefault();try{const targetDate=$('shard-research-date').value;if(!C.dateOnly(targetDate))throw Error('対象日を入力してください。');if(!researchEditingId&&!sharedRank())throw Error('設定でリサーチランクを設定してください。');const r={method:'research',targetDate,baseAmount:number('shard-research-base'),researchExp:number('shard-research-exp'),researchLevel:number('shard-research-level',1,70)};r.researchRank=r.researchLevel;r.amount=C.shardTotal(r);const existing=records().find(x=>x.id===researchEditingId);const ok=existing?commit({...state,shardRecords:records().map(x=>x.id===existing.id?{...x,...r,updatedAt:new Date().toISOString()}:x)},'睡眠リサーチを訂正しました。'):save(r);if(ok)loadResearch(true);}catch(err){notice(err.message);}};
+  if(typeof SleepShards!=='undefined')SleepShards.init();
   $('shard-other-form').onsubmit=e=>{e.preventDefault();try{if(save({method:'other',otherKind:$('shard-other-kind').value,amount:number('shard-other-amount'),memo:$('shard-other-memo').value.trim()}))$('shard-other-form').reset();}catch(err){notice(err.message);}};
  }
  return {recordName,methodName,summaryRecords,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
