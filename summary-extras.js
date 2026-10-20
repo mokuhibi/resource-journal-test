@@ -44,7 +44,7 @@ const SummaryExtras=(()=>{
   const groups=new Map();for(const r of records){if(!r.candy||!r.amount)continue;if(!groups.has(r.candy))groups.set(r.candy,{name:r.candy,total:0,sources:{}});const g=groups.get(r.candy);g.total+=r.amount;g.sources[r.method]=(g.sources[r.method]||0)+r.amount;}
   return [...groups.values()].sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ja'));
  }
- // 表示列だけを分割。集計済みの値・並び順は変更しません。
+ // 画像用の表示列を分割。集計済みの値・並び順は変更しません。
  function candyColumns(groups){
   const active=candySources.filter(([key])=>recordVisible(key)&&groups.some(g=>g.sources[key]));
   const panels=[];for(let i=0;i<active.length;i+=2)panels.push(active.slice(i,i+2));
@@ -59,8 +59,9 @@ const SummaryExtras=(()=>{
   const groups=candyGroups(records);
   if(!groups.length){root.append(el('p','この条件のアメの記録はありません。'));return;}
   root.append(el('small','単位：個','candy-table-unit'));
-  for(const sources of candyColumns(groups)){
+  for(const sources of [candyColumns(groups).flat().map(([key,name])=>[key,key==='research'?'睡眠':name])]){
    const scroll=el('div',undefined,'candy-table-scroll'),table=el('table',undefined,'candy-totals-table');
+   table.style.minWidth=(204+sources.length*76)+'px';
    table.setAttribute('aria-label','アメ種類別合計：'+sources.map(([,name])=>name).join('・'));
    const head=el('thead'),header=el('tr');
    for(const label of ['アメ名','合計',...sources.map(([,name])=>name)])header.append(el('th',label));
