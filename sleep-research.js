@@ -146,6 +146,7 @@
   if(drafts[draftKey])drafts[draftKey]={...drafts[draftKey],id:session.id,...values,researchRank:rank};
   return {...next,...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
  }
- const api={candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
+ function initialDate(state,today){const d=new Date(today+'T12:00:00Z');if(state.settings?.sleepMode!=='split')d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10);}
+ const api={initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SleepResearch=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

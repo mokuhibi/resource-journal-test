@@ -24,3 +24,16 @@ body #sleep-editor{padding:0;width:min(640px,calc(100% - 24px));max-height:calc(
 /* Field/type and daily candy bonus share the existing selector row. */
 .sleep-fields{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(72px,.7fr);gap:6px}.sleep-fields>select{padding-inline:6px}
 .sleep-fields .sleep-bonus{margin:0;font-size:12px;white-space:nowrap}.sleep-fields .sleep-bonus select{margin-top:4px;padding-inline:6px}
+
+/* Compact research heading, shared round tabs and read-only saved history. */
+.sleep-selected-title{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px}.sleep-selected-title small{font-size:12px;font-weight:400;color:var(--mh-muted);overflow-wrap:anywhere}
+.sleep-entry{grid-template-columns:minmax(0,1fr) 44px 56px 44px}.sleep-entry>strong{font-weight:400}
+.sleep-fields{border-top:1px solid var(--mh-border);padding-top:16px}
+.sleep-sticky-actions{gap:4px}.sleep-sticky-total{flex-wrap:wrap;gap:0 4px}.sleep-sticky-total strong{font-size:18px}
+:is(#sleep,#sleep-editor) .sleep-rounds{flex:0 0 auto;margin:0!important;border:0;gap:0}
+:is(#sleep,#sleep-editor) .sleep-rounds>button{font-size:12px;padding:10px 4px;min-width:44px}
+:is(#sleep,#sleep-editor) .sleep-rounds>button[aria-pressed=true]:after{left:4px;right:4px}
+:is(#sleep,#sleep-editor) .sleep-sticky-actions .sleep-save{min-width:52px;padding-inline:10px}
+.sleep-filter-info button[aria-pressed=true]{background:var(--mh-selected)!important;color:var(--mh-accent)!important}
+.sleep-history-entry{padding:16px 0;border-bottom:1px solid var(--mh-border)}.sleep-history-entry h3{font-size:15px;font-weight:600}.sleep-history-entry p{margin:6px 0}.sleep-history-pokemon{margin:8px 0;padding-left:18px;font-size:14px}.sleep-history-pokemon li{overflow-wrap:anywhere}
+#settings #sleep-mode{width:auto;min-width:128px;margin:0}
