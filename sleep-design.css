@@ -19,7 +19,7 @@ body #sleep-editor{padding:0;width:min(640px,calc(100% - 24px));max-height:calc(
 
 .sleep-selected-title{font-size:16px;font-weight:600;margin:16px 0 8px}.sleep-candidates{overscroll-behavior:contain}.sleep-candidates button{min-width:0;overflow-wrap:anywhere}
 
-.sleep-sticky-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0 0}.sleep-sticky-total{display:flex;align-items:baseline;gap:8px;min-width:0;font-size:13px;color:var(--mh-muted)}.sleep-sticky-total strong{font-size:20px;color:var(--mh-text);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.sleep-sticky-actions .sleep-save{flex:0 0 auto;min-width:64px}.sleep-switch{margin-bottom:8px!important}.sleep-fields>select{margin:0;max-width:100%}.sleep-filter-info{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px;color:var(--mh-muted)}.sleep-filter-info small{font-size:12px}.sleep-filter-info button{font-size:12px!important;padding:4px 8px!important}.sleep-candidate strong small{display:block;font-size:11px;color:var(--mh-muted);font-weight:400}.sleep-candidate[data-appearance=unknown]{border-left:2px dotted var(--mh-border);padding-left:6px}.sleep-sessions{margin-top:24px;border:0}.sleep-sessions>summary{min-height:44px;padding:10px 0;color:var(--mh-muted);font-size:14px}.sleep-sessions .sleep-session{padding:8px 0}.sleep-sessions .sleep-session-head{display:flex;align-items:center;gap:8px}.sleep-session-head>strong{margin-right:auto}#sleep-shard-form .research-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#sleep-shard-form .research-fields label{margin:0}#sleep-shard-form .research-fields label:nth-child(2){grid-row:2;grid-column:1}#sleep-shard-form .research-fields label:last-child{grid-row:2;grid-column:2}#sleep-shard-form{padding-top:16px}#sleep-shard-form input{margin-top:0}#sleep-shard-level{text-align:center;font-weight:600}#sleep-form[hidden],#sleep-shard-form[hidden]{display:none!important}
+.sleep-sticky-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0 0}.sleep-sticky-total{display:flex;align-items:baseline;gap:8px;min-width:0;font-size:13px;color:var(--mh-muted)}.sleep-sticky-total strong{font-size:20px;color:var(--mh-text);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.sleep-sticky-actions .sleep-save{flex:0 0 auto;min-width:64px}.sleep-switch{margin-bottom:8px!important}.sleep-fields>select{margin:0;max-width:100%}.sleep-filter-info{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px;color:var(--mh-muted)}.sleep-filter-info small{font-size:12px}.sleep-filter-info button{font-size:12px!important;padding:4px 8px!important}.sleep-candidate strong small{display:block;font-size:11px;color:var(--mh-muted);font-weight:400}.sleep-candidate[data-appearance=unknown]{border-left:2px dotted var(--mh-border);padding-left:6px}.sleep-sessions{margin-top:24px;border:0}.sleep-sessions>summary{min-height:44px;padding:10px 0;color:var(--mh-muted);font-size:14px}.sleep-sessions .sleep-session{padding:8px 0}.sleep-sessions .sleep-session-head{display:flex;align-items:center;gap:8px}.sleep-session-head>strong{margin-right:auto}#sleep-shard-form .research-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#sleep-shard-form .research-fields label{margin:0}#sleep-shard-form .research-fields label:nth-child(2){grid-row:2;grid-column:1}#sleep-shard-form .research-fields label:last-child{grid-row:2;grid-column:2}#sleep-shard-form{padding-top:16px}#sleep-shard-form input{margin-top:6px}#sleep-shard-level{text-align:center;font-weight:600}#sleep-form[hidden],#sleep-shard-form[hidden]{display:none!important}
 
 /* Field/type and daily candy bonus share the existing selector row. */
 .sleep-fields{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(72px,.7fr);gap:6px}.sleep-fields>select{padding-inline:6px}
@@ -48,3 +48,21 @@ body :is(#sleep,#sleep-editor) .sleep-fields select[data-empty=true]{color:var(-
 
 /* Retain the center column when all-period navigation arrows are hidden. */
 :is(#sleep,#sleep-editor) .period-picker-top>.period-picker-day{grid-column:2}
+
+/* Sleep modes share one header height and one separator below the mode tabs. */
+:is(#sleep,#sleep-editor) #sleep-root>.period-picker{border-bottom:0!important;padding-bottom:0!important;margin-bottom:0}
+:is(#sleep,#sleep-editor) .period-picker-top{height:48px}
+:is(#sleep,#sleep-editor) .period-picker-top>.period-picker-day{height:48px;max-height:48px;padding-block:4px;line-height:20px}
+:is(#sleep,#sleep-editor) .period-picker-top>.period-picker-day>span{max-height:40px;overflow:hidden}
+:is(#sleep,#sleep-editor) .period-picker>.sleep-history-periods{height:52px;margin:0!important;padding-top:4px;border-bottom:0}
+:is(#sleep,#sleep-editor) .sleep-history-periods>button:last-child{margin-left:auto}
+/* Shared labelled research fields: rank on its own row, EXP and shards together. */
+:is(#record,#sleep,#sleep-editor) .research-fields>label{text-align:left;font-size:var(--mh-text-size);font-weight:400;color:var(--mh-muted)}
+:is(#record,#sleep,#sleep-editor) .research-fields input{font-size:var(--mh-input-size);text-align:center;height:44px;min-height:44px;margin-top:6px}
+#record #shard-research-form .research-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#record #shard-research-form .research-fields>label{margin:0}
+#record #shard-research-form .research-fields>label:nth-child(3){grid-row:2;grid-column:1}
+#record #shard-research-form .research-fields>label:nth-child(4){grid-row:3;grid-column:1}
+#record #shard-research-form .research-fields>label:nth-child(5){grid-row:3;grid-column:2}
+#record #shard-research-form .research-session-field{align-self:end}
+#record #shard-research-session{margin-top:0;height:44px;font-size:var(--mh-input-size)}

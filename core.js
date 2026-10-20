@@ -49,7 +49,7 @@ const CandyCore = (() => {
    if(r.researchRank!==undefined&&(!Number.isInteger(r.researchRank)||r.researchRank<1||r.researchRank>70))throw Error('記録時リサーチランク');
    if(r.method==='cluster'&&(!['S','M','L'].includes(r.clusterSize)||!count(r.usedCount)||r.usedCount<1||r.researchRank===undefined||!count(r.amount)||r.amount<1))throw Error('ゆめのかたまり履歴');
    if(r.method==='research'&&r.researchRank!==undefined&&r.researchRank!==r.researchLevel)throw Error('リサーチランク');
-   if(r.otherKind!==undefined&&!['mission','achievement','gift','unclassified'].includes(r.otherKind))throw Error('その他の入手方法');
+   if(r.otherKind!==undefined&&!['mission','achievement','gift','nap_island','unclassified'].includes(r.otherKind))throw Error('その他の入手方法');
    if(r.method==='other'&&(!count(r.amount)||typeof r.memo!=='string'))throw Error('その他のゆめのかけら履歴');
   }
  }

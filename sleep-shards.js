@@ -3,10 +3,10 @@
 const SleepShards=(()=>{
  let sourceKey=null,selectedKey='',selector;
  function number(id){const raw=$(id).value.trim(),value=Number(raw);if(raw===''||!Number.isSafeInteger(value)||value<0||value>1000000000)throw Error('個数は0以上の整数で入力してください。');return value;}
- function fields(prefix,values,change,compact=false){
+ function fields(prefix,values,change){
   const root=el('div',undefined,'filters research-fields');
   for(const [key,title,suffix] of [['researchRank','リサーチランク','level'],['researchExp','リサーチEXP','exp'],['baseAmount','ゆめのかけら','base']]){
-   const label=el('label',compact?undefined:title),input=el('input');Object.assign(input,{id:prefix+'-'+suffix,type:'number',inputMode:'numeric',min:key==='researchRank'?'1':'0',max:key==='researchRank'?'70':'1000000000',step:'1',required:true,readOnly:key==='researchRank',value:values[key]??''});input.setAttribute('aria-label',title);if(compact)input.placeholder=title;
+   const label=el('label',title),input=el('input');Object.assign(input,{id:prefix+'-'+suffix,type:'number',inputMode:'numeric',min:key==='researchRank'?'1':'0',max:key==='researchRank'?'70':'1000000000',step:'1',required:true,readOnly:key==='researchRank',value:values[key]??''});input.setAttribute('aria-label',title);
    if(key!=='researchRank')input.oninput=()=>change(key,input.value);label.append(input);root.append(label);
   }
   return root;
@@ -19,16 +19,16 @@ const SleepShards=(()=>{
  }
  function render(force=false){
   const date=$('shard-research-date').value;if(!C.dateOnly(date))return;
-  const rows=SleepResearch.researchRows(state,date),options=rows.map(row=>({key:row.key,text:row.number+'回目'+(row.kind==='legacy'?'（既存の記録）':'')}));
-  if(rows.length<2)for(let n=1;n<=2;n++)if(!rows.some(r=>r.number===n))options.push({key:'new:'+n,text:n+'回目を記録'});
-  if(!selector){const label=el('label','編集する睡眠');selector=el('select');selector.id='shard-research-session';label.append(selector);$('shard-research-form').prepend(label);selector.onchange=()=>{selectedKey=selector.value;render(true);};const total=el('p',undefined,'research-daily-total');total.id='research-daily-total';$('shard-research-form').prepend(total);}
+  const rows=SleepResearch.researchRows(state,date),options=rows.map(row=>({key:row.key,text:row.number+'回目'}));
+  if(rows.length<2)for(let n=1;n<=2;n++)if(!rows.some(r=>r.number===n))options.push({key:'new:'+n,text:n+'回目'});
+  if(!selector){const label=el('label');label.className='research-session-field';selector=el('select');selector.id='shard-research-session';selector.setAttribute('aria-label','睡眠回数');label.append(selector);$('shard-research-date').closest('label').after(label);selector.onchange=()=>{selectedKey=selector.value;render(true);};const total=el('p',undefined,'research-daily-total');total.id='research-daily-total';$('shard-research-form').prepend(total);}
   const key=JSON.stringify([date,rows,state.settings.researchRank,state.sleepDrafts]);if(!force&&key===sourceKey)return;sourceKey=key;
   if(!options.some(o=>o.key===selectedKey))selectedKey=rows[0]?.key||options[0]?.key||'';
   selector.replaceChildren();for(const o of options)selector.add(new Option(o.text,o.key));selector.value=selectedKey;
   const row=rows.find(r=>r.key===selectedKey),r=row?.record,n=row?.number||Number(selectedKey.split(':')[1]),draft=state.sleepDrafts?.[date+':'+n],rank=row?(row.kind==='legacy'?r.researchLevel:(r.shardsRecorded===false?state.settings.researchRank:r.researchRank)):state.settings.researchRank;
   $('research-daily-total').textContent='その日の合計 '+SleepResearch.researchTotal(state,date).toLocaleString('ja-JP')+'個'+(rows.length?'（'+rows.length+'回分）':'');
   $('shard-research-level').required=!row||rank!==null;$('shard-research-level').value=rank??'';$('shard-research-base').value=draft?.baseAmount??(r?.shardsRecorded===false?'':r?.baseAmount??'');$('shard-research-exp').value=draft?.researchExp??r?.researchExp??'0';
-  $('research-save').textContent=row?'訂正を保存':'リサーチを記録';$('research-rank-hint').textContent=row?'記録時のランクを使用します。':rank?'設定のリサーチランクを使用します。':'設定でリサーチランクを設定してください。';
+  $('research-save').textContent=row?'訂正を保存':'リサーチを記録';$('research-rank-hint').hidden=Boolean(row);$('research-rank-hint').textContent=row?'':rank?'設定のリサーチランクを使用します。':'設定でリサーチランクを設定してください。';
  }
  function init(){
   const old=$('shard-research-form').querySelector('.research-fields'),dateLabel=$('shard-research-date').closest('label'),shared=fields('shard-research',{},keepDraft);shared.prepend(dateLabel);old.replaceWith(shared);
