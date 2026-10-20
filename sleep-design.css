@@ -23,4 +23,4 @@ body #sleep-editor{padding:0;width:min(640px,calc(100% - 24px));max-height:calc(
 
 /* Field/type and daily candy bonus share the existing selector row. */
 .sleep-fields{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(72px,.7fr);gap:6px}.sleep-fields>select{padding-inline:6px}
-.sleep-fields .sleep-bonus{font-size:12px;white-space:nowrap}.sleep-fields .sleep-bonus select{margin-top:4px;padding-inline:6px}
+.sleep-fields .sleep-bonus{margin:0;font-size:12px;white-space:nowrap}.sleep-fields .sleep-bonus select{margin-top:4px;padding-inline:6px}
