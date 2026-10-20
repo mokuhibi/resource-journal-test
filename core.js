@@ -53,6 +53,7 @@ const CandyCore = (() => {
    if(r.method==='other'&&(!count(r.amount)||typeof r.memo!=='string'))throw Error('その他のゆめのかけら履歴');
   }
  }
+ const isNapRecord=r=>r?.method==='skill'&&r.source==='nap_island';
  function migrate(raw,map){
   if(!raw||![1,2].includes(raw.version)||!Array.isArray(raw.pokemon)||!Array.isArray(raw.records)||!Array.isArray(raw.team)||raw.team.length!==5)throw Error('保存形式');
   const shardRecords=raw.shardRecords??[];validateShards(shardRecords);
@@ -66,9 +67,10 @@ const CandyCore = (() => {
    if(r.recordedSkillLevel!==undefined&&(!Number.isInteger(r.recordedSkillLevel)||r.recordedSkillLevel<1||r.recordedSkillLevel>8))throw Error('記録時スキルLv');
    if(r.registeredMainSkill!==undefined&&(typeof r.registeredMainSkill!=='string'||!r.registeredMainSkill.trim()))throw Error('記録時メインスキル');
    if(r.firedSkill!==undefined&&(r.method!=='mew'||!mewSkills.slice(1).includes(r.firedSkill)||!r.context||!Number.isSafeInteger(r.shardAmount)||r.shardAmount<0||r.shardAmount>1000000000||(SK.id(r.firedSkill)==='dream_shard_s'?r.shardAmount===0:r.shardAmount!==0)))throw Error('ミュウ発動スキル');
-   if(noCandy){if((r.method==='mew'&&!r.context)||r.candy!==null||r.pokemonId!==null)throw Error('アメなし');}
+   if(isNapRecord(r)){if(!Object.hasOwn(map,r.species)||r.candy!==map[r.species]||typeof r.pokemon!=='string'||r.pokemonId!==null||r.slot!==null||r.context!==null||!Number.isSafeInteger(r.amount)||r.amount<1||r.amount>1000000000)throw Error('おひるね島のアメ履歴');}
+   else if(noCandy){if((r.method==='mew'&&!r.context)||r.candy!==null||r.pokemonId!==null)throw Error('アメなし');}
    else if(!Object.hasOwn(map,r.species)||r.candy!==map[r.species]||typeof r.pokemonId!=='string'||typeof r.pokemon!=='string'||!(Number.isInteger(r.slot)&&r.slot>=1&&r.slot<=5||r.method!=='help'&&r.slot===null)||!(r.method==='help'?r.amount===2:r.method==='mew'?[1,2,3,4].includes(r.amount):r.method==='skill'?Number.isSafeInteger(r.amount)&&r.amount>0&&r.amount<=1000000000:r.amount===4))throw Error('アメ履歴');
-   if(r.method==='skill'&&!r.context)throw Error('スキル記録時の編成');
+   if(r.method==='skill'&&!isNapRecord(r)&&!r.context)throw Error('スキル記録時の編成');
    if(r.context!=null){const c=r.context;if(!Array.isArray(c.team)||c.team.length!==5)throw Error('記録時編成');
     for(const p of c.team)if(p!==null&&(!p||typeof p.id!=='string'||typeof p.nickname!=='string'||!Object.hasOwn(map,p.species)||(p.profile!=null&&!profileValid(p.profile,p.species,true))))throw Error('記録時個体');
     if(r.method==='skill'){if(!c.actor||c.actor.id!==c.actorId||!Number.isInteger(c.actorSlot)||c.actorSlot<1||c.actorSlot>5||c.team[c.actorSlot-1]?.id!==c.actorId)throw Error('スキル使用個体');}
@@ -87,6 +89,6 @@ const CandyCore = (() => {
   return {...raw,version:2,shardRecords,pokemon:raw.pokemon.map((p,i)=>({...p,registrationOrder:Number.isFinite(p.registrationOrder)?p.registrationOrder:i,profile:p.profile?{...p.profile,skillLevel:Math.min(skillCap(p.species),p.profile.skillLevel)}:null})),team:raw.team,records:raw.records.map(r=>({...r,context:r.context||null})),events,settings:raw.settings||{mew:true,delibird:true}};
  }
  const sum=rs=>rs.reduce((n,r)=>n+r.amount,0);
- return {recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords};
+ return {isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords};
 })();
 if(typeof module!=='undefined')module.exports=CandyCore;

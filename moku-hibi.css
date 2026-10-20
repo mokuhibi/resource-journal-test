@@ -116,3 +116,16 @@ body :is(button,input,select,textarea,a):focus-visible{outline:2px solid var(--m
 [data-shard-source="research"]{--shard-method-color:var(--shard-research-color)}
 [data-shard-source="other"],[data-shard-source="cluster"]{--shard-method-color:var(--shard-other-color)}
 #history #history-list .card.shards .history-method{color:var(--shard-method-color,var(--editorial-shard))}
+
+/* Only labels that directly describe input controls, never switches or navigation. */
+body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label:has(>:is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,.date-field)){font-size:var(--mh-text-size);font-weight:400;color:var(--mh-muted);text-align:center}
+body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label>:is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,.date-field){margin-top:6px}
+#record #nap-island-section{border:0;border-bottom:1px solid var(--mh-border);background:none;border-radius:0;padding:16px 0;margin:0 0 24px}
+#record #nap-island-section>h2{font-size:17px;color:#686b63;margin:0 0 12px}
+#record #nap-island-form{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:12px;align-items:end}#record #nap-island-form>label{margin:0;min-width:0}
+#record #nap-island-form :is(input,button){font-size:16px;min-height:44px}#record #nap-island-results{grid-column:1/-1;max-height:180px;padding:0}
+#record #nap-island-results>button{min-height:44px;text-align:left;white-space:normal}
+#record #nap-island-form>button{grid-column:2;justify-self:end;min-width:64px;background:var(--record-action);border-color:transparent;color:var(--mh-text)}
+#nap-island-editor{width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 32px);overflow:auto;background:var(--mh-surface);color:var(--mh-text);border:1px solid var(--mh-border);border-radius:var(--mh-radius)}#nap-island-editor input,#nap-island-editor select{font-size:16px;min-height:44px}#nap-island-editor button{min-height:44px;margin:8px}
+body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label[for]:not(.check){font-size:var(--mh-text-size);font-weight:400;color:var(--mh-muted);text-align:center;margin-bottom:6px}
+#record #nap-island-form input{height:44px}

@@ -57,12 +57,22 @@ body :is(#sleep,#sleep-editor) .sleep-fields select[data-empty=true]{color:var(-
 :is(#sleep,#sleep-editor) .period-picker>.sleep-history-periods{height:52px;margin:0!important;padding-top:4px;border-bottom:0}
 :is(#sleep,#sleep-editor) .sleep-history-periods>button:last-child{margin-left:auto}
 /* Shared labelled research fields: rank on its own row, EXP and shards together. */
-:is(#record,#sleep,#sleep-editor) .research-fields>label{text-align:left;font-size:var(--mh-text-size);font-weight:400;color:var(--mh-muted)}
+:is(#record,#sleep,#sleep-editor) .research-fields>label{text-align:center;font-size:var(--mh-text-size);font-weight:400;color:var(--mh-muted)}
 :is(#record,#sleep,#sleep-editor) .research-fields input{font-size:var(--mh-input-size);text-align:center;height:44px;min-height:44px;margin-top:6px}
 #record #shard-research-form .research-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 #record #shard-research-form .research-fields>label{margin:0}
-#record #shard-research-form .research-fields>label:nth-child(3){grid-row:2;grid-column:1}
-#record #shard-research-form .research-fields>label:nth-child(4){grid-row:3;grid-column:1}
-#record #shard-research-form .research-fields>label:nth-child(5){grid-row:3;grid-column:2}
+#record #shard-research-form .research-fields>label[data-research-field=researchRank]{grid-row:2;grid-column:1}
+#record #shard-research-form .research-fields>label[data-research-field=researchExp]{grid-row:3;grid-column:1}
+#record #shard-research-form .research-fields>label[data-research-field=baseAmount]{grid-row:3;grid-column:2}
 #record #shard-research-form .research-session-field{align-self:end}
 #record #shard-research-session{margin-top:0;height:44px;font-size:var(--mh-input-size)}
+
+body:has(#sleep:not([hidden])) .app{padding-bottom:calc(76px + env(safe-area-inset-bottom))}.sleep-candidates{margin-bottom:0}
+#record #shard-research-form .research-session-field{grid-row:1;grid-column:1;margin:0}
+#record #research-save{display:block;min-height:44px;margin:16px 0 8px auto;padding:10px 16px}
+#record #shard-other-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:end}
+#record #shard-other-form>label{margin:0;min-width:0}#record #shard-other-form>label.shard-other-memo-field{grid-column:1/-1}
+#record #shard-other-form :is(input,select){margin-top:6px;font-size:16px;width:100%;min-width:0;padding-inline:6px}
+#record #shard-other-form>button{grid-column:2;justify-self:end;margin:4px 0 8px;min-width:64px}
+@media(max-width:360px){#record #shard-other-kind{padding-inline:2px}}
+#record #shard-other-form :is(input,select){height:44px}
