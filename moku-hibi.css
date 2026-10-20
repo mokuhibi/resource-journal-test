@@ -41,8 +41,10 @@ body :is(#app-panel,.record-picker,#period-range-dialog,#team-picker,#history-ed
 :is(#record,#sleep,#summary,#shards,#team,#history,#settings) .card{box-shadow:var(--mh-shadow)}
 #team .team-switch button[aria-selected=true],#team-picker .team-picker-row[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);box-shadow:var(--mh-shadow)}
 #team-picker .team-picker-row[aria-pressed=true] .team-picker-status{color:var(--mh-accent)}
-:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]{color:var(--mh-accent)}
-:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]:after{background:var(--mh-accent)}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true],
+:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]{color:var(--mh-accent)}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]:after,
+:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]:after{background:var(--mh-accent)}
 body .tabs,body:has(#record[hidden]) .tabs{background:var(--mh-surface);border-color:var(--mh-border);padding-inline:var(--mh-space-xs)}
 body .tabs [aria-current=page],body:has(#record[hidden]) .tabs [aria-current=page]{color:var(--mh-accent)}
 body .tabs [aria-current=page]:before{background:var(--mh-accent)}
@@ -60,9 +62,12 @@ body :is(button,input,select,textarea,a):focus-visible{outline:2px solid var(--m
 #record-methods>div,#record #shard-records>.card{margin-bottom:var(--mh-section-gap)}
 /* Calendar cells and pill stacks keep their purpose-specific shape and size. */
 @media(max-width:360px){
- :is(#summary,#shards,#history) .period-picker .period-quick-buttons{gap:0}
- :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button{padding-inline:8px;font-size:13px}
- :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]:after{left:8px;right:8px}
+ :is(#summary,#shards,#history) .period-picker .period-quick-buttons,
+ :is(#sleep,#sleep-editor) .sleep-switch{gap:0}
+ :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button,
+ :is(#sleep,#sleep-editor) .sleep-switch>button{padding-inline:8px;font-size:13px}
+ :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]:after,
+ :is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]:after{left:8px;right:8px}
  #record .record-row-content strong,#record .record-row-content{overflow-wrap:anywhere;min-width:0}
  .tabs button{overflow-wrap:normal}
 }

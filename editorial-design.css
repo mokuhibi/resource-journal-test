@@ -332,11 +332,15 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 :is(#summary,#shards,#history,#sleep,#sleep-editor) .period-picker .period-picker-top{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:0;width:100%;max-width:none;margin:0}
 :is(#summary,#shards,#history,#sleep,#sleep-editor) .period-picker .period-picker-top>:is(button,.period-picker-day){min-height:var(--period-control-height);height:auto;margin:0;padding:8px 4px;border:0;border-radius:6px;background:none;color:var(--editorial-ink);font-size:20px;font-weight:400;line-height:1.5}
 :is(#summary,#shards,#history,#sleep,#sleep-editor) .period-picker .period-picker-top>.period-picker-date{font-size:16px;font-weight:600;white-space:normal;overflow-wrap:anywhere;line-height:1.5;letter-spacing:0;font-variant-numeric:tabular-nums}
-:is(#summary,#shards,#history) .period-picker .period-quick-buttons{display:flex;align-items:center;gap:4px;margin:var(--period-row-gap) 0 0;padding:0;border-bottom:1px solid var(--editorial-line);justify-content:flex-start}
-:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button{position:relative;min-width:44px;min-height:var(--period-control-height);margin:0;padding:10px 12px;border:0;border-radius:0;background:none;color:var(--editorial-muted);font-size:13px;font-weight:400;line-height:1.5;white-space:nowrap}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons,
+:is(#sleep,#sleep-editor) .sleep-switch{display:flex;align-items:center;gap:4px;margin:var(--period-row-gap) 0 0;padding:0;border-bottom:1px solid var(--editorial-line);justify-content:flex-start}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button,
+:is(#sleep,#sleep-editor) .sleep-switch>button{position:relative;min-width:44px;min-height:var(--period-control-height);margin:0;padding:10px 12px;border:0;border-radius:0;background:none;color:var(--editorial-muted);font-size:13px;font-weight:400;line-height:1.5;white-space:nowrap}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button:last-child{margin-left:auto}
-:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]{color:var(--editorial-ink);font-weight:600}
-:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]::after{content:'';position:absolute;bottom:-1px;left:12px;right:12px;height:2px;background:var(--editorial-ink)}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true],
+:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]{color:var(--editorial-ink);font-weight:600}
+:is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]::after,
+:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]::after{content:'';position:absolute;bottom:-1px;left:12px;right:12px;height:2px;background:var(--editorial-ink)}
 
 #settings #research-rank-form{grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
 #settings #research-rank-form label{display:flex;flex-direction:column;gap:6px;margin:0;min-width:0}

@@ -99,7 +99,7 @@ const ShardUI=(()=>{
  function appendHistory(root,period){
   for(const r of records().filter(r=>C.inRange(r,period))){
    const card=el('div',undefined,'card shards'),actions=el('div',undefined,'history-actions');card.dataset.datetime=r.datetime;
-   actions.append(button('訂正',()=>ShardEditor.open(r)),button('削除',()=>{if(confirm('このゆめのかけら記録を削除しますか？'))commit({...state,shardRecords:records().filter(x=>x.id!==r.id)},'ゆめのかけら記録を削除しました。');},'danger'));
+   actions.append(button('訂正',()=>ShardEditor.open(r)),button('削除',()=>{if(confirm('このゆめのかけら記録を削除しますか？'))commit(SleepResearch.replaceLegacy(state,r.id,null),'ゆめのかけら記録を削除しました。');},'danger'));
    const skill=['skill','lucky'].includes(r.method),pokemon=r.pokemonSnapshot?individual(r.pokemonSnapshot):label(historicalPokemon(r));
    historyCard(card,r,methodName(r),'ゆめのかけら',skill?historyPlace(r.slot)+'　'+pokemon:r.targetDate?'リサーチ日 '+C.displayDate(r.targetDate):r.method==='cluster'?r.clusterSize+'・'+r.usedCount.toLocaleString('ja-JP')+'個使用':'',actions);
    finishHistoryCard(card);root.append(card);
