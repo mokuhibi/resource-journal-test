@@ -55,7 +55,7 @@
  function validate(sessions,map,legacy=[]){
   if(!Array.isArray(sessions)||sessions.length>100000)throw Error('睡眠記録の形式');const ids=new Set(),slots=new Set(),links=new Set();
   for(const s of sessions){
-   if(!s||typeof s.id!=='string'||!s.id||ids.has(s.id)||!validDate(s.date)||![1,2].includes(s.number)||typeof s.field!=='string'||s.field.length>100||!['うとうと','すやすや','ぐっすり','とくちょうなし'].includes(s.sleepType)||typeof s.recordedAt!=='string'||!Number.isFinite(Date.parse(s.recordedAt))||!Array.isArray(s.entries)||s.entries.length>100||!count(s.baseAmount)||!count(s.researchExp)||!count(s.amount)||(s.researchRank!==null&&(!Number.isInteger(s.researchRank)||s.researchRank<1||s.researchRank>70)))throw Error('睡眠記録の内容');
+   if(!s||typeof s.id!=='string'||!s.id||ids.has(s.id)||!validDate(s.date)||![1,2].includes(s.number)||typeof s.field!=='string'||s.field.length>100||!['うとうと','すやすや','ぐっすり','とくちょうなし','特徴なし'].includes(s.sleepType)||typeof s.recordedAt!=='string'||!Number.isFinite(Date.parse(s.recordedAt))||!Array.isArray(s.entries)||s.entries.length>100||!count(s.baseAmount)||!count(s.researchExp)||!count(s.amount)||(s.researchRank!==null&&(!Number.isInteger(s.researchRank)||s.researchRank<1||s.researchRank>70)))throw Error('睡眠記録の内容');
    if(s.candyMultiplier!==undefined&&!multipliers.includes(s.candyMultiplier))throw Error('睡眠のアメ倍率');
    for(const flag of ['candyRecorded','shardsRecorded'])if(s[flag]!==undefined&&typeof s[flag]!=='boolean')throw Error('睡眠の保存項目');
    if(s.legacyResearchId!==undefined&&(typeof s.legacyResearchId!=='string'||links.has(s.legacyResearchId)||!legacy.some(r=>r.id===s.legacyResearchId&&r.method==='research'&&(r.targetDate||day(r.datetime))===s.date)))throw Error('既存睡眠記録との対応');
@@ -71,7 +71,7 @@
  function validateDrafts(drafts,map){
   if(drafts===undefined)return;if(!drafts||typeof drafts!=='object'||Array.isArray(drafts)||Object.keys(drafts).length>20000)throw Error('睡眠の下書き');
   for(const [key,d] of Object.entries(drafts)){
-   if(!d||key!==d.date+':'+d.number||!validDate(d.date)||![1,2].includes(d.number)||typeof d.id!=='string'||typeof d.field!=='string'||d.field.length>100||!['','うとうと','すやすや','ぐっすり','とくちょうなし'].includes(d.sleepType)||!Array.isArray(d.entries)||d.entries.length>100||(d.researchRank!==null&&(!Number.isInteger(d.researchRank)||d.researchRank<1||d.researchRank>70)))throw Error('睡眠の下書き');
+   if(!d||key!==d.date+':'+d.number||!validDate(d.date)||![1,2].includes(d.number)||typeof d.id!=='string'||typeof d.field!=='string'||d.field.length>100||!['','うとうと','すやすや','ぐっすり','とくちょうなし','特徴なし'].includes(d.sleepType)||!Array.isArray(d.entries)||d.entries.length>100||(d.researchRank!==null&&(!Number.isInteger(d.researchRank)||d.researchRank<1||d.researchRank>70)))throw Error('睡眠の下書き');
    if(d.candyMultiplier!==undefined&&!multipliers.includes(d.candyMultiplier))throw Error('下書きのアメ倍率');
    const value=v=>(typeof v==='string'&&v.length<=30)||(typeof v==='number'&&Number.isFinite(v));if(!value(d.baseAmount)||!value(d.researchExp))throw Error('睡眠の下書き入力');
    for(const e of d.entries)if(!e||typeof e.id!=='string'||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>4||!value(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount)))throw Error('睡眠の下書き明細');

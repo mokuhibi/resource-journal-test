@@ -3,10 +3,10 @@
 const SleepShards=(()=>{
  let sourceKey=null,selectedKey='',selector;
  function number(id){const raw=$(id).value.trim(),value=Number(raw);if(raw===''||!Number.isSafeInteger(value)||value<0||value>1000000000)throw Error('個数は0以上の整数で入力してください。');return value;}
- function fields(prefix,values,change){
+ function fields(prefix,values,change,compact=false){
   const root=el('div',undefined,'filters research-fields');
   for(const [key,title,suffix] of [['researchRank','リサーチランク','level'],['researchExp','リサーチEXP','exp'],['baseAmount','ゆめのかけら','base']]){
-   const label=el('label',title),input=el('input');Object.assign(input,{id:prefix+'-'+suffix,type:'number',inputMode:'numeric',min:key==='researchRank'?'1':'0',max:key==='researchRank'?'70':'1000000000',step:'1',required:true,readOnly:key==='researchRank',value:values[key]??''});input.setAttribute('aria-label',title);
+   const label=el('label',compact?undefined:title),input=el('input');Object.assign(input,{id:prefix+'-'+suffix,type:'number',inputMode:'numeric',min:key==='researchRank'?'1':'0',max:key==='researchRank'?'70':'1000000000',step:'1',required:true,readOnly:key==='researchRank',value:values[key]??''});input.setAttribute('aria-label',title);if(compact)input.placeholder=title;
    if(key!=='researchRank')input.oninput=()=>change(key,input.value);label.append(input);root.append(label);
   }
   return root;
