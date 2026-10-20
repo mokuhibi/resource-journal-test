@@ -32,13 +32,31 @@
  const fmt=n=>n.toLocaleString('ja-JP');
  const normalize=s=>s.normalize('NFKC').trim().replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
  function estimate(species,stars){return autoStars[species]?.includes(stars)?candidateAmount(species,stars):null;}
- function changeStars(entry,stars){const calculatedAmount=estimate(entry.species,stars),manual=entry.manualAmount===true||(entry.amount!==''&&(entry.calculatedAmount===null||Number(entry.amount)!==entry.calculatedAmount));return {...entry,stars,calculatedAmount,amount:manual?entry.amount:(calculatedAmount??''),...(manual?{manualAmount:true}:{})};}
+ function changeStars(entry,stars,multiplier=1){const basic=estimate(entry.species,stars),calculatedAmount=basic===null?null:Math.ceil(basic*multiplier),manual=entry.manualAmount===true||(entry.amount!==''&&(entry.calculatedAmount===null||Number(entry.amount)!==entry.calculatedAmount));return {...entry,stars,calculatedAmount,amount:manual?entry.amount:(calculatedAmount??''),...(manual?{manualAmount:true}:{})};}
+ const multipliers=[1,1.5,2,3];
+ function candyMultiplier(state,date){
+  const stored=state.settings?.sleepCandyMultipliers||{};if(Object.hasOwn(stored,date))return stored[date];
+  const own=state.sleepDrafts?.[date+':1']?.candyMultiplier??(state.sleepSessions||[]).find(s=>s.date===date&&s.number===1)?.candyMultiplier;
+  if(own!==undefined)return own;
+  // Old saved dates retain normal rewards until the user explicitly changes the setting.
+  if((state.sleepSessions||[]).some(s=>s.date===date&&s.number===1))return 1;
+  const previous=new Date(date+'T12:00:00Z');previous.setUTCDate(previous.getUTCDate()-1);const day=previous.toISOString().slice(0,10);
+  return stored[day]??state.sleepDrafts?.[day+':1']?.candyMultiplier??(state.sleepSessions||[]).find(s=>s.date===day&&s.number===1)?.candyMultiplier??1;
+ }
+ function setCandyMultiplier(state,date,multiplier,map){
+  if(!validDate(date)||!multipliers.includes(multiplier))throw Error('アメ獲得量を確認してください。');
+  const key=date+':1',cached=state.sleepDrafts?.[key],saved=(state.sleepSessions||[]).find(s=>s.date===date&&s.number===1),draft=cached||saved;
+  const sleepDrafts={...(state.sleepDrafts||{})};if(draft)sleepDrafts[key]={...draft,candyMultiplier:multiplier,entries:draft.entries.map(e=>changeStars(e,e.stars,multiplier))};
+  validateDrafts(sleepDrafts,map);return {...state,settings:{...state.settings,sleepCandyMultipliers:{...(state.settings?.sleepCandyMultipliers||{}),[date]:multiplier}},sleepDrafts};
+ }
+ function validateMultipliers(state){const values=state.settings?.sleepCandyMultipliers;if(values===undefined)return;if(!values||typeof values!=='object'||Array.isArray(values)||Object.entries(values).some(([d,m])=>!validDate(d)||!multipliers.includes(m)))throw Error('睡眠のアメ倍率設定');}
  const count=n=>Number.isSafeInteger(n)&&n>=0&&n<=1000000000;
  function validDate(d){if(typeof d!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d))return false;const t=new Date(d+'T12:00:00Z');return Number.isFinite(t.getTime())&&t.toISOString().slice(0,10)===d;}
  function validate(sessions,map,legacy=[]){
   if(!Array.isArray(sessions)||sessions.length>100000)throw Error('睡眠記録の形式');const ids=new Set(),slots=new Set(),links=new Set();
   for(const s of sessions){
    if(!s||typeof s.id!=='string'||!s.id||ids.has(s.id)||!validDate(s.date)||![1,2].includes(s.number)||typeof s.field!=='string'||s.field.length>100||!['うとうと','すやすや','ぐっすり','とくちょうなし'].includes(s.sleepType)||typeof s.recordedAt!=='string'||!Number.isFinite(Date.parse(s.recordedAt))||!Array.isArray(s.entries)||s.entries.length>100||!count(s.baseAmount)||!count(s.researchExp)||!count(s.amount)||(s.researchRank!==null&&(!Number.isInteger(s.researchRank)||s.researchRank<1||s.researchRank>70)))throw Error('睡眠記録の内容');
+   if(s.candyMultiplier!==undefined&&!multipliers.includes(s.candyMultiplier))throw Error('睡眠のアメ倍率');
    for(const flag of ['candyRecorded','shardsRecorded'])if(s[flag]!==undefined&&typeof s[flag]!=='boolean')throw Error('睡眠の保存項目');
    if(s.legacyResearchId!==undefined&&(typeof s.legacyResearchId!=='string'||links.has(s.legacyResearchId)||!legacy.some(r=>r.id===s.legacyResearchId&&r.method==='research'&&(r.targetDate||day(r.datetime))===s.date)))throw Error('既存睡眠記録との対応');
    if(s.legacyResearchId)links.add(s.legacyResearchId);
@@ -54,6 +72,7 @@
   if(drafts===undefined)return;if(!drafts||typeof drafts!=='object'||Array.isArray(drafts)||Object.keys(drafts).length>20000)throw Error('睡眠の下書き');
   for(const [key,d] of Object.entries(drafts)){
    if(!d||key!==d.date+':'+d.number||!validDate(d.date)||![1,2].includes(d.number)||typeof d.id!=='string'||typeof d.field!=='string'||d.field.length>100||!['','うとうと','すやすや','ぐっすり','とくちょうなし'].includes(d.sleepType)||!Array.isArray(d.entries)||d.entries.length>100||(d.researchRank!==null&&(!Number.isInteger(d.researchRank)||d.researchRank<1||d.researchRank>70)))throw Error('睡眠の下書き');
+   if(d.candyMultiplier!==undefined&&!multipliers.includes(d.candyMultiplier))throw Error('下書きのアメ倍率');
    const value=v=>(typeof v==='string'&&v.length<=30)||(typeof v==='number'&&Number.isFinite(v));if(!value(d.baseAmount)||!value(d.researchExp))throw Error('睡眠の下書き入力');
    for(const e of d.entries)if(!e||typeof e.id!=='string'||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>4||!value(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount)))throw Error('睡眠の下書き明細');
   }
@@ -72,7 +91,7 @@
  function saveCandy(state,draft,map,now){
   const row=researchRows(state,draft.date).find(r=>r.number===draft.number),old=row?.kind==='session'?row.record:row?.sleepSession,legacy=row?.kind==='legacy'?row.record:null;
   const base=old||{},rank=old?old.researchRank:(legacy?legacy.researchLevel:draft.researchRank),values=legacy?{baseAmount:legacy.baseAmount,researchExp:legacy.researchExp,amount:legacy.amount}:old?{baseAmount:old.baseAmount,researchExp:old.researchExp,amount:old.amount}:{baseAmount:0,researchExp:0,amount:0};
-  const session={...base,id:old?.id||draft.id,date:draft.date,number:draft.number,field:draft.field,sleepType:draft.sleepType||'とくちょうなし',entries:draft.entries.map(e=>({...e,amount:e.amount===''?NaN:Number(e.amount)})),researchRank:rank??null,...values,recordedAt:old?.recordedAt||now,updatedAt:now,candyRecorded:true,shardsRecorded:legacy?false:(old?old.shardsRecorded!==false:false),...(legacy?{legacyResearchId:legacy.id}:{})};
+  const session={...base,id:old?.id||draft.id,date:draft.date,number:draft.number,field:draft.field,sleepType:draft.sleepType||'とくちょうなし',entries:draft.entries.map(e=>({...e,amount:e.amount===''?NaN:Number(e.amount)})),researchRank:rank??null,...values,recordedAt:old?.recordedAt||now,updatedAt:now,candyRecorded:true,...(draft.candyMultiplier!==undefined?{candyMultiplier:draft.number===1?draft.candyMultiplier:1}:{}),shardsRecorded:legacy?false:(old?old.shardsRecorded!==false:false),...(legacy?{legacyResearchId:legacy.id}:{})};
   const next=save(state,session,map),key=draft.date+':'+draft.number;
   return {...next,sleepDrafts:{...(state.sleepDrafts||{}),[key]:{...draft,id:session.id}},settings:{...state.settings,sleepField:session.field}};
  }
@@ -127,6 +146,6 @@
   if(drafts[draftKey])drafts[draftKey]={...drafts[draftKey],id:session.id,...values,researchRank:rank};
   return {...next,...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
  }
- const api={visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
+ const api={candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SleepResearch=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
