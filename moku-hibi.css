@@ -1,7 +1,9 @@
 /* MOKU HIBI shared design tokens. See DESIGN_GUIDELINES.md.
-   This final layer migrates shared UI only; chart series and saved data are unchanged. */
+   This final layer defines shared UI and source colours; calculations and saved data are unchanged. */
 :root{
  --mh-bg:#FAF9F6;--mh-surface:#FFFFFF;--mh-text:#333333;--mh-muted:#777777;
+ --shard-skill-color:#567563;--shard-research-color:#A89461;--shard-other-color:#A46F85;
+ --shard-skill-tint:#EFF3F0;--shard-research-tint:#F7F3E8;--shard-other-tint:#F5EEF1;
  --mh-accent:#80643B;--mh-border:#E5E5E5;--mh-selected:#F3EEE5;--mh-error:#B45353;
  --mh-font:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
  --mh-text-size:15px;--mh-input-size:16px;--mh-caption-size:13px;--mh-title-size:28px;--mh-section-title-size:17px;--mh-total-size:48px;--mh-total-weight:650;
@@ -92,3 +94,25 @@ body :is(button,input,select,textarea,a):focus-visible{outline:2px solid var(--m
 #sleep .sleep-fields label{font-size:var(--mh-caption-size);white-space:normal}
 
 #team :is(#team-panel,#roster-panel,#register-panel)>h2{color:var(--mh-text);margin:0 0 var(--mh-space-md)}
+
+/* Shard acquisition colours are shared by inputs, breakdowns, graphs and PNG capture.
+   Cluster remains a separate calculation/label and shares the Other colour only. */
+.shard-source-skill,#shards #shard-weekly-chart .shard-source-skill{background:var(--shard-skill-color)}
+.shard-source-research,#shards #shard-weekly-chart .shard-source-research{background:var(--shard-research-color)}
+.shard-source-other,.shard-source-cluster,#shards #shard-weekly-chart :is(.shard-source-other,.shard-source-cluster){background:var(--shard-other-color)}
+[data-source="shard-skill"],.shard-method-skill{--shard-method-color:var(--shard-skill-color);color:var(--shard-skill-color)}
+[data-source="shard-research"],.shard-method-research{--shard-method-color:var(--shard-research-color);color:var(--shard-research-color)}
+[data-source="shard-other"],[data-source="shard-cluster"],.shard-method-other,.shard-method-cluster{--shard-method-color:var(--shard-other-color);color:var(--shard-other-color)}
+:is(#shards #shard-total,#record #today-total) .total-breakdown tr[class^="shard-method-"]>th{color:var(--shard-method-color)}
+#record #shard-skill-inputs{--shard-method-color:var(--shard-skill-color);--record-pressed:var(--shard-skill-tint)}
+#record #research-panel{--shard-method-color:var(--shard-research-color);--record-pressed:var(--shard-research-tint)}
+#record :is(#cluster-panel,details:has(>#shard-other-form)){--shard-method-color:var(--shard-other-color);--record-pressed:var(--shard-other-tint)}
+#record #shard-skill-inputs>h2,#record #shard-records>details>summary{color:var(--shard-method-color)}
+#record #shard-records>details[open]>summary:after{color:var(--shard-method-color)}
+#record #shard-records :is(input,select,button):focus-visible{outline-color:var(--shard-method-color)}
+
+/* Existing history method labels follow the same palette; resource badges keep their category colour. */
+[data-shard-source="skill"],[data-shard-source="lucky"]{--shard-method-color:var(--shard-skill-color)}
+[data-shard-source="research"]{--shard-method-color:var(--shard-research-color)}
+[data-shard-source="other"],[data-shard-source="cluster"]{--shard-method-color:var(--shard-other-color)}
+#history #history-list .card.shards .history-method{color:var(--shard-method-color,var(--editorial-shard))}

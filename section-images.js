@@ -14,7 +14,7 @@ const SectionImages=(()=>{
  ];
  const text=e=>(e?.innerText??e?.textContent??'').trim();
  const visible=e=>!e.hidden&&getComputedStyle(e).display!=='none';
- function table(e){return {type:'table',caption:text(e.querySelector('caption')),rows:[...e.rows].map(r=>({header:r.parentElement.tagName==='THEAD',strong:r.classList.contains('mew-all')||r.classList.contains('mew-totals'),cells:[...r.cells].map(c=>({text:text(c),color:getComputedStyle(c).color}))}))};}
+ function table(e){return {type:'table',caption:text(e.querySelector('caption')),rows:[...e.rows].map(r=>({header:r.parentElement.tagName==='THEAD',strong:r.classList.contains('mew-all')||r.classList.contains('mew-totals'),sourceColor:r.className.startsWith('shard-method-')?getComputedStyle(r.cells[0]).color:undefined,cells:[...r.cells].map(c=>({text:text(c),color:getComputedStyle(c).color}))}))};}
  function legend(e){return {type:'legend',items:[...e.children].filter(visible).map(x=>{const dot=x.querySelector('i'),fallback=dot?.className?.startsWith('shard-source-')?document.querySelector('#shard-weekly-chart .'+dot.className):null;let color=getComputedStyle(dot||x).backgroundColor;if(color==='rgba(0, 0, 0, 0)'&&fallback)color=getComputedStyle(fallback).backgroundColor;return {text:text(x),color};})};}
  function week(e,shard){
   const cols=[...e.querySelectorAll(shard?'.weekly-column':'.capsule-day')];
@@ -111,7 +111,7 @@ const SectionImages=(()=>{
     if(t.type==='section'){let yy=y+23;for(const line of t.lines){txt(line,M,yy,23,true);yy+=31;}for(const line of t.periodLines){txt(line,M,yy,16,false,muted);yy+=24;}}
     if(t.type==='text')t.lines.forEach((s,i)=>txt(s,M,y+t.size+i*(t.size+8),t.size,t.bold,t.muted?muted:ink));
     if(t.type==='legend')for(const item of t.items){rounded(M+item.x,y+item.y+7,7,7,4,item.color==='rgba(0, 0, 0, 0)'?muted:item.color);item.lines.forEach((s,i)=>txt(s,M+item.x+14,y+item.y+15+i*21,14,false,muted));}
-    if(t.type==='row'){let x=M;for(let j=0;j<t.row.cells.length;j++){const color=t.row.header?muted:ink;t.row.lines[j].forEach((s,i)=>txt(s,j?x+t.widths[j]-7:x,y+25+i*23,t.size,t.row.strong||(!t.row.header&&j===1),color,j?'right':'left'));x+=t.widths[j];}rule(y+t.height-5);}
+    if(t.type==='row'){let x=M;for(let j=0;j<t.row.cells.length;j++){const color=t.row.header?muted:(!j&&t.row.sourceColor)||ink;t.row.lines[j].forEach((s,i)=>txt(s,j?x+t.widths[j]-7:x,y+25+i*23,t.size,t.row.strong||(!t.row.header&&j===1),color,j?'right':'left'));x+=t.widths[j];}rule(y+t.height-5);}
     if(t.type==='week'){
      const cw=inner/7,base=y+300;for(let i=0;i<3;i++)rule(y+38+i*111);
      t.days.forEach((d,i)=>{const x=M+i*cw,cx=x+cw/2,bh=d.height*220;if(d.selected)rounded(x+3,y+4,cw-6,358,6,'#F5F6F6');const totals=wrap(d.total,cw-10,16),ty=t.topAtBar?Math.max(y+24,base-bh-10-(totals.length-1)*20):y+24;totals.forEach((value,j)=>txt(value,cx,ty+j*20,16,true,ink,'center'));if(bh){c.save();c.beginPath();c.roundRect(cx-16,base-bh,32,bh,16);c.clip();let bottom=base;for(const s of d.segments){const sh=bh*s.ratio;c.fillStyle=s.color;c.fillRect(cx-16,bottom-sh,32,sh);if(s.label&&sh>=20){setFont(c,13,true);const size=Math.min(13,13*28/Math.max(1,c.measureText(s.label).width));if(size>=9)txt(s.label,cx,bottom-sh/2+5,size,true,'#FFFFFF','center');}bottom-=sh;}c.restore();}else rounded(cx-10,base-3,20,3,2,'#DCDDDF');txt(d.weekday,cx,base+25,15,false,muted,'center');txt(d.date,cx,base+49,14,false,muted,'center');});

@@ -74,7 +74,7 @@ const ShardUI=(()=>{
   for(const [key,name] of SummaryExtras.shardSources){
    const xs=rs.filter(r=>key==='skill'?['skill','lucky'].includes(r.method):r.method===key);
    if(!xs.length||(hideZero&&key!=='skill'&&!C.sum(xs)))continue;
-   totalBreakdownRow(body,name,xs.length,C.sum(xs));
+   totalBreakdownRow(body,name,xs.length,C.sum(xs),'shard-method-'+key);
    if(key==='other'){for(const [kind,label] of Object.entries(DreamClusters.otherKinds)){const items=xs.filter(r=>DreamClusters.otherKind(r)===kind);if(items.length)totalBreakdownRow(body,label,items.length,C.sum(items),'shard-member');}}
    if(key!=='skill')continue;
    // 同種でも内部IDごとにまとめ、0個のスキル記録も回数に含めます。
@@ -98,7 +98,7 @@ const ShardUI=(()=>{
  }
  function appendHistory(root,period){
   for(const r of records().filter(r=>C.inRange(r,period))){
-   const card=el('div',undefined,'card shards'),actions=el('div',undefined,'history-actions');card.dataset.datetime=r.datetime;
+   const card=el('div',undefined,'card shards'),actions=el('div',undefined,'history-actions');card.dataset.datetime=r.datetime;card.dataset.shardSource=r.method;
    actions.append(button('訂正',()=>ShardEditor.open(r)),button('削除',()=>{if(confirm('このゆめのかけら記録を削除しますか？'))commit(SleepResearch.replaceLegacy(state,r.id,null),'ゆめのかけら記録を削除しました。');},'danger'));
    const skill=['skill','lucky'].includes(r.method),pokemon=r.pokemonSnapshot?individual(r.pokemonSnapshot):label(historicalPokemon(r));
    historyCard(card,r,methodName(r),'ゆめのかけら',skill?historyPlace(r.slot)+'　'+pokemon:r.targetDate?'リサーチ日 '+C.displayDate(r.targetDate):r.method==='cluster'?r.clusterSize+'・'+r.usedCount.toLocaleString('ja-JP')+'個使用':'',actions);
