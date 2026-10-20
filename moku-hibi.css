@@ -4,7 +4,7 @@
  --mh-bg:#FAF9F6;--mh-surface:#FFFFFF;--mh-text:#333333;--mh-muted:#777777;
  --mh-accent:#80643B;--mh-border:#E5E5E5;--mh-selected:#F3EEE5;--mh-error:#B45353;
  --mh-font:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
- --mh-text-size:15px;--mh-input-size:16px;--mh-caption-size:13px;--mh-title-size:28px;
+ --mh-text-size:15px;--mh-input-size:16px;--mh-caption-size:13px;--mh-title-size:28px;--mh-section-title-size:17px;--mh-total-size:48px;--mh-total-weight:650;
  --mh-radius:8px;--mh-shadow:none;--mh-gutter:16px;--mh-card-padding:16px;--mh-section-gap:24px;
  --mh-control-height:44px;--mh-space-xs:4px;--mh-space-sm:8px;--mh-space-md:12px;--mh-content-width:840px;
  /* Existing components migrate through aliases rather than parallel theme values. */
@@ -39,12 +39,12 @@ body :is(#app-panel,.record-picker,#period-range-dialog,#team-picker,#history-ed
 :is(#record,#sleep,#team,#settings) :is(button[type=submit],.sleep-save){font-size:var(--mh-text-size)}
 /* Preserve flat list rows; do not introduce cards around every section. */
 :is(#record,#sleep,#summary,#shards,#team,#history,#settings) .card{box-shadow:var(--mh-shadow)}
-#team .team-switch button[aria-selected=true],#team-picker .team-picker-row[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);box-shadow:var(--mh-shadow)}
+#team-picker .team-picker-row[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);box-shadow:var(--mh-shadow)}
 #team-picker .team-picker-row[aria-pressed=true] .team-picker-status{color:var(--mh-accent)}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true],
-:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]{color:var(--mh-accent)}
+:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true],#team .team-switch>button[aria-selected=true]{color:var(--mh-accent)}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]:after,
-:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]:after{background:var(--mh-accent)}
+:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]:after,#team .team-switch>button[aria-selected=true]:after{background:var(--mh-accent)}
 body .tabs,body:has(#record[hidden]) .tabs{background:var(--mh-surface);border-color:var(--mh-border);padding-inline:var(--mh-space-xs)}
 body .tabs [aria-current=page],body:has(#record[hidden]) .tabs [aria-current=page]{color:var(--mh-accent)}
 body .tabs [aria-current=page]:before{background:var(--mh-accent)}
@@ -73,5 +73,22 @@ body :is(button,input,select,textarea,a):focus-visible{outline:2px solid var(--m
 }
 @media(prefers-reduced-motion:reduce){:is(#record,#sleep,#summary,#shards,#history,#team,#settings) button{transition:none}}
 /* Switches keep their familiar pill shape and ON/OFF text. */
-#settings .setting-control input:checked{background:var(--mh-accent);border-color:var(--mh-accent)}
 #settings .setting-control input:focus-visible{outline-color:var(--mh-accent)}
+
+/* Shared section typography and settings rows; dedicated dense lists keep their layout. */
+:is(#record,#sleep,#summary,#shards,#history,#team,#settings) :is(.summary-section-head h3,.section-head h2,.roster-purpose-heading),#team :is(#team-panel,#roster-panel,#register-panel)>h2,#settings .card>h3{font-size:var(--mh-section-title-size);font-weight:600;line-height:1.5}
+#team .team-individual-name>strong{font-size:16px;font-weight:600;line-height:1.5}
+#team .team-individual-name>small{font-size:var(--mh-caption-size);line-height:1.5;color:var(--mh-muted)}
+#settings .settings-intro{font-size:var(--mh-caption-size);line-height:1.6;margin:0 0 12px;color:var(--mh-muted)}
+#settings .setting-row{min-height:52px;padding:10px 0;gap:12px;border-color:var(--mh-border);font-size:var(--mh-text-size);line-height:1.5;color:var(--mh-text)}
+#settings .setting-control{display:grid;grid-template-columns:44px 32px;gap:8px;align-items:center}
+#settings .setting-control input{width:44px;height:26px;min-height:26px;border-radius:13px;background:var(--mh-border);border-color:var(--mh-border)}
+#settings .setting-control input:checked{background:var(--mh-accent);border-color:var(--mh-accent)}
+#settings .setting-control input::before{box-shadow:none}
+#settings .setting-state{width:32px;font-size:12px;font-weight:500;line-height:1.5;text-align:center;color:var(--mh-muted)}
+#settings input:checked+.setting-state::after{color:var(--mh-accent)}
+
+#team .team-switch{margin-bottom:var(--mh-gutter)}
+#sleep .sleep-fields label{font-size:var(--mh-caption-size);white-space:normal}
+
+#team :is(#team-panel,#roster-panel,#register-panel)>h2{color:var(--mh-text);margin:0 0 var(--mh-space-md)}

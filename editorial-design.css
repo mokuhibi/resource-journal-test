@@ -15,9 +15,9 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 :is(#summary,#shards) .overview-header>.hero{order:2;display:block;width:100%;padding:0}
 :is(#summary,#shards) .overview-header>.period-picker{order:1;width:100%;padding:0;margin:0 0 16px}
 :is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>small{font-size:12px;color:var(--editorial-muted);font-weight:400;display:block;margin-bottom:12px}
-:is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>.total{font-size:54px;line-height:1.15;letter-spacing:-2px;font-weight:650;color:var(--editorial-ink);margin:0 0 24px;text-align:left;background:none}
-:is(#summary,#shards) .overview-header :is(#summary-total,#shard-total) .total .quantity-number{font-size:inherit;font-weight:inherit;color:inherit}
-:is(#summary,#shards) .overview-header :is(#summary-total,#shard-total) .total .quantity-unit{font-size:14px;color:var(--editorial-muted);font-weight:400;letter-spacing:0;margin-left:6px}
+:is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>.total{font-size:var(--mh-total-size);line-height:1.15;letter-spacing:-1.5px;font-weight:var(--mh-total-weight);color:var(--editorial-ink);margin:0 0 24px;text-align:left;background:none}
+:is(#summary,#shards) .overview-header :is(#summary-total,#shard-total) .total .quantity-number{font-size:inherit;font-weight:inherit;color:inherit;min-width:0;overflow-wrap:anywhere}
+:is(#summary,#shards) .overview-header :is(#summary-total,#shard-total) .total .quantity-unit{font-size:14px;color:var(--editorial-muted);font-weight:400;letter-spacing:0;margin-left:0}
 :is(#summary,#shards) :is(h3,h4){color:var(--editorial-ink);font-size:17px;font-weight:600;line-height:1.5;margin:0 0 12px;letter-spacing:-.3px}
 :is(#summary,#shards) h3:before{display:none}
 :is(#summary,#shards) .heading-total{font-size:12px;color:var(--editorial-muted);font-weight:400;white-space:nowrap}
@@ -26,7 +26,6 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 :is(#summary,#shards) .summary-section-head h3{flex:1}
 :is(#summary,#shards) :is(button,input,select){border-radius:6px;min-height:44px}
 :is(#summary,#shards) button{background:#fff;border:1px solid #E3E4E5;color:var(--editorial-ink);font-weight:500}
-:is(#summary,#shards) :is(#create-candy-image,#create-mew-image){font-size:12px;min-width:44px;width:auto;margin:0;padding:6px 10px}
 :is(#summary,#shards) :is(input,select){min-height:46px;background:#fff;border-color:#DCDDDF;font-size:16px}
 :is(#summary,#shards) label{color:var(--editorial-muted);font-size:12px}
 :is(#summary,#shards) :is(small,.muted){color:var(--editorial-muted)}
@@ -161,7 +160,8 @@ body .tabs [aria-current=page]:before{content:'';position:absolute;top:0;left:ca
 :is(#team,#history,#settings) .quantity-unit{color:var(--editorial-muted);font-weight:400}
 /* 同じ期間操作を集計と履歴で共用。 */
 /* かけら：大きな合計・同じ3列・区分色は保持。 */
-#shards .overview-header #shard-total>.total{font-size:clamp(36px,12vw,54px);white-space:normal;overflow-wrap:anywhere}
+:is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>.total{white-space:normal;overflow-wrap:anywhere}
+:is(#summary,#shards) .overview-header :is(#summary-total,#shard-total)>.total>.quantity{display:inline-flex;align-items:baseline;gap:6px;max-width:100%}
 #shards .overview-header #shard-total>small{color:var(--editorial-muted)}
 #shards .overview-header .total-breakdown .shard-member :is(th,.quantity-number){color:var(--editorial-muted);font-size:13px;font-weight:400}
 #shards .weekly-bars{gap:5px;margin:20px 0}
@@ -178,9 +178,6 @@ body .tabs [aria-current=page]:before{content:'';position:absolute;top:0;left:ca
 #shards .resource-calendar .candy-values{border:0;background:none;padding:0;border-radius:0}
 #shards .resource-calendar .month-value{font-size:11px}
 /* 編成：枠番号・名前・スキルの一覧と、控えめな切り替え。 */
-#team .team-switch{background:var(--editorial-soft);border-radius:8px;padding:3px;gap:3px}
-#team .team-switch button{background:none;border:0;color:var(--editorial-muted);font-size:14px}
-#team .team-switch button[aria-selected=true]{background:white;color:var(--editorial-ink);box-shadow:0 1px 3px #20212412;font-weight:600}
 #team #team-slots>.team-slot-row,#team #team-slots>.team-slot-row.leader-slot{color:var(--editorial-muted);border-bottom:1px solid var(--editorial-line)!important;background:none;border-radius:0;box-shadow:none;padding:12px 0}
 #team .team-slot-button{border:0;background:var(--editorial-soft);font-weight:600;text-align:left;padding:10px 12px}
 #team .pokemon-nickname{font-weight:400;color:var(--editorial-muted)}
@@ -333,14 +330,14 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 :is(#summary,#shards,#history,#sleep,#sleep-editor) .period-picker .period-picker-top>:is(button,.period-picker-day){min-height:var(--period-control-height);height:auto;margin:0;padding:8px 4px;border:0;border-radius:6px;background:none;color:var(--editorial-ink);font-size:20px;font-weight:400;line-height:1.5}
 :is(#summary,#shards,#history,#sleep,#sleep-editor) .period-picker .period-picker-top>.period-picker-date{font-size:16px;font-weight:600;white-space:normal;overflow-wrap:anywhere;line-height:1.5;letter-spacing:0;font-variant-numeric:tabular-nums}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons,
-:is(#sleep,#sleep-editor) .sleep-switch{display:flex;align-items:center;gap:4px;margin:var(--period-row-gap) 0 0;padding:0;border-bottom:1px solid var(--editorial-line);justify-content:flex-start}
+:is(#sleep,#sleep-editor) .sleep-switch,#team .team-switch{display:flex;align-items:center;gap:4px;margin:var(--period-row-gap) 0 0;padding:0;border-bottom:1px solid var(--editorial-line);justify-content:flex-start;background:none;border-radius:0;box-shadow:none}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button,
-:is(#sleep,#sleep-editor) .sleep-switch>button{position:relative;min-width:44px;min-height:var(--period-control-height);margin:0;padding:10px 12px;border:0;border-radius:0;background:none;color:var(--editorial-muted);font-size:13px;font-weight:400;line-height:1.5;white-space:nowrap}
+:is(#sleep,#sleep-editor) .sleep-switch>button,#team .team-switch>button{position:relative;box-shadow:none;min-width:44px;min-height:var(--period-control-height);margin:0;padding:10px 12px;border:0;border-radius:0;background:none;color:var(--editorial-muted);font-size:13px;font-weight:400;line-height:1.5;white-space:nowrap}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button:last-child{margin-left:auto}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true],
-:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]{color:var(--editorial-ink);font-weight:600}
+:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true],#team .team-switch>button[aria-selected=true]{background:none;box-shadow:none;color:var(--editorial-ink);font-weight:600}
 :is(#summary,#shards,#history) .period-picker .period-quick-buttons>button[aria-pressed=true]::after,
-:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]::after{content:'';position:absolute;bottom:-1px;left:12px;right:12px;height:2px;background:var(--editorial-ink)}
+:is(#sleep,#sleep-editor) .sleep-switch>button[aria-pressed=true]::after,#team .team-switch>button[aria-selected=true]::after{content:'';position:absolute;bottom:-1px;left:12px;right:12px;height:2px;background:var(--editorial-ink)}
 
 #settings #research-rank-form{grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
 #settings #research-rank-form label{display:flex;flex-direction:column;gap:6px;margin:0;min-width:0}
@@ -357,7 +354,7 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 
 :is(#summary,#shards) .summary-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
 :is(#summary,#shards) .summary-section-head>h3{min-width:0;margin:0;flex:1;flex-wrap:wrap}
-:is(#summary,#shards) .section-image-button{flex:none;background:#fff;color:var(--editorial-ink);border:1px solid #E3E4E5;border-radius:6px;min-width:44px;min-height:44px;font-size:12px;font-weight:500;padding:6px 10px;margin:0}
+:is(#summary,#shards) :is(.section-image-button,#create-candy-image,#create-mew-image){flex:0 0 60px;box-sizing:border-box;width:60px;min-width:60px;height:var(--mh-control-height);min-height:var(--mh-control-height);background:var(--mh-surface);color:var(--mh-text);border:1px solid var(--mh-border);border-radius:var(--mh-radius);font-family:var(--mh-font);font-size:14px;font-weight:500;line-height:1.5;padding:8px 12px;margin:0}
 :is(#summary,#shards) .export-overview-heading{order:1;margin:0 0 12px}
 
 /* 画像範囲・更新履歴は同じ閲覧パネルを共用する。 */
