@@ -15,8 +15,8 @@ const MewUI=(()=>{
  // アメ欄では、選んでいない「ゆびをふる」の結果やかけら数を推測しません。
  function recordFields(context){const main=SK.value(SK.forPokemon(actorOf(context)));return {recordedSkillLevel:actorOf(context).profile.skillLevel,registeredMainSkill:main,mainSkillId:SK.id(main)};}
  function saveShard(p,amount){
-  const date=recordDate(),context=skillContext('mew');if(!Number.isFinite(date.getTime())||!context||context.actorId!==p.id||!context.actorSlot){notice('ミュウの編成と個体情報を確認してください。');return false;}
-  const main=SK.value(SK.forPokemon(p));if(!['dream_shard_s','metronome'].includes(SK.id(main))){notice('登録スキルを確認してください。');return false;}
+  const date=recordDate(),context=skillContext('mew');if(!Number.isFinite(date.getTime())||!context||context.actorId!==p.id||!context.actorSlot){notice('ミュウの編成と個体情報を確認してください。',true);return false;}
+  const main=SK.value(SK.forPokemon(p));if(!['dream_shard_s','metronome'].includes(SK.id(main))){notice('登録スキルを確認してください。',true);return false;}
   const r={id:uid(),datetime:date.toISOString(),method:'mew',amount:0,slot:null,pokemonId:null,pokemon:'スキルのみ',species:null,nickname:'',candy:null,context,recordedSkillLevel:context.actor.profile.skillLevel,registeredMainSkill:main,mainSkillId:SK.id(main),firedSkill:shardSkill,shardAmount:amount};
   if($('auto-now').checked)$('datetime').value=C.localInput(date);
   return commit({...state,records:[...state.records,r]},'ミュウ：ゆめのかけら'+amount+'個を記録しました。');

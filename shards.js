@@ -20,7 +20,7 @@ const ShardUI=(()=>{
  const individual=p=>label(p);
  const amountInput=(id,min=0)=>{const input=el('input');Object.assign(input,{id,type:'number',inputMode:'numeric',min:String(min),max:'1000000000',step:'1',required:true});return input;};
  function number(id,min=0,max=1000000000){const raw=$(id).value.trim(),n=Number(raw);if(raw===''||!Number.isSafeInteger(n)||n<min||n>max)throw Error('入力値を確認してください。');return n;}
- function save(data){const date=data.targetDate?C.fromInput(data.targetDate+'T04:00'):recordDate();if(!Number.isFinite(date.getTime())){notice('記録日時を入力してください。');return false;}
+ function save(data){const date=data.targetDate?C.fromInput(data.targetDate+'T04:00'):recordDate();if(!Number.isFinite(date.getTime())){notice('記録日時を入力してください。',true);return false;}
   const r={id:uid(),datetime:date.toISOString(),...data};if(data.targetDate)r.recordedAt=new Date().toISOString();if(!data.targetDate&&$('auto-now').checked)$('datetime').value=C.localInput(date);
   return commit({...state,shardRecords:[...records(),r]},`ゆめのかけら：${r.amount}個（${methodNames[r.method]}）を記録しました。`);
  }
@@ -53,7 +53,7 @@ const ShardUI=(()=>{
    const saveSkill=amount=>p.species==='ミュウ'?MewUI.saveShard(p,amount):save({method:type==='lucky'?'lucky':'skill',skillType:type,skillId:SK.id(SK.forPokemon(p)),skillName:SK.value(SK.forPokemon(p)),...(level?{skillLevel:level}:{}),amount,pokemonId:p.id,pokemon:storedLabel(p),species:p.species,slot,pokemonSnapshot:clone(p)});
    if(p.species==='ミュウ'||type==='random'){
     const form=el('form',undefined,'shard-skill-form'),l=el('label'),input=amountInput('shard-amount-'+slot,1);input.setAttribute('aria-label',individual(p)+'のゆめのかけら');input.dataset.pokemon=p.id;input.value=drafts.get(p.id)||'';l.append(input);const b=el('button','記録');b.type='submit';form.append(l,b);
-    form.onsubmit=e=>{e.preventDefault();try{if(saveSkill(number(input.id,1))){drafts.delete(p.id);const fresh=$('shard-amount-'+slot);if(fresh)fresh.value='';}}catch(err){notice(err.message);}};card.append(form);
+    form.onsubmit=e=>{e.preventDefault();try{if(saveSkill(number(input.id,1))){drafts.delete(p.id);const fresh=$('shard-amount-'+slot);if(fresh)fresh.value='';}}catch(err){notice(err.message,true);}};card.append(form);
    }else if(!level){card.append(button('スキルレベルを設定',()=>{openIndividualEditor(p);}));}
    else if(type==='lucky'){
     card.classList.add('shard-lucky-row');const actions=el('div',undefined,'shard-lucky-actions');
@@ -109,15 +109,15 @@ const ShardUI=(()=>{
   [...root.children].sort((a,b)=>Date.parse(b.dataset.datetime)-Date.parse(a.dataset.datetime)).forEach(card=>root.append(card));
  }
  function init(){
-  $('research-rank-form').onsubmit=e=>{e.preventDefault();try{const raw=$('research-rank-setting').value.trim(),rank=raw===''?null:Number(raw);if(rank!==null&&!DreamClusters.validRank(rank))throw Error('リサーチランクは1〜70で入力してください。');commit({...state,settings:{...state.settings,researchRank:rank}},'リサーチランクを保存しました。');}catch(err){notice(err.message);}};
+  $('research-rank-form').onsubmit=e=>{e.preventDefault();try{const raw=$('research-rank-setting').value.trim(),rank=raw===''?null:Number(raw);if(rank!==null&&!DreamClusters.validRank(rank))throw Error('リサーチランクは1〜70で入力してください。');commit({...state,settings:{...state.settings,researchRank:rank}},'リサーチランクを保存しました。');}catch(err){notice(err.message,true);}};
   for(const id of ['cluster-size','cluster-count'])$(id).oninput=updateCluster;
-  $('shard-cluster-form').onsubmit=e=>{e.preventDefault();try{const clusterSize=$('cluster-size').value,usedCount=number('cluster-count',1,100000),researchRank=sharedRank(),amount=DreamClusters.amount(clusterSize,usedCount,researchRank);save({method:'cluster',clusterSize,usedCount,researchRank,amount});}catch(err){notice(err.message);}};
+  $('shard-cluster-form').onsubmit=e=>{e.preventDefault();try{const clusterSize=$('cluster-size').value,usedCount=number('cluster-count',1,100000),researchRank=sharedRank(),amount=DreamClusters.amount(clusterSize,usedCount,researchRank);save({method:'cluster',clusterSize,usedCount,researchRank,amount});}catch(err){notice(err.message,true);}};
   $('shard-research-date').value=C.addDays(C.gameDay(new Date()),-1);$('shard-research-date').oninput=()=>{researchDateTouched=true;loadResearch(true);};
   $('shard-date').value=C.gameDay(new Date());for(const id of ['shard-period','shard-date'])$(id).onchange=renderSummary;
   $('shard-today').onclick=()=>{$('shard-date').value=C.gameDay(new Date());renderSummary();};
-  $('shard-research-form').onsubmit=e=>{e.preventDefault();try{const targetDate=$('shard-research-date').value;if(!C.dateOnly(targetDate))throw Error('対象日を入力してください。');if(!researchEditingId&&!sharedRank())throw Error('設定でリサーチランクを設定してください。');const r={method:'research',targetDate,baseAmount:number('shard-research-base'),researchExp:number('shard-research-exp'),researchLevel:number('shard-research-level',1,70)};r.researchRank=r.researchLevel;r.amount=C.shardTotal(r);const existing=records().find(x=>x.id===researchEditingId);const ok=existing?commit({...state,shardRecords:records().map(x=>x.id===existing.id?{...x,...r,updatedAt:new Date().toISOString()}:x)},'睡眠リサーチを訂正しました。'):save(r);if(ok)loadResearch(true);}catch(err){notice(err.message);}};
+  $('shard-research-form').onsubmit=e=>{e.preventDefault();try{const targetDate=$('shard-research-date').value;if(!C.dateOnly(targetDate))throw Error('対象日を入力してください。');if(!researchEditingId&&!sharedRank())throw Error('設定でリサーチランクを設定してください。');const r={method:'research',targetDate,baseAmount:number('shard-research-base'),researchExp:number('shard-research-exp'),researchLevel:number('shard-research-level',1,70)};r.researchRank=r.researchLevel;r.amount=C.shardTotal(r);const existing=records().find(x=>x.id===researchEditingId);const ok=existing?commit({...state,shardRecords:records().map(x=>x.id===existing.id?{...x,...r,updatedAt:new Date().toISOString()}:x)},'睡眠リサーチを訂正しました。'):save(r);if(ok)loadResearch(true);}catch(err){notice(err.message,true);}};
   if(typeof SleepShards!=='undefined')SleepShards.init();
-  $('shard-other-form').onsubmit=e=>{e.preventDefault();try{if(save({method:'other',otherKind:$('shard-other-kind').value,amount:number('shard-other-amount'),memo:$('shard-other-memo').value.trim()}))$('shard-other-form').reset();}catch(err){notice(err.message);}};
+  $('shard-other-form').onsubmit=e=>{e.preventDefault();try{if(save({method:'other',otherKind:$('shard-other-kind').value,amount:number('shard-other-amount'),memo:$('shard-other-memo').value.trim()}))$('shard-other-form').reset();}catch(err){notice(err.message,true);}};
  }
  return {recordName,methodName,summaryRecords,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
 })();

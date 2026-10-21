@@ -63,8 +63,6 @@
 #record .record-slot-number{font-size:12px;font-weight:500;color:var(--record-muted)}
 #record .card>p{font-size:12px;color:var(--record-muted);margin:0 0 12px}
 #record :is(#record-methods,#shard-records) button:not(.help-card):not(:disabled){background:var(--record-action);border-color:transparent;color:var(--record-text)}
-#record :is(#record-methods,#shard-records) .record-save-button[data-record-category]:not(.help-card):not(:disabled){background:var(--record-action);border-color:transparent;transition:background .15s,transform .15s}
-#record :is(#record-methods,#shard-records) .record-save-button[data-record-category]:active:not(:disabled){background:var(--record-pressed);transform:translateY(1px)}
 #record button:disabled{color:#888;background:#F7F7F7;opacity:.5}
 #record details.card>summary{font-size:16px;font-weight:600;min-height:48px;line-height:24px;padding:12px 0;list-style:none;display:flex;align-items:center;justify-content:space-between}
 #record details.card>summary:after{content:'⌄';color:var(--record-muted)}#record details.card[open]>summary:after{content:'⌃'}
@@ -74,7 +72,6 @@
 #record .research-fields>label:first-child .date-weekday{font-size:15px;font-weight:500;color:var(--record-text)}
 #record .cluster-result-row{gap:16px}#record #cluster-amount{font-size:23px;font-weight:600;letter-spacing:-.6px}
 @media(min-width:800px){#record #record-methods .record-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}#record .daily-metrics{max-width:480px}}
-@media(prefers-reduced-motion:reduce){#record .record-save-button{transition:none!important}#record .record-save-button:active{transform:none!important}}
 #record #today-total .daily-metrics .daily-resource+.daily-resource{margin:0;padding:0;border:0;background:none;box-shadow:none}
 #record #record-methods .help-card,#record #record-methods .help-card.leader-slot{grid-template-columns:52px minmax(0,1fr) auto}
 #record .help-card>small{font-size:11px;white-space:nowrap;letter-spacing:-.3px}

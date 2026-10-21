@@ -80,7 +80,6 @@ body:has(#record[hidden]) .app{padding-left:16px;padding-right:16px}
 body:has(#record[hidden]) .tabs{background:#fffcf1;border-top-color:#dfd2a5}
 body:has(#record[hidden]) .tabs button{color:#725619;min-height:44px}
 body:has(#record[hidden]) .tabs [aria-current=page]{color:#51401b;background:#e8d9ae;border-color:#ad9254}
-body:has(#record[hidden]) #notice:not(:empty){background:#695322;color:#fff}
 
 /* アプリ名の階層も記録タブに合わせる。記録側の指定はそのまま。 */
 body:has(#record[hidden]) .app>header{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:12px;row-gap:4px;align-items:center;margin:0 0 20px;padding:8px 0 20px;border-bottom:1px solid #e4e3da}
@@ -302,23 +301,10 @@ body:has(#record[hidden]) .app>header small{grid-column:2;grid-row:2;font-size:1
 #shards .overview-header .total-breakdown .shard-member th{padding-left:0;color:#5c6056;font-weight:400}
 
 /* 保存の反応は記録操作だけ。元の寸法・内容・連続タップを維持。 */
-#record :is(#record-methods,#shard-records) .record-save-button{position:relative;transition:background-color .15s,transform .15s}
-#record :is(#record-methods,#shard-records) .record-save-button[data-record-category="candy"]:not(:disabled){background:#fff;border-color:#A66B83}
-#record :is(#record-methods,#shard-records) .record-save-button[data-record-category="shards"]:not(:disabled){background:#fff;border-color:#B58A37}
-#record :is(#record-methods,#shard-records) .record-save-button[data-record-category="candy"]:active:not(:disabled){background:#F4DCE5;transform:translateY(1px)}
-#record :is(#record-methods,#shard-records) .record-save-button[data-record-category="shards"]:active:not(:disabled){background:#FBF4E4;transform:translateY(1px)}
-#record :is(#record-methods,#shard-records) .record-save-button.record-saved::after{content:"✓";position:absolute;right:3px;top:3px;width:18px;height:18px;display:grid;place-items:center;background:#fff;color:#695322;border:1px solid currentColor;border-radius:50%;font-size:13px;line-height:1;pointer-events:none}
-#record-save-notices{--toast-safe-top:env(safe-area-inset-top,0px);position:fixed;left:16px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:41;pointer-events:none}
-.record-save-toast{background:#fffdf7;color:#51401b;border:1px solid #c9bc94;border-radius:10px;padding:5px 12px;font-size:16px;line-height:1.35;box-shadow:0 1px 4px #51401b15;animation:record-toast-in 120ms ease-out}
-@media(prefers-reduced-motion:reduce){#record :is(#record-methods,#shard-records) .record-save-button{transition:none}#record :is(#record-methods,#shard-records) .record-save-button[data-record-category]:active:not(:disabled){transform:none}}
 
 /* 保存内容の通知：カテゴリ面とチェックだけに色を使う。 */
-#record-save-notices{max-width:608px;margin-inline:auto}
 .record-save-toast{display:flex;align-items:flex-start;gap:8px;overflow-wrap:anywhere;background:#F3DFE7;border-color:#A66B83}
 .record-save-toast[data-category="shards"]{background:#F5E7C5;border-color:#B58A37}
-.record-toast-check{color:#A66B83;flex:none;font-weight:600}
-[data-category="shards"]>.record-toast-check{color:#B58A37}
-body:has(#record:not([hidden])) #notice.record-error:not(:empty),#notice.record-error:not(:empty){background:#fff1ee;color:#985e52;border:1px solid #985e52}
 
 /* 履歴2列：日時と方法 → 種類と個数 → 個体。操作は均等な文字ボタン。 */
 #history #history-list .card{container-type:inline-size}
@@ -357,11 +343,6 @@ body:has(#record:not([hidden])) #notice.record-error:not(:empty),#notice.record-
 @keyframes history-panel-out{to{opacity:0;transform:translateY(20px)}}
 @media(prefers-reduced-motion:reduce){#history-details-panel[open],#history-details-panel.closing{animation:none}}
 
-.record-toast-message{min-width:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-.record-save-toast.record-toast-leaving{animation:record-toast-out 160ms ease-in forwards}
-@keyframes record-toast-in{from{opacity:0}to{opacity:1}}
-@keyframes record-toast-out{to{opacity:0}}
-@media(prefers-reduced-motion:reduce){.record-save-toast,.record-save-toast.record-toast-leaving{animation:none}}
 
 /* ゆめのかたまり：既存のかけら入力面・44px操作を継承。 */
 #record #cluster-panel input,#record #cluster-panel select{background:#fff}

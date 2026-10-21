@@ -97,3 +97,17 @@ body:has(#sleep:not([hidden])) :is(#record,#history){margin-bottom:0}
 @media(min-width:361px){#sleep .sleep-research-heading .sleep-fields{grid-template-columns:minmax(64px,1fr) 84px 60px}}
 
 #sleep .sleep-calendar-grid>button{text-align:center}
+
+/* 日付・回数・情報を一つの追従領域にまとめる。 */
+#sleep #sleep-root>.period-picker{background:var(--mh-surface);margin-bottom:8px}
+#sleep #sleep-root>.period-picker>.sleep-switch{margin:0!important}
+#sleep .sleep-research-heading{margin:4px 0 0}
+/* 件数で高さを変えない。候補の★位置を保ち、短い画面の候補操作域も確保する。 */
+#sleep #sleep-entries{height:clamp(96px,26vh,220px);height:clamp(96px,26dvh,220px);max-height:50vh;max-height:50dvh;overflow-anchor:none}
+#sleep .sleep-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;margin:12px 0 6px;padding-top:12px;border-top:1px solid var(--mh-border)}
+#sleep .sleep-search-row .sleep-search{min-width:0;margin:0;padding:0;border:0}
+body #sleep .sleep-search-row input{margin:0;font-size:16px;min-height:44px;padding-inline:8px}
+#sleep .sleep-search-row .sleep-filter-info{margin:0;gap:4px;flex-wrap:nowrap}
+#sleep .sleep-search-row .sleep-filter-info button{min-height:44px;white-space:nowrap;font-size:12px!important;padding-inline:6px!important}
+@media(max-width:360px){#sleep .sleep-search-row input{padding-inline:5px}#sleep .sleep-search-row .sleep-filter-info button{padding-inline:4px!important}}
+#sleep #sleep-form .sleep-search>input{margin:0;height:44px}

@@ -34,7 +34,7 @@ const CopySkills=(()=>{
    const l=el('label',kind==='candy'?'獲得したアメの個数':undefined);if(kind!=='candy')input.setAttribute('aria-label',label(p)+'のゆめのかけら');l.append(input);form.append(l);const b=button('記録',()=>{});b.type='submit';form.append(b);
    function remember(){drafts.set(key,{amount:input.value,source:source.value,target:target.value});}
    function updateMin(){input.min=kind==='shards'&&SK.id(SK.forPokemon(choices.find(q=>q.id===source.value)))==='super_luck'?'0':'1';remember();}source.onchange=updateMin;target.onchange=remember;updateMin();
-   form.onsubmit=e=>{e.preventDefault();try{if(!input.value.trim())throw Error('獲得数を入力してください。');const r=build(kind,p.id,source.value,Number(input.value),Number(target.value),recordDate());const field=kind==='candy'?'records':'shardRecords';drafts.delete(key);if(!commit({...state,[field]:[...state[field],r]},label(p)+'：'+r.amount+'個を記録しました。'))remember();}catch(e){notice(e.message);}};
+   form.onsubmit=e=>{e.preventDefault();try{if(!input.value.trim())throw Error('獲得数を入力してください。');const r=build(kind,p.id,source.value,Number(input.value),Number(target.value),recordDate());const field=kind==='candy'?'records':'shardRecords';drafts.delete(key);if(!commit({...state,[field]:[...state[field],r]},label(p)+'：'+r.amount+'個を記録しました。'))remember();}catch(e){notice(e.message,true);}};
    card.append(form);root.append(card);root.hidden=false;
   }
  }

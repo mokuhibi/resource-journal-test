@@ -56,9 +56,7 @@ body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-pane
 body #history-details-panel{border-radius:var(--mh-radius) var(--mh-radius) 0 0}
 body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-panel) :is(.record-picker-grid,.period-picker-choices) button[aria-pressed=true],body .period-picker-dialog [aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);border-color:var(--mh-accent)}
 :is(#summary,#shards) .candy-day-popover{background:var(--mh-surface);border-color:var(--mh-border);border-radius:var(--mh-radius);box-shadow:var(--mh-shadow);padding:var(--mh-space-md)}
-#record-save-notices .record-save-toast{background:var(--mh-surface);color:var(--mh-text);border-color:var(--mh-border);border-radius:var(--mh-radius);box-shadow:var(--mh-shadow)}
 body .danger,body #history .history-actions .danger,body #sleep button.danger{color:var(--mh-error)}
-body #notice.record-error,body:has(#record[hidden]) #notice.record-error{background:var(--mh-error);color:var(--mh-surface)}
 body :is(.import-error,#edit-error,#shard-edit-error){color:var(--mh-error)}
 body :is(button,input,select,textarea,a):focus-visible{outline:2px solid var(--mh-accent);outline-offset:2px}
 #record-methods>div,#record #shard-records>.card{margin-bottom:var(--mh-section-gap)}
@@ -147,3 +145,10 @@ body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label[
 #record .record-resource-heading{font-size:18px;font-weight:600;line-height:1.5;margin:0 0 12px;color:var(--mh-text)}
 #record #record-methods #help-slots{padding-top:0}
 #record .mew-record-heading.record-subheading{align-items:center}
+
+/* 一時通知は全画面で同じ一個の要素を更新し、操作を遮らない。 */
+body #notice{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);bottom:auto;left:50%;width:max-content;max-width:calc(100vw - 32px);min-height:0;margin:0;padding:12px 18px;background:#343638;color:#fff;border:0;border-radius:12px;box-shadow:0 2px 8px #20212412;font-size:15px;font-weight:400;line-height:1.5;z-index:60;pointer-events:none;opacity:0;transform:translate(-50%,-8px);transition:opacity .18s,transform .18s;overflow-wrap:anywhere}
+body #notice.shown{opacity:1;transform:translate(-50%,0)}
+body #notice.record-error{background:var(--mh-error);color:#fff}
+#notice :is(.quantity-number,.quantity-unit){font:inherit;color:inherit}
+@media(prefers-reduced-motion:reduce){body #notice{transition:none}}

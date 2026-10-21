@@ -247,7 +247,6 @@ body #history-details-panel{background:white;color:var(--editorial-ink);border-c
 #history-details-panel .history-detail-heading button{background:white;border-color:transparent;color:var(--editorial-ink);border-radius:6px}
 #history-details-panel section+section{border-color:var(--editorial-line)}
 #history-details-panel .history-detail-row>span,#history-details-panel small{color:var(--editorial-muted)}
-body:has(#record[hidden]) #notice:not(:empty){background:#343638;color:white;box-shadow:0 2px 8px #20212412}
 @media(prefers-reduced-motion:reduce){body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-panel){scroll-behavior:auto}}
 
 #team-picker :is(button,input):focus-visible{outline:2px solid #62696D;outline-offset:2px}
@@ -260,9 +259,6 @@ body :is(dialog,#history-editor,#shard-editor,#team-picker,#history-details-pane
 #settings .setting-state{font-size:12px}
 
 /* 一時通知は固定の白いフローティング面。カテゴリ色は小さいチェックに限定。 */
-#record-save-notices .record-save-toast{background:#fff;border:1px solid var(--editorial-line);color:var(--editorial-ink);border-radius:8px;padding:10px 12px;gap:8px;box-shadow:0 3px 14px #20212412;font-size:16px;line-height:1.4}
-#record-save-notices .record-toast-check{font-size:13px;line-height:22.4px;color:var(--editorial-candy);font-weight:600}
-#record-save-notices [data-category=shards] .record-toast-check{color:var(--editorial-shard)}
 /* 名前はセル幅いっぱいの最大2行、個数は独立した行で省略しない。 */
 #history #history-list{column-gap:16px;row-gap:12px}
 #history .history-meta{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin:0 0 8px}
