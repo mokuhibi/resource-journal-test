@@ -41,7 +41,7 @@ const SummaryExtras=(()=>{
   root.append(metrics,details);
  }
  function candyGroups(records){
-  const groups=new Map();for(const r of records){if(!r.candy||!r.amount)continue;if(!groups.has(r.candy))groups.set(r.candy,{name:r.candy,total:0,sources:{}});const g=groups.get(r.candy);g.total+=r.amount;g.sources[r.method]=(g.sources[r.method]||0)+r.amount;}
+  const groups=new Map();for(const r of records){if(!r.candy)continue;if(!groups.has(r.candy))groups.set(r.candy,{name:r.candy,total:0,sources:{},counts:{}});const g=groups.get(r.candy);g.total+=r.amount;g.sources[r.method]=(g.sources[r.method]||0)+r.amount;g.counts[r.method]=(g.counts[r.method]||0)+1;}
   return [...groups.values()].sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ja'));
  }
  // 画像用の表示列を分割。集計済みの値・並び順は変更しません。
@@ -56,22 +56,27 @@ const SummaryExtras=(()=>{
   records=candyRecords(records);
   sourceTotals($('candy-source-totals'),'candy',records,recordVisible);
   const root=$('candy-list');root.replaceChildren();
+  const order=['help','mew','delibird','research','skill'],labels={research:'睡眠',skill:'その他'};
+  const switches=el('div',undefined,'candy-source-switches');switches.setAttribute('aria-label','種類別アメの集計対象');
+  for(const key of order){const name=labels[key]||candySources.find(([k])=>k===key)[1],toggle=el('button',name);toggle.type='button';toggle.dataset.source=key;toggle.setAttribute('aria-pressed',String(recordVisible(key)));toggle.onclick=()=>commit({...state,settings:{...state.settings,[recordSettingKeys[key]]:!recordVisible(key)}},'表示設定を保存しました。');switches.append(toggle);}
+  root.append(switches);
   const groups=candyGroups(records);
-  if(!groups.length){root.append(el('p','この条件のアメの記録はありません。'));return;}
-  root.append(el('small','単位：個','candy-table-unit'));
-  for(const sources of [candyColumns(groups).flat().map(([key,name])=>[key,key==='research'?'睡眠':name])]){
-   const scroll=el('div',undefined,'candy-table-scroll'),table=el('table',undefined,'candy-totals-table');
-   table.style.minWidth=(204+sources.length*76)+'px';
-   table.setAttribute('aria-label','アメ種類別合計：'+sources.map(([,name])=>name).join('・'));
-   const head=el('thead'),header=el('tr');
-   for(const label of ['アメ名','合計',...sources.map(([,name])=>name)])header.append(el('th',label));
-   head.append(header);table.append(head);const body=el('tbody');
-   for(const g of groups){const line=el('tr'),name=el('th',candyName(g.name));name.setAttribute('scope','row');line.append(name,el('td',g.total.toLocaleString('ja-JP'),'candy-table-total'));
-    for(const [key] of sources)line.append(el('td',candyValue(g.sources[key])));body.append(line);
-   }
-   table.append(body);scroll.append(table);root.append(scroll);
+  if(!groups.length){root.append(el('p',order.some(recordVisible)?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。'));return;}
+  const sources=order.filter(key=>recordVisible(key)&&groups.some(g=>g.sources[key]));
+  const scroll=el('div',undefined,'candy-table-scroll'),table=el('table',undefined,'candy-totals-table');
+  scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','種類別アメの合計（横スクロール）');
+  table.style.minWidth=(204+sources.length*88)+'px';
+  table.setAttribute('aria-label','種類別アメの合計：回数・匹数とアメ個数');
+  const head=el('thead'),header=el('tr');
+  for(const label of ['アメの種類',...sources.map(key=>labels[key]||candySources.find(([k])=>k===key)[1]),'合計']){const th=el('th',label);th.setAttribute('scope','col');header.append(th);}
+  head.append(header);table.append(head);const body=el('tbody');
+  for(const g of groups){const line=el('tr'),name=el('th',candyName(g.name));name.setAttribute('scope','row');line.append(name);
+   for(const key of sources){const cell=el('td');if(!g.counts[key]&&!g.sources[key])cell.append(el('span','—'));else{cell.append(el('span',g.counts[key].toLocaleString('ja-JP')+(key==='research'?'匹':'回'),'candy-method-count'),el('strong',g.sources[key]?g.sources[key].toLocaleString('ja-JP')+'個':'—','candy-method-amount'));}line.append(cell);}
+   line.append(el('td',g.total.toLocaleString('ja-JP')+'個','candy-table-total'));body.append(line);
   }
+  table.append(body);scroll.append(table);root.append(scroll);
  }
+
  function monthly(kind,records,day){return CandyGraphs.monthly(records,day,kind);}
  // 画像専用レイアウト。実数・取得元の列は画面と同じ集計結果から描画する。
  function imagePages(groups,period){

@@ -379,6 +379,14 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 /* One candy-type table; only this region scrolls. Keep names/totals readable. */
 #summary .candy-table-scroll{width:100%;max-width:100%;min-width:0;overflow:auto}
 #summary .candy-totals-table :is(th,td):first-child{position:sticky;left:0;width:124px;min-width:124px;box-sizing:border-box;background:var(--mh-surface,#fff);z-index:1}
-#summary .candy-totals-table :is(th,td):nth-child(2){position:sticky;left:124px;width:80px;min-width:80px;box-sizing:border-box;background:var(--mh-surface,#fff);z-index:1}
+#summary .candy-totals-table :is(th,td):last-child{width:80px;min-width:80px;background:var(--mh-surface,#fff)}
 #summary .candy-totals-table thead th{z-index:2}
-#summary .candy-totals-table thead th:nth-child(-n+2){z-index:3}
+#summary .candy-totals-table thead th:first-child{z-index:3}
+
+/* 種類別アメ：設定と共有する対象切り替え・回数と個数の比較。 */
+#summary .candy-source-switches{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}
+#summary .candy-source-switches button{min-height:44px;padding:6px 10px;font-size:13px;border:1px solid var(--mh-border);border-radius:var(--mh-radius);background:var(--mh-surface);color:var(--mh-muted)}
+#summary .candy-source-switches button[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-text);border-color:var(--mh-accent)}
+#summary .candy-totals-table .candy-method-count{display:block;font-size:13px;color:var(--mh-muted);line-height:1.5}
+#summary .candy-totals-table .candy-method-amount{display:block;font-size:15px;font-weight:500;color:var(--mh-text);line-height:1.5}
+#summary .candy-totals-table :is(th,td){padding:8px 6px}
