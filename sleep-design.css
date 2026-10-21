@@ -76,3 +76,12 @@ body:has(#sleep:not([hidden])) .app{padding-bottom:calc(76px + env(safe-area-ins
 #record #shard-other-form>button{grid-column:2;justify-self:end;margin:4px 0 8px;min-width:64px}
 @media(max-width:360px){#record #shard-other-kind{padding-inline:2px}}
 #record #shard-other-form :is(input,select){height:44px}
+
+/* Record/history share the existing flat switch. Sleep remains a sibling to avoid inherited form styles. */
+:is(#record,#history)>[id$="-view-switch"]{display:flex;gap:8px;margin:0 0 8px!important;padding:0;border-bottom:1px solid var(--mh-border)}
+:is(#record,#history)>[id$="-view-switch"]>button{position:relative;border:0;border-radius:0;background:none;min-height:44px;padding:10px 12px;font-size:15px;font-weight:500;color:var(--mh-muted)}
+:is(#record,#history)>[id$="-view-switch"]>button[aria-selected=true]{color:var(--mh-accent)}
+:is(#record,#history)>[id$="-view-switch"]>button[aria-selected=true]:after{content:'';position:absolute;bottom:-1px;height:2px;left:12px;right:12px;background:var(--mh-accent)}
+#history-main-view>.period-picker{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#fffffff5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 0;margin:0 0 var(--period-content-gap);border:0;border-radius:0;box-shadow:none;width:100%;min-width:0}
+body:has(#sleep:not([hidden])) :is(#record,#history){margin-bottom:0}
+:is(#record,#history)>[id$="-view-switch"]>button[aria-selected=true]{background:none;border-color:transparent;font-weight:500}

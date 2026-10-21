@@ -231,8 +231,8 @@ const natures='がんばりや さみしがり ゆうかん いじっぱり や�
 const subskills='きのみの数S おてつだいボーナス スキルレベルアップS スキルレベルアップM スキル確率アップS スキル確率アップM おてつだいスピードS おてつだいスピードM 食材確率アップS 食材確率アップM 最大所持数アップS 最大所持数アップM 最大所持数アップL げんき回復ボーナス 睡眠EXPボーナス リサーチEXPボーナス ゆめのかけらボーナス'.split(' ');
 function editProfile(){const p=state.pokemon.find(p=>p.id===$('profile-select').value);$('profile-form').hidden=!p;if(!p)return;const v=p.profile||C.profileDefault(p.species);nameText($('profile-species'),label(p));SkillUI.editProfile(p);$('profile-form').className=p.species==='ミュウ'?'mew':p.species==='デリバード'?'delibird':'';$('profile-nickname').value=p.nickname;$('profile-level').value=v.level;$('profile-nature').value=p.species==='ミュウ'?'きまぐれ':v.nature;$('profile-nature').disabled=p.species==='ミュウ';$('profile-skill').max=C.skillCap(p.species);$('profile-skill').value=Math.min(v.skillLevel,C.skillCap(p.species));v.subskills.forEach((s,i)=>$('subskill-'+i).value=s);SkillUI.refreshDetails(p);IndividualImportUI.editor(p);}
 function renderSettings(){ SummaryExtras.settings();$('show-nap-island').checked=state.settings.showNapIsland===true;$('show-sleep-tab').checked=SleepResearch.visible(state);$('sleep-mode').value=state.settings.sleepMode==='split'?'split':'bulk'; $('enable-help').checked=recordVisible('help');$('enable-research').checked=recordVisible('research'); $('show-other-candy').checked=state.settings.showOtherCandy!==false; $('enable-mew').checked=state.settings.mew;$('enable-delibird').checked=state.settings.delibird;const p=$('profile-select'),old=p.value;optionList(p,orderedPokemon().filter(p=>speciesEnabled(p.species)).map((p,i)=>({id:p.id,text:label(p)})),old);editProfile();TeamUI.sync();}
-function showTab(id){if(id==='sleep'&&!SleepResearch.visible(state))id='record';activeTab=id;for(const name of ['record','sleep','summary','shards','history','team','settings'])$(name).hidden=name!==id;for(const b of document.querySelectorAll('[data-tab]')){if(b.dataset.tab===id)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(id==='record')renderRecord();if(id==='sleep')SleepUI.render();if(id==='summary')renderSummary();if(id==='history')renderHistory();if(id==='shards')ShardUI.renderSummary();window.scrollTo({top:0});positionNotice();}
-function render(){const sleepVisible=SleepResearch.visible(state),sleepButton=document.querySelector('[data-tab="sleep"]');sleepButton.hidden=!sleepVisible;document.querySelector('.tabs').style.setProperty('--main-tab-count',sleepVisible?'7':'6');if(activeTab==='sleep'&&!sleepVisible)showTab('record');if(typeof SleepUI!=='undefined')SleepUI.render();ShardUI.renderSummary();renderRecord();renderActorFilters();renderSummary();renderHistory();renderTeam();renderSettings();renderCatalog();DateUI.update();}
+function showTab(id){if(id==='sleep'){SleepUI.selectView('record',true);return;}activeTab=id;for(const name of ['record','summary','shards','history','team','settings'])$(name).hidden=name!==id;for(const b of document.querySelectorAll('[data-tab]')){if(b.dataset.tab===id)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');}if(id==='record')renderRecord();if(id==='summary')renderSummary();if(id==='history')renderHistory();if(id==='shards')ShardUI.renderSummary();SleepUI.navigate(id);window.scrollTo({top:0});positionNotice();}
+function render(){SleepUI.syncNavigation();if(typeof SleepUI!=='undefined')SleepUI.render();ShardUI.renderSummary();renderRecord();renderActorFilters();renderSummary();renderHistory();renderTeam();renderSettings();renderCatalog();DateUI.update();}
 // 訂正は履歴のコピーを編集し、保存時だけ置き換えます。
 function openHistoryEditor(r){
  if(C.isNapRecord(r)){NapIsland.edit(r);return;}
@@ -312,7 +312,7 @@ $('import').onchange=async()=>{const file=$('import').files[0];if(!file)return;t
 window.addEventListener('storage',e=>{if(e.key===KEY){blocked=false;state=fresh();load();if(typeof SleepUI!=='undefined')SleepUI.reset();render();notice(blocked?'他の画面の保存データを読み込めませんでした。':'他の画面での変更を反映しました。');}});
 // 朝4時やイベント期間が切り替わった場合も、開いたままの記録画面を更新します。
 let lastDay=C.gameDay(new Date());setInterval(()=>{const day=C.gameDay(new Date());if(day!==lastDay){lastDay=day;renderRecord();renderSummary();renderHistory();ShardUI.renderSummary();}},30000);
-ProfileForm.init();TeamUI.init();IndividualImportUI.init();MewUI.init();SkillUI.registration('');DateUI.init();NapIsland.init();$('history-date').value=C.gameDay(new Date());ShardUI.init();$('datetime').value=C.localInput();$('summary-date').value=C.gameDay(new Date());load();renderCatalog();render();DateUI.update();
+ProfileForm.init();TeamUI.init();IndividualImportUI.init();MewUI.init();SkillUI.registration('');DateUI.init();NapIsland.init();SleepUI.initNavigation();$('history-date').value=C.gameDay(new Date());ShardUI.init();$('datetime').value=C.localInput();$('summary-date').value=C.gameDay(new Date());load();renderCatalog();render();DateUI.update();
 
 // 画像用の集計は履歴を読むだけで、保存データを変更しません。
 $('create-mew-image').onclick=()=>{
@@ -336,7 +336,7 @@ RecordPicker.init();
 
 NumberInput.init();
 
-$('show-sleep-tab').onchange=()=>commit({...state,settings:{...state.settings,showSleepTab:$('show-sleep-tab').checked}},'睡眠タブの表示設定を保存しました。');
+$('show-sleep-tab').onchange=()=>commit({...state,settings:{...state.settings,showSleepTab:$('show-sleep-tab').checked}},'睡眠リサーチの表示設定を保存しました。');
 
 $('show-other-candy').onchange=()=>commit({...state,settings:{...state.settings,showOtherCandy:$('show-other-candy').checked}},'表示設定を保存しました。');
 
