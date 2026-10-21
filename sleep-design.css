@@ -111,3 +111,27 @@ body #sleep .sleep-search-row input{margin:0;font-size:16px;min-height:44px;padd
 #sleep .sleep-search-row .sleep-filter-info button{min-height:44px;white-space:nowrap;font-size:12px!important;padding-inline:6px!important}
 @media(max-width:360px){#sleep .sleep-search-row input{padding-inline:5px}#sleep .sleep-search-row .sleep-filter-info button{padding-inline:4px!important}}
 #sleep #sleep-form .sleep-search>input{margin:0;height:44px}
+
+/* 検索文字の消去は同じ入力枠内。標準の検索消去と二重に表示しない。 */
+#sleep .sleep-search{position:relative}
+#sleep #sleep-form .sleep-search>input{padding-right:44px}
+#sleep .sleep-search input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+#sleep .sleep-search .sleep-search-clear{position:absolute;right:0;top:0;width:44px;height:44px;min-height:44px;padding:0;border:0;background:transparent;color:var(--mh-muted);font-size:20px;line-height:1}
+#sleep #sleep-form .sleep-candidates{height:260px;max-height:260px;overflow-anchor:none}
+/* 実際のキーボード縮小を検出した間だけ検索操作を優先。強制スクロールはしない。 */
+#sleep.sleep-keyboard-open #sleep-root>.period-picker{top:var(--sleep-visible-top,0px);padding-top:0;--period-control-height:44px}
+#sleep.sleep-keyboard-open #sleep-root>.period-picker>.sleep-switch{display:none}
+#sleep.sleep-keyboard-open .sleep-sticky-actions{min-height:44px;padding:0}
+#sleep.sleep-keyboard-open .sleep-research-heading{margin-top:0}
+#sleep.sleep-keyboard-open #sleep-entries{height:var(--sleep-entry-height,0px);min-height:0;max-height:44px}
+#sleep.sleep-keyboard-open .sleep-search-row{margin:4px 0;padding-top:4px}
+body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;pointer-events:none}
+/* キーボード中は見えている領域内へCSSだけで配置。元の高さを残してページを跳ねさせない。 */
+#sleep.sleep-keyboard-open{min-height:var(--sleep-workspace-height)}
+#sleep.sleep-keyboard-open #sleep-root{position:fixed;top:var(--sleep-visible-top,0px);left:50%;transform:translateX(-50%);width:100%;max-width:712px;height:var(--sleep-visible-height);padding:0 16px 8px;background:var(--mh-surface);z-index:32;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box}
+#sleep.sleep-keyboard-open #sleep-root>.period-picker{position:relative;top:0;flex:none;margin-bottom:0;padding-bottom:4px!important}
+#sleep.sleep-keyboard-open #sleep-form{display:flex;flex:1;min-height:0;flex-direction:column}
+#sleep.sleep-keyboard-open #sleep-entries,#sleep.sleep-keyboard-open .sleep-search-row{flex:none}
+#sleep.sleep-keyboard-open #sleep-form .sleep-candidates{flex:1;min-height:0;height:0;max-height:260px}
+
+#sleep #sleep-form .sleep-candidates{align-content:start;grid-auto-rows:max-content}
