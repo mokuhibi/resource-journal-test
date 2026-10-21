@@ -47,7 +47,7 @@ const ShardUI=(()=>{
   loadResearch();updateCluster();$('research-rank-setting').value=sharedRank()??'';
   const root=$('shard-skill-inputs');for(const input of root.querySelectorAll('input'))drafts.set(input.dataset.pokemon,input.value);
   root.replaceChildren();const members=currentTeam().map((p,i)=>p&&speciesEnabled(p.species)&&isTarget(p)?{p,slot:i+1}:null).filter(Boolean);root.hidden=!members.length;
-  if(members.length||currentTeam().some(p=>p&&CopySkills.handlesShards(p)))root.append(el('h2','ゆめのかけら'));
+  if(members.length||currentTeam().some(p=>p&&CopySkills.handlesShards(p)))root.append(el('h2','スキル','record-subheading'));
   for(const {p,slot} of members){
    const type=typeOf(p),level=C.recordProfile(p).skillLevel,card=el('div',undefined,'card shard-skill-row'+(slot===1?' leader-slot':''));card.append(recordName(p,slot));
    const saveSkill=amount=>p.species==='ミュウ'?MewUI.saveShard(p,amount):save({method:type==='lucky'?'lucky':'skill',skillType:type,skillId:SK.id(SK.forPokemon(p)),skillName:SK.value(SK.forPokemon(p)),...(level?{skillLevel:level}:{}),amount,pokemonId:p.id,pokemon:storedLabel(p),species:p.species,slot,pokemonSnapshot:clone(p)});
@@ -67,6 +67,7 @@ const ShardUI=(()=>{
   $('cluster-panel').hidden=!SummaryExtras.shardVisible('cluster');
   $('research-panel').hidden=!SummaryExtras.shardVisible('research');
   $('shard-other-form').closest('details').hidden=!SummaryExtras.shardVisible('other');
+  $('record-shard-heading').hidden=root.hidden&&['research','cluster','other'].every(key=>!SummaryExtras.shardVisible(key));
  }
  function addSkillSetting(card,p){card.append(el('small',mainSkillText(p)+(p.profile?` · Lv.${p.profile.skillLevel}`:''),'shard-setting'));}
  // 記録日サマリーと期間合計で同じ個体別内訳を表示します。

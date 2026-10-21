@@ -129,3 +129,21 @@ body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label>
 #nap-island-editor{width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 32px);overflow:auto;background:var(--mh-surface);color:var(--mh-text);border:1px solid var(--mh-border);border-radius:var(--mh-radius)}#nap-island-editor input,#nap-island-editor select{font-size:16px;min-height:44px}#nap-island-editor button{min-height:44px;margin:8px}
 body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label[for]:not(.check){font-size:var(--mh-text-size);font-weight:400;color:var(--mh-muted);text-align:center;margin-bottom:6px}
 #record #nap-island-form input{height:44px}
+
+/* 記録の小分類：通常見出し・折り畳みで位置、点、文字、間隔を共用。 */
+#record{--record-section-gap:24px;--record-heading-gap:12px}
+#record :is(#record-methods>div,#nap-island-section,#shard-skill-inputs){margin:0 0 var(--record-section-gap);padding-top:0}
+#record #shard-records>details.card{padding:0;margin:0 0 var(--record-section-gap)}
+#record :is(#record-methods>div,#shard-skill-inputs,#nap-island-section)>h2.record-subheading,
+#record #shard-records>details.card>summary.record-subheading{position:relative;box-sizing:border-box;min-height:44px;padding:8px 0 8px 13px;margin:0 0 var(--record-heading-gap);font-size:18px;font-weight:600;line-height:28px;letter-spacing:-.3px;border-bottom:1px solid var(--record-line)}
+#record :is(#record-methods,#shard-records,#nap-island-section) .record-subheading::before{content:'';display:block;position:absolute;left:0;top:20px;width:5px;height:5px;margin:0;border-radius:50%;background:currentColor}
+#record #shard-records>details.card:not([open])>summary.record-subheading{margin-bottom:0}
+#record #shard-records>details.card>summary.record-subheading{justify-content:flex-start;gap:10px}
+#record #shard-records>details.card>summary.record-subheading::after{margin-left:auto}
+#record .record-heading-note{font-size:13px;font-weight:400;color:var(--mh-muted)}
+#record #record-methods .record-slots{margin-top:0;border-top:0}
+#record #other-section>h2{color:var(--record-muted)}
+#record #shard-records>details.card,#record #nap-island-section{border-bottom:0!important}
+#record .record-resource-heading{font-size:18px;font-weight:600;line-height:1.5;margin:0 0 12px;color:var(--mh-text)}
+#record #record-methods #help-slots{padding-top:0}
+#record .mew-record-heading.record-subheading{align-items:center}

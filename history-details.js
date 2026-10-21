@@ -6,7 +6,7 @@ const HistoryDetails=(()=>{
   const {r,method,primary,target}=info,root=el('div',undefined,'history-detail-content');root.tabIndex=0;
   const group=title=>{const s=el('section');s.append(el('h3',title));root.append(s);return s;};
   const item=(s,name,value)=>{if(value===undefined||value===null||value==='')return;const row=el('div',undefined,'history-detail-row');row.append(el('span',name),el('strong',String(value)));s.append(row);};
-  const record=group('記録内容');if(!r.sleepSession)item(record,'日時',DateUI.datetime(r.datetime));item(record,'獲得方法',method);item(record,info.shards?'種類':'アメの種類',primary);item(record,'獲得個数',r.amount.toLocaleString('ja-JP')+'個');if(!r.sleepSession&&!r.targetDate&&r.method!=='cluster')item(record,C.isNapRecord(r)?'ポケモン':'対象・編成位置',target);
+  const record=group('記録内容');if(!r.sleepSession)item(record,'日時',DateUI.datetime(r.datetime));item(record,'獲得方法',method);if(info.detailMethod&&info.detailMethod!==method)item(record,'記録の内訳',info.detailMethod);item(record,info.shards?'種類':'アメの種類',primary);item(record,'獲得個数',(info.shards&&r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s'?r.shardAmount:r.amount).toLocaleString('ja-JP')+'個');if(!r.sleepSession&&!r.targetDate&&r.method!=='cluster')item(record,C.isNapRecord(r)?'ポケモン':'対象・編成位置',target);
   if(r.shardAmount!==undefined)item(record,'ゆめのかけら',r.shardAmount.toLocaleString('ja-JP')+'個');
   if(r.targetDate)item(record,'リサーチ日',C.displayDate(r.targetDate));
   if(r.recordedAt)item(record,'入力日時',DateUI.datetime(r.recordedAt));

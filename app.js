@@ -84,7 +84,7 @@ function renderRecord(){
  const root=$('record-methods');root.replaceChildren();const team=currentTeam();
  for(const [method,name] of Object.entries(methods)){
   if(method==='skill'||method==='research'||!recordVisible(method))continue;
-  const section=el('div',undefined,method);section.id=method+'-section';section.append(el('h2',name));let context=null;
+  const section=el('div',undefined,method);section.id=method+'-section';section.append(el('h2',name,'record-subheading'));let context=null;
   if(method!=='help'){
    const candidates=method==='mew'?state.pokemon.filter(p=>p.species==='ミュウ').slice(0,1).map(p=>({id:p.id,text:label(p)})):team.map((p,i)=>p&&p.species===name?{id:p.id,text:`${recordPosition(i+1)} · ${label(p)}`} : null).filter(Boolean);
    if(!candidates.some(p=>p.id===actors[method]))actors[method]=candidates.length===1?candidates[0].id:'';
@@ -108,8 +108,9 @@ function renderRecord(){
   if(method==='delibird'){const b=button('',()=>record('delibird',6,0),'help-card');b.append(el('small','6 · アメなし'),el('strong','スキルのみ'));b.disabled=!context;grid.append(b);}
   section.append(grid);root.append(section);
  }
- if(recordVisible('skill'))CopySkills.render(root,'candy');
+ if(recordVisible('skill')){const other=el('div');other.id='other-section';other.append(el('h2','その他','record-subheading'));CopySkills.render(other,'candy');if(other.children.length>1)root.append(other);}
  if(typeof NapIsland!=='undefined')NapIsland.render();
+ $('record-candy-heading').hidden=!root.children.length&&$('nap-island-section').hidden;
  if(typeof RecordFeedback!=='undefined')RecordFeedback.decorate();
 }
 function headingTotal(id,amount,unit='個'){const body=$(id),heading=body?.parentElement?.querySelector('h3');if(!heading)return;heading.classList.add('heading-with-total');let total=heading.querySelector('.heading-total');if(!total){total=el('span',undefined,'heading-total');heading.append(total);}quantityText(total,'合計 '+amount.toLocaleString('ja-JP')+unit);}
@@ -203,11 +204,15 @@ function profileText(p){if(!p.profile)return '個体情報不明';const v=p.prof
 function historyTime(value){const text=DateUI.datetime(value);return $('history-period').value==='day'?text.split(' ').pop():text.slice(5);}
 function historyPlace(slot){return slot===1?'1R':slot>=2&&slot<=5?slot+'番':slot===6?'アメなし':'獲得位置不明';}
 function historyCard(card,r,method,primary,target,actions){
- const head=el('div',undefined,'history-head');head.append(el('time',historyTime(r.datetime),'history-time'),el('strong',method,'history-method'));
- const meta=el('div',undefined,'history-meta'),name=el('strong',primary,'history-primary');name.title=primary;
- meta.append(name,qel('strong',r.amount+'個','history-amount'),el('small',card.classList.contains('shards')?'ゆめのかけら':'アメ','history-category'));card.append(meta,head);
+ // 分類は保存済みの入手方法で判定。名称や獲得数からスキルを推測しない。
+ const mewShards=r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s',shards=card.classList.contains('shards')||mewShards;
+ if(mewShards){card.classList.add('shards');card.dataset.shardSource='skill';const actor=actorOf(r.context);target=historyPlace(r.context?.actorSlot)+(actor?'　'+label(actor):'');}
+ const categoryMethod=shards?(mewShards||['skill','lucky'].includes(r.method)?'スキル':r.method==='research'?'睡眠リサーチ':['cluster','other'].includes(r.method)?'その他':'入手方法不明'):(C.isNapRecord(r)?'おひるね島':r.method==='skill'?'その他':method||'入手方法不明');
+ const head=el('div',undefined,'history-head');head.append(el('time',historyTime(r.datetime),'history-time'),el('strong',categoryMethod,'history-method'));
+ const meta=el('div',undefined,'history-meta'),name=el('strong',mewShards?'ゆめのかけら':primary,'history-primary');name.title=name.textContent;
+ meta.append(name,qel('strong',(mewShards?r.shardAmount:r.amount)+'個','history-amount'),el('small',shards?'ゆめのかけら':'アメ','history-category'));card.append(meta,head);
  if(target){const line=el('p',target,'history-target');line.title=target;card.append(line);}
- card.historyActions=actions;card.historyInfo={r,method,primary,target,shards:card.classList.contains('shards')};
+ card.historyActions=actions;card.historyInfo={r,method:categoryMethod,detailMethod:method,primary:mewShards?'ゆめのかけら':primary,target,shards};
 }
 // 省略した名称・補足を詳細に残し、既存操作をカード下部へ移します。
 function finishHistoryCard(card){
