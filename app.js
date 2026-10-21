@@ -345,3 +345,5 @@ SummaryExtras.init();
 TeamPicker.init();
 
 $('sleep-mode').onchange=()=>commit({...state,settings:{...state.settings,sleepMode:$('sleep-mode').value}},'睡眠方式を保存しました。');
+
+SleepPickups.load();
