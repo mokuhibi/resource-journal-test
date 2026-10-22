@@ -26,7 +26,7 @@ const IndividualCustom=(()=>{
     Object.assign(fields,{species:p.name,nickname:at<0?'':text.slice(at+1),level:String(level),skillLevel:String(((w[2]>>2)&7)+1),nature,shiny:String(w[2]&1),sleepHours:String([0,200,500,1000,2000][ribbon]),mainSkill:p.skill==='Versatile'&&versatile?D.versatile[versatile-1]:p.skill});
     indexes.forEach((v,i)=>fields['sub'+i]=v===31?'':D.subskills[v]);
     let ing=pattern.split('').map(ch=>p['ing'+(ch.charCodeAt(0)-64)]);
-    if(p.mythIng){const n=p.mythIng.length+1;if(w[5]>=n*n*n)throw Error('食材データが範囲外です。');ing=[0,1,2].map(i=>{const v=Math.floor(w[5]/n**i)%n;return v?p.mythIng[v-1]:'';});}
+    if(p.mythIng){const n=p.mythIng.length+1;if(w[5]>=n*n*n)throw Error('食材データが範囲外です。');ing=[0,1,2].map(i=>{const v=Math.floor(w[5]/n**i)%n;return v?p.mythIng[v-1]:(p['ing'+(i+1)]==='unknown'?'':p['ing'+(i+1)]||'');});}
     if(ing.some(v=>v===undefined))throw Error('対応しない食材の組み合わせです。');
     ing.forEach((v,i)=>fields['ingredients'+(i+1)]=v);
     return {line,fields,unknown:[],custom:{serialized:text,attributes,form:forms[form],ingredientPattern:pattern,revision:D.revision}};
