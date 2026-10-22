@@ -198,14 +198,14 @@ function historicalPokemon(r){
 function oldLabel(r){return r.amount===0?'スキルのみ':label(historicalPokemon(r));}
 function profileText(p){if(!p.profile)return '個体情報不明';const v=p.profile;return `Lv.${v.level} · ${v.nature} · スキルLv.${v.skillLevel}\n`+v.subskills.map((s,i)=>`${[10,25,50,70,80][i]}: ${s||'未入力'}${v.level<[10,25,50,70,80][i]?'（未解放）':''}`).join(' / ');}
 // 履歴の日時・配置だけを整え、保存日時やスナップショットは変更しない。
-function historyTime(value){const text=DateUI.datetime(value);return $('history-period').value==='day'?text.split(' ').pop():text.slice(5);}
+function historyTime(value){return DateUI.datetime(value).replace(/^(\d{2})(\d{2}\/\d{2}\/\d{2})[^ ]* /,'$2 ');}
 function historyPlace(slot){return slot===1?'1R':slot>=2&&slot<=5?slot+'番':slot===6?'アメなし':'獲得位置不明';}
 function historyCard(card,r,method,primary,target,actions){
  // 分類は保存済みの入手方法で判定。名称や獲得数からスキルを推測しない。
  const mewShards=r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s',shards=card.classList.contains('shards')||mewShards;
  if(mewShards){card.classList.add('shards');card.dataset.shardSource='skill';const actor=actorOf(r.context);target=historyPlace(r.context?.actorSlot)+(actor?'　'+label(actor):'');}
  const categoryMethod=shards?(mewShards||['skill','lucky'].includes(r.method)?'スキル':r.method==='research'?'睡眠リサーチ':r.method==='other'&&r.otherKind==='nap_island'?'おひるね島':r.method==='cluster'?'ゆめのかたまり':r.method==='other'?'その他':'入手方法不明'):(C.isNapRecord(r)?'おひるね島':r.method==='skill'?'その他':method||'入手方法不明');
- const head=el('div',undefined,'history-topline');head.append(el('small',shards?'ゆめのかけら':'アメ','history-category'),el('time',historyTime(r.recordedAt||r.datetime).split(' ').pop(),'history-time'));
+ const head=el('div',undefined,'history-topline'),time=el('time',undefined,'history-time');const [date,clock]=historyTime(r.recordedAt||r.datetime).split(' ');time.append(el('span',date),document.createTextNode(' '),el('span',clock));head.append(el('small',shards?'ゆめのかけら':'アメ','history-category'),time);
  const source=el('div',undefined,'history-head history-source');source.append(el('strong',categoryMethod,'history-method'));
  const meta=el('div',undefined,'history-meta');meta.append(qel('strong',(mewShards?r.shardAmount:r.amount)+'個','history-amount'));
  if(!shards&&primary&&!['アメ','スキルのみ'].includes(primary)){const name=el('strong',primary,'history-primary');name.title=primary;meta.append(name);}
