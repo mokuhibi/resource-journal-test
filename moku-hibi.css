@@ -147,8 +147,9 @@ body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label[
 #record .mew-record-heading.record-subheading{align-items:center}
 
 /* 一時通知は全画面で同じ一個の要素を更新し、操作を遮らない。 */
-body #notice{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);bottom:auto;left:50%;width:max-content;max-width:calc(100vw - 32px);min-height:0;margin:0;padding:12px 18px;background:#343638;color:#fff;border:0;border-radius:12px;box-shadow:0 2px 8px #20212412;font-size:15px;font-weight:400;line-height:1.5;z-index:60;pointer-events:none;opacity:0;transform:translate(-50%,-8px);transition:opacity .18s,transform .18s;overflow-wrap:anywhere}
-body #notice.shown{opacity:1;transform:translate(-50%,0)}
-body #notice.record-error{background:var(--mh-error);color:#fff}
+body #notice{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);bottom:auto;left:50%;width:max-content;max-width:calc(100vw - 32px);min-height:0;margin:0;padding:0;background:none;color:#fff;border:0;border-radius:0;box-shadow:none;z-index:60;pointer-events:none;opacity:1;transform:translateX(-50%);transition:none;display:flex;flex-direction:column;align-items:center;gap:8px}
+body #notice .toast{max-width:100%;padding:12px 18px;background:#343638;color:#fff;border:0;border-radius:12px;box-shadow:0 2px 8px #20212412;font-size:15px;font-weight:400;line-height:1.5;opacity:0;transform:translateY(-8px);transition:opacity .18s,transform .18s;overflow-wrap:anywhere}
+body #notice .toast.shown{opacity:1;transform:translateY(0)}
+body #notice .toast.record-error{background:var(--mh-error);color:#fff}
 #notice :is(.quantity-number,.quantity-unit){font:inherit;color:inherit}
-@media(prefers-reduced-motion:reduce){body #notice{transition:none}}
+@media(prefers-reduced-motion:reduce){body #notice .toast{transition:none}}

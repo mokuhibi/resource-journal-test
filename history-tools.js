@@ -19,7 +19,7 @@ const MewUI=(()=>{
   const main=SK.value(SK.forPokemon(p));if(!['dream_shard_s','metronome'].includes(SK.id(main))){notice('登録スキルを確認してください。',true);return false;}
   const r={id:uid(),datetime:date.toISOString(),method:'mew',amount:0,slot:null,pokemonId:null,pokemon:'スキルのみ',species:null,nickname:'',candy:null,context,recordedSkillLevel:context.actor.profile.skillLevel,registeredMainSkill:main,mainSkillId:SK.id(main),firedSkill:shardSkill,shardAmount:amount};
   if($('auto-now').checked)$('datetime').value=C.localInput(date);
-  return commit({...state,records:[...state.records,r]},'ミュウ：ゆめのかけら'+amount+'個を記録しました。');
+  return commit({...state,records:[...state.records,r]},'ミュウのゆめのかけらを記録');
  }
  function appendHistory(card,r){const actor=actorOf(r.context);const level=r.recordedSkillLevel??actor?.profile?.skillLevel;if(level)card.append(el('p','スキルLv.'+level,'history-supplement'));card.append(el('p',mainSkillText({species:'ミュウ'},r.mainSkillId||r.registeredMainSkill||SK.forPokemon(actor)),'history-supplement'));if(SK.id(r.firedSkill)==='dream_shard_s')card.append(qel('p','ゆめのかけら：'+r.shardAmount+'個','history-supplement'));}
  function openEditor(r){$('edit-mew-level').value=r.recordedSkillLevel??actorOf(r.context)?.profile?.skillLevel??'';const main=SK.value(r.mainSkillId||r.registeredMainSkill||SK.forPokemon(actorOf(r.context)));const select=$('edit-registered-skill');if(![...select.options].some(o=>o.value===main))select.add(new Option(mainSkillText({species:'ミュウ'},main),main));select.value=main;optionList($('edit-mew-target'),editPool.map(p=>({id:p.id,text:label(p)})),r.pokemonId);$('edit-fired-skill').value=r.firedSkill||'';$('edit-mew-shards').value=r.shardAmount||C.shardAmounts('fixed',r.context?.effectiveLevel||1)[0];}

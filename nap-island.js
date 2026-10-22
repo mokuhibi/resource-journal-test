@@ -22,7 +22,7 @@ const NapIsland=(()=>{
 
   $('show-nap-island').onchange=()=>commit({...state,settings:{...state.settings,showNapIsland:$('show-nap-island').checked}},'表示設定を保存しました。');
   $('nap-island-search').oninput=()=>{selected='';search();};
-  $('nap-island-form').onsubmit=e=>{e.preventDefault();try{const raw=$('nap-island-amount').value;if(!raw.trim())throw Error('アメの個数を入力してください。');const r=build(selected,Number(raw),recordDate(),uid());if(commit({...state,records:[...state.records,r]},'おひるね島：'+r.candy+' '+r.amount.toLocaleString('ja-JP')+'個を記録しました。'))$('nap-island-amount').value='';}catch(err){notice(err.message,true);}};
+  $('nap-island-form').onsubmit=e=>{e.preventDefault();try{const raw=$('nap-island-amount').value;if(!raw.trim())throw Error('アメの個数を入力してください。');const r=build(selected,Number(raw),recordDate(),uid());if(commit({...state,records:[...state.records,r]},'おひるね島のアメを記録'))$('nap-island-amount').value='';}catch(err){notice(err.message,true);}};
  }
  function edit(record){
   const dialog=el('dialog'),form=el('form'),date=el('input'),species=el('select'),amount=el('input');dialog.id='nap-island-editor';dialog.append(form);document.body.append(dialog);
