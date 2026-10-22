@@ -405,3 +405,7 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 
 [data-tab]{touch-action:manipulation}
 .research-fields input::placeholder{color:var(--mh-muted);opacity:.8}
+
+/* 全体の除外は個別フィルターより優先。操作・割合の位置は共通。 */
+#summary .candy-filter-excluded{display:block;font-size:10px;line-height:1.5;color:var(--mh-muted)}
+#summary .candy-source-switches button[data-excluded=true]{border-style:dashed;color:var(--mh-muted)}

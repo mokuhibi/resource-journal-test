@@ -5,9 +5,22 @@ const SummaryExtras=(()=>{
  const settingKeys={skill:'showShardSkill',research:'showShardResearch',cluster:'showShardCluster',other:'showShardOther'};
  const shardKey=method=>method==='lucky'?'skill':method;
  const shardVisible=(method,settings=state.settings)=>settings[settingKeys[shardKey(method)]]!==false;
- // アメの通常集計だけに共通適用。履歴・位置集計・アメゲット記録は呼び出さない。
- const candyRecords=records=>records.filter(r=>recordVisible(r.method));
- const visibleCandySources=()=>candySources.filter(([key])=>recordVisible(key));
+ // 全体設定とセクション内フィルターは、入力表示・履歴とは独立する。
+ const aggregateVisible=(kind,method)=>(state.settings[kind==='candy'?'aggregateCandy':'aggregateShards']||C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'])[kind==='candy'?method:shardKey(method)]!==false;
+ const localVisible=(scope,method)=>!scope||state.settings.candyFilters?.[scope]?.[method]!==false;
+ const candySourceVisible=(method,scope)=>aggregateVisible('candy',method)&&localVisible(scope,method);
+ const candyRecords=(records,scope)=>records.filter(r=>candySourceVisible(r.method,scope));
+ const visibleCandySources=scope=>candySources.filter(([key])=>candySourceVisible(key,scope));
+ function filterControls(root,scope,records){
+  root.replaceChildren();root.className='candy-source-switches';root.setAttribute('aria-label',({types:'種類別アメ',week:'週間のアメ',month:'月間のアメ',breakdown:'獲得数の内訳'})[scope]+'の集計対象');
+  const filtered=candyRecords(records,scope),total=C.sum(filtered);
+  for(const key of ['help','mew','delibird','research','skill']){
+   const name=key==='research'?'睡眠':key==='skill'?'その他':candySources.find(([k])=>k===key)[1],toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),global=aggregateVisible('candy',key),on=localVisible(scope,key),amount=C.sum(filtered.filter(r=>r.method===key));
+   toggle.type='button';toggle.dataset.source=key;item.dataset.source=key;toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',name+(global?'':'（全体設定で集計対象外）'));if(!global){toggle.dataset.excluded='true';toggle.title='設定の「集計する記録」で除外されています';}
+   toggle.onclick=()=>commit({...state,settings:{...state.settings,candyFilters:{...state.settings.candyFilters,[scope]:{...state.settings.candyFilters?.[scope],[key]:!on}}}},'この集計のフィルターを保存しました。');
+   item.append(toggle,el('small',global&&on&&amount&&total?(amount/total*100).toFixed(1)+'%':'—','candy-source-percent'));if(!global)item.append(el('small','全体設定OFF','candy-filter-excluded'));root.append(item);
+  }
+ }
  function sourceTotals(root,kind,records,sourceVisible=()=>true){
   root.replaceChildren();root.className='source-totals';
   for(const [key,name] of kind==='candy'?candySources:shardSources){
@@ -26,7 +39,7 @@ const SummaryExtras=(()=>{
   const date=recordDate();if(!Number.isFinite(date.getTime()))return;
   const day=C.gameDay(date),period=C.range('day',day),root=$('today-total'),wasOpen=root.querySelector('details')?.open||false;const heading=el('small',day===C.gameDay(new Date())?'今日の獲得数':'選択日の獲得数');if(C.localInput(date).slice(0,10)!==day)heading.append(el('span','集計日：'+C.displayDate(day)+'（04:00切替）','record-day-note'));root.replaceChildren(heading);
   const candy=el('div',undefined,'daily-resource'),shard=el('div',undefined,'daily-resource');
-  totals(candy,allCandyRecords().filter(r=>C.inRange(r,period)),'アメ',true);
+  totals(candy,candyRecords(allCandyRecords()).filter(r=>C.inRange(r,period)),'アメ',true,key=>candySourceVisible(key));
   const records=ShardUI.summaryRecords().filter(r=>C.inRange(r,period)),total=C.sum(records);
   // 未記録の日だけ省略。0個のスキル記録がある日は回数・内訳も表示します。
   if(records.length||total!==0){
@@ -46,23 +59,21 @@ const SummaryExtras=(()=>{
  }
  // 画像用の表示列を分割。集計済みの値・並び順は変更しません。
  function candyColumns(groups){
-  const active=candySources.filter(([key])=>recordVisible(key)&&groups.some(g=>g.sources[key]));
+  const active=candySources.filter(([key])=>candySourceVisible(key,'types')&&groups.some(g=>g.sources[key]));
   const panels=[];for(let i=0;i<active.length;i+=2)panels.push(active.slice(i,i+2));
   return panels.length?panels:[[]];
  }
  const candyName=name=>name.replace(/のアメ$/,'');
  const candyValue=value=>value?value.toLocaleString('ja-JP'):'−';
  function candyList(records){
-  records=candyRecords(records);
+  const input=records;records=candyRecords(records,'types');
   $('candy-source-totals').replaceChildren();$('candy-source-totals').hidden=true;
   const root=$('candy-list');root.replaceChildren();
   const order=['help','mew','delibird','research','skill'],labels={research:'睡眠',skill:'その他'};
-  const switches=el('div',undefined,'candy-source-switches');switches.setAttribute('aria-label','種類別アメの集計対象');
-  for(const key of order){const name=labels[key]||candySources.find(([k])=>k===key)[1],toggle=el('button',name);toggle.type='button';toggle.dataset.source=key;toggle.setAttribute('aria-pressed',String(recordVisible(key)));const item=el('div',undefined,'candy-source-choice');item.dataset.source=key;const amount=C.sum(records.filter(r=>r.method===key)),total=C.sum(records),percent=recordVisible(key)&&amount&&total?(amount/total*100).toFixed(1)+'%':'—';toggle.onclick=()=>commit({...state,settings:{...state.settings,[recordSettingKeys[key]]:!recordVisible(key)}},'表示設定を保存しました。');item.append(toggle,el('small',percent,'candy-source-percent'));switches.append(item);}
-  root.append(switches);
+  const switches=el('div');filterControls(switches,'types',input);root.append(switches);
   const groups=candyGroups(records);
-  if(!groups.length){root.append(el('p',order.some(recordVisible)?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。'));return;}
-  const sources=order.filter(key=>recordVisible(key)&&groups.some(g=>g.sources[key]));
+  if(!groups.length){root.append(el('p',order.some(key=>candySourceVisible(key,'types'))?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。'));return;}
+  const sources=order.filter(key=>candySourceVisible(key,'types')&&groups.some(g=>g.sources[key]));
   const scroll=el('div',undefined,'candy-table-scroll'),table=el('table',undefined,'candy-totals-table');
   scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','種類別アメの合計（横スクロール）');
   table.style.minWidth=(204+sources.length*88)+'px';
@@ -120,9 +131,11 @@ const SummaryExtras=(()=>{
   }return pages;
  }
  function init(){
+  for(const [kind,sources] of [['candy',candySources],['shard',shardSources]])for(const [key] of sources){const input=$('aggregate-'+kind+'-'+key);input.onchange=()=>commit({...state,settings:{...state.settings,[kind==='candy'?'aggregateCandy':'aggregateShards']:{...C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'],[key]:input.checked}}},'集計設定を保存しました。');}
+
   for(const [key,id] of Object.entries(settingKeys))$('setting-'+id).onchange=()=>commit({...state,settings:{...state.settings,[id]:$('setting-'+id).checked}},'表示設定を保存しました。');
-  $('create-candy-image').onclick=()=>{try{const period=RangePicker.get('period');ImagePreview.open('アメ種類別合計',imagePages(candyGroups(candyRecords(filteredRecords())),summaryTitle(period)));}catch(e){notice('画像を作成できませんでした：'+e.message);}};
+  $('create-candy-image').onclick=()=>{try{const period=RangePicker.get('period');ImagePreview.open('アメ種類別合計',imagePages(candyGroups(candyRecords(filteredRecords(),'types')),summaryTitle(period)));}catch(e){notice('画像を作成できませんでした：'+e.message);}};
  }
- function settings(){for(const [key,id] of Object.entries(settingKeys))$('setting-'+id).checked=shardVisible(key);}
- return {periodCaption,candyRecords,visibleCandySources,recordSummary,sourceTotals,candySources,shardSources,shardKey,shardVisible,candyGroups,candyList,monthly,imagePages,init,settings};
+ function settings(){for(const [kind,sources] of [['candy',candySources],['shard',shardSources]])for(const [key] of sources)$('aggregate-'+kind+'-'+key).checked=aggregateVisible(kind,key);for(const [key,id] of Object.entries(settingKeys))$('setting-'+id).checked=shardVisible(key);}
+ return {aggregateVisible,localVisible,candySourceVisible,filterControls,periodCaption,candyRecords,visibleCandySources,recordSummary,sourceTotals,candySources,shardSources,shardKey,shardVisible,candyGroups,candyList,monthly,imagePages,init,settings};
 })();

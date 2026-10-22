@@ -32,7 +32,7 @@ const CandyGraphs=(()=>{
   if(!listening){listening=true;document.addEventListener('click',e=>{if(opened&&!opened.detail.contains(e.target)&&!opened.anchor.contains(e.target))closePopover();});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&opened){e.preventDefault();closePopover(true);}});window.addEventListener('scroll',placePopover,{passive:true});window.addEventListener('resize',placePopover);window.visualViewport?.addEventListener('resize',placePopover);window.visualViewport?.addEventListener('scroll',placePopover);}
  }
  function weekly(root,records,day){
-  closePopover();records=SummaryExtras.candyRecords(records);const sources=SummaryExtras.visibleCandySources(),days=C.weeklyTotals(records,day),parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>r.method===key),day));
+  closePopover();records=SummaryExtras.candyRecords(records,'week');const sources=SummaryExtras.visibleCandySources('week'),days=C.weeklyTotals(records,day),parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>r.method===key),day));
   const weekRecords=records.filter(r=>C.inRange(r,C.range('week',day)));root.replaceChildren();headingTotal(root.id,C.sum(weekRecords));$('candy-week-totals').replaceChildren();$('candy-week-totals').hidden=true;
   root.append(el('p',C.displayDate(days[0].date)+' 〜 '+C.displayDate(days[6].date),'weekly-range'),legend(sources,weekRecords));
   selection.week=days.some(d=>d.date===selection.week)?selection.week:days.some(d=>d.date===day)?day:days[0].date;
@@ -50,8 +50,8 @@ const CandyGraphs=(()=>{
  // Both resources share the day-total calendar; each retains its own records and selection.
  function monthly(records,day,kind='candy'){
   closePopover();const shard=kind==='shard',prefix=shard?'shard':'candy',selectionKey=shard?'shardMonth':'month';
-  if(!shard)records=SummaryExtras.candyRecords(records);
-  const month=day.slice(0,7),root=$(prefix+'-calendar'),sources=shard?SummaryExtras.shardSources:SummaryExtras.visibleCandySources(),rs=records.filter(r=>C.gameDay(r.datetime).startsWith(month)),totals=new Map();
+  if(!shard)records=SummaryExtras.candyRecords(records,'month');
+  const month=day.slice(0,7),root=$(prefix+'-calendar'),sources=shard?SummaryExtras.shardSources:SummaryExtras.visibleCandySources('month'),rs=records.filter(r=>C.gameDay(r.datetime).startsWith(month)),totals=new Map();
   for(const r of rs){const date=C.gameDay(r.datetime);totals.set(date,(totals.get(date)||0)+r.amount);}
   const positives=[...totals.values()].filter(n=>n>0),min=Math.min(...positives),max=Math.max(0,...positives);
   $(prefix+'-month').textContent=month.replace('-','年')+'月';$(prefix+'-month-legend').replaceChildren(...legend(sources,rs,kind).children);headingTotal(root.id,C.sum(rs));$(prefix+'-month-totals').replaceChildren();$(prefix+'-month-totals').hidden=true;

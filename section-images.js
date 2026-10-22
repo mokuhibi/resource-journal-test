@@ -27,7 +27,7 @@ const SectionImages=(()=>{
  function blocks(root){
   const out=[];
   function visit(e){
-   if(!visible(e)||e.matches('button,input,select,label,dialog,.graph-detail,.heat-key,.summary-section-head,h3'))return;
+   if(!visible(e)||e.matches('button,input,select,label,dialog,.candy-source-switches,.graph-detail,.heat-key,.summary-section-head,h3'))return;
    if(e.matches('.capsule-visual,.shard-stacked-chart'))return;
    if(e.matches('.calendar')){out.push(month(e));return;}
    if(e.matches('#candy-weekly-chart,#shard-weekly-chart')){
@@ -137,7 +137,7 @@ const SectionImages=(()=>{
  function open(key){exportScope(key,'single');}
 
  function init(){for(const [key,title,selector,kind,oldId] of definitions){const root=document.querySelector(selector);let head,b=oldId?document.getElementById(oldId):null;
-   if(key.endsWith('-breakdown')){head=el('div',undefined,'summary-section-head export-overview-heading');head.append(el('h3',title));root.before(head);}
+   if(key.endsWith('-breakdown')){head=el('div',undefined,'summary-section-head export-overview-heading');head.append(el('h3',title));root.before(head);if(key==='candy-breakdown')root.before($('candy-breakdown-filters'));}
    else{const h=root.closest('.card').querySelector('h3');head=h.parentElement.classList.contains('summary-section-head')?h.parentElement:null;if(!head){head=el('div',undefined,'summary-section-head');h.before(head);head.append(h);}}
    if(!b){b=el('button','画像');b.type='button';b.id='export-'+key;head.append(b);}b.classList.add('section-image-button');b.dataset.sectionImage=key;b.setAttribute('aria-label',(kind==='candy'?'アメ':'ゆめのかけら')+'：'+title+'の画像を作成');b.onclick=()=>open(key);
   }}
