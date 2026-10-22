@@ -181,7 +181,7 @@ const SleepUI=(()=>{
  function appendHistory(root,period){for(const saved of sessions()){
   const legacy=saved.legacyResearchId&&(state.shardRecords||[]).find(r=>r.id===saved.legacyResearchId),s=legacy?{...saved,baseAmount:legacy.baseAmount,researchExp:legacy.researchExp,researchRank:legacy.researchLevel,amount:legacy.amount,shardsRecorded:true}:saved,shardsOnly=s.candyRecorded===false;
   const r={id:'sleep:'+s.id,recordedAt:s.recordedAt,datetime:SleepResearch.datetime(s),amount:shardsOnly?s.amount:C.sum(s.entries),method:'research',sleepSession:s},card=el('div',undefined,'card research'+(shardsOnly?' shards':'')),actions=el('div',undefined,'history-actions');if(!C.inRange(r,period))continue;card.dataset.datetime=r.datetime;if(shardsOnly)card.dataset.shardSource='research';actions.append(button('訂正',()=>edit(s.id)),button('削除',()=>remove(s.id),'danger'));
-  historyCard(card,r,'睡眠リサーチ',shardsOnly?'ゆめのかけら':'アメ',s.number+'回目'+(!shardsOnly&&s.shardsRecorded!==false?' · ゆめのかけら '+s.amount.toLocaleString('ja-JP')+'個':''),actions);card.querySelector('.history-time').textContent=($('history-period').value==='day'?'':s.date.slice(5).replace('-','/')+' · ')+s.number+'回目';finishHistoryCard(card);root.append(card);
+  historyCard(card,r,'睡眠リサーチ',shardsOnly?'ゆめのかけら':'アメ',s.number+'回目'+(!shardsOnly&&s.shardsRecorded!==false?' · ゆめのかけら '+s.amount.toLocaleString('ja-JP')+'個':''),actions);finishHistoryCard(card);root.append(card);
  }}
  return {render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
 })();

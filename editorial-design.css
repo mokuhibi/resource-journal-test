@@ -409,3 +409,12 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 /* 全体の除外は個別フィルターより優先。操作・割合の位置は共通。 */
 #summary .candy-filter-excluded{display:block;font-size:10px;line-height:1.5;color:var(--mh-muted)}
 #summary .candy-source-switches button[data-excluded=true]{border-style:dashed;color:var(--mh-muted)}
+
+/* 履歴：分類と時刻 → 入手方法 → 個数とアメ名 → 保存時の個体。 */
+#history .history-topline{display:flex;justify-content:space-between;align-items:baseline;gap:4px;margin:0 0 4px;min-width:0}
+#history .history-topline .history-category{font-size:11px;font-weight:500;line-height:18px;padding:0 6px;border-radius:3px;background:var(--editorial-soft);white-space:nowrap}
+#history .history-topline .history-time{font-size:12px;line-height:18px;color:var(--editorial-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+#history .history-source .history-method{max-width:100%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+#history .history-meta{flex-direction:row;flex-wrap:nowrap;justify-content:flex-start;align-items:baseline;gap:2px 6px;margin:0 0 4px}
+#history .history-meta .history-primary{flex:1 1 60px;width:auto;min-width:0;margin:0;display:block;overflow:visible;white-space:normal;overflow-wrap:anywhere}
+#history #history-list .card>.history-target{white-space:normal;overflow:visible;overflow-wrap:anywhere;min-height:0}
