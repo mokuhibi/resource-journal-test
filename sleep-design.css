@@ -144,3 +144,11 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep .sleep-research-heading .sleep-fields>label{height:44px;margin:0;padding-top:0;padding-bottom:0;box-sizing:border-box}
 #sleep .sleep-research-heading .sleep-bonus{display:flex;align-items:center}
 #sleep .sleep-research-heading .sleep-fields select{margin:0!important}
+
+/* 図鑑番号と姿の補助表記。検索・保存の名称は変更しない。 */
+#sleep .sleep-pokemon-name{min-width:0;overflow-wrap:anywhere;font-weight:400;line-height:1.35}
+#sleep .sleep-pokemon-name .sleep-dex{display:inline;font-size:10px;color:var(--mh-muted);margin-right:4px;font-variant-numeric:tabular-nums}
+#sleep .sleep-pokemon-name .sleep-form-name{display:inline;font-size:11px;color:var(--mh-muted);font-weight:400}
+#sleep :is(.sleep-entry,.sleep-candidate-stars) .sleep-star-button{min-height:44px;height:44px;min-width:40px;padding:6px 4px;border:1px solid var(--mh-border);background:#f5f6f6;border-radius:var(--mh-radius);font-size:14px;font-weight:500;line-height:1.4}
+#sleep .sleep-entry .sleep-star-button[aria-pressed=true]{border-color:var(--mh-accent);background:var(--mh-selected);color:var(--mh-text)}
+#sleep .sleep-candidate-stars{flex-wrap:wrap}

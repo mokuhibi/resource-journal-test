@@ -28,7 +28,12 @@
  const autoStars=Object.fromEntries([...verifiedNormalNames.map(s=>[s,[1,2,3,4].filter(star=>!excludedStars[s]?.includes(star))]),...Object.keys(specialRewards).map(s=>[s,[1,2,3]])]);
  function candidateAmount(species,stars){if(!Number.isInteger(stars)||stars<1||stars>4)return null;if(Object.hasOwn(specialRewards,species))return specialRewards[species][stars]??null;if(Object.hasOwn(sizeRewards,species))return sizeRewards[species][stars]??null;return Object.hasOwn(base,species)?base[species]+[0,2,5,6][stars-1]:null;}
  function rewardStatus(species,stars){if(!Number.isInteger(stars)||stars<1||stars>4)return 'unknown';if(absentStars[species]?.includes(stars))return 'absent';return autoStars[species]?.includes(stars)?'verified':'unknown';}
- function nextStars(species,stars){for(let i=1;i<=4;i++){const star=(stars-1+i)%4+1;if(rewardStatus(species,star)!=='absent')return star;}return stars;}
+ // 表示する寝顔の個別例外。確認後に「ポケモン名:[1,2,3,5]」等を追加する。
+ // 未指定は従来の★1～4を維持。報酬の確認範囲とは独立して管理する。
+ const starOverrides={};
+ function displayStars(species){const xs=starOverrides[species];return Array.isArray(xs)&&xs.length&&xs.every(n=>Number.isInteger(n)&&n>=1&&n<=5)&&new Set(xs).size===xs.length?[...xs]:[1,2,3,4];}
+ function nextStars(species,stars){const xs=displayStars(species).filter(s=>rewardStatus(species,s)!=='absent'),i=xs.indexOf(stars);return xs.length?xs[(i+1)%xs.length]:stars;}
+
  const fmt=n=>n.toLocaleString('ja-JP');
  const normalize=s=>s.normalize('NFKC').trim().replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
  function estimate(species,stars){return autoStars[species]?.includes(stars)?candidateAmount(species,stars):null;}
@@ -62,7 +67,7 @@
    if(s.legacyResearchId)links.add(s.legacyResearchId);
    if(s.amount!==s.baseAmount+(s.researchRank===70?s.researchExp:0))throw Error('睡眠のゆめのかけら');
    ids.add(s.id);const key=s.date+':'+s.number;if(slots.has(key))throw Error('同じ睡眠回の重複');slots.add(key);const entries=new Set();
-   for(const e of s.entries){if(!e||typeof e.id!=='string'||!e.id||entries.has(e.id)||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>4||!count(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount)))throw Error('睡眠のアメ明細');entries.add(e.id);}
+   for(const e of s.entries){if(!e||typeof e.id!=='string'||!e.id||entries.has(e.id)||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>5||!count(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount)))throw Error('睡眠のアメ明細');entries.add(e.id);}
    if(!count(s.entries.reduce((n,e)=>n+e.amount,0)))throw Error('睡眠のアメ合計が大きすぎます');
   }
   // 旧記録が既に2回超でも削除しない。追加時の回数制限はsaveで確認する。
@@ -74,7 +79,7 @@
    if(!d||key!==d.date+':'+d.number||!validDate(d.date)||![1,2].includes(d.number)||typeof d.id!=='string'||typeof d.field!=='string'||d.field.length>100||!['','うとうと','すやすや','ぐっすり','とくちょうなし','特徴なし'].includes(d.sleepType)||!Array.isArray(d.entries)||d.entries.length>100||(d.researchRank!==null&&(!Number.isInteger(d.researchRank)||d.researchRank<1||d.researchRank>70)))throw Error('睡眠の下書き');
    if(d.candyMultiplier!==undefined&&!multipliers.includes(d.candyMultiplier))throw Error('下書きのアメ倍率');
    const value=v=>(typeof v==='string'&&v.length<=30)||(typeof v==='number'&&Number.isFinite(v));if(!value(d.baseAmount)||!value(d.researchExp))throw Error('睡眠の下書き入力');
-   for(const e of d.entries)if(!e||typeof e.id!=='string'||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>4||!value(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount)))throw Error('睡眠の下書き明細');
+   for(const e of d.entries)if(!e||typeof e.id!=='string'||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>5||!value(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount)))throw Error('睡眠の下書き明細');
   }
  }
  const datetime=s=>new Date(s.date+'T12:00:00+09:00').toISOString();
@@ -147,6 +152,6 @@
   return {...next,...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
  }
  function initialDate(state,today){const d=new Date(today+'T12:00:00Z');if(state.settings?.sleepMode!=='split')d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10);}
- const api={initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
+ const api={initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,starOverrides,displayStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SleepResearch=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

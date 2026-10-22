@@ -134,15 +134,8 @@ const SectionImages=(()=>{
    ImagePreview.open(model.title,pages(model));
   }catch(e){notice('画像を作成できませんでした：'+e.message);}
  }
- function open(key){
-  const d=definitions.find(d=>d[0]===key);if(!d)return;
-  AppPanels.open('画像出力',body=>{
-   body.append(el('p',d[1],'panel-muted'));
-   for(const [scope,label] of [['single','個別画像'],['tab','このタブをまとめて出力'],['all','アメ＋ゆめのかけらをまとめて出力']]){
-    const b=button(label,()=>{AppPanels.close(()=>exportScope(key,scope));});b.className='export-scope-option';body.append(b);
-   }
-  });
- }
+ function open(key){exportScope(key,'single');}
+
  function init(){for(const [key,title,selector,kind,oldId] of definitions){const root=document.querySelector(selector);let head,b=oldId?document.getElementById(oldId):null;
    if(key.endsWith('-breakdown')){head=el('div',undefined,'summary-section-head export-overview-heading');head.append(el('h3',title));root.before(head);}
    else{const h=root.closest('.card').querySelector('h3');head=h.parentElement.classList.contains('summary-section-head')?h.parentElement:null;if(!head){head=el('div',undefined,'summary-section-head');h.before(head);head.append(h);}}

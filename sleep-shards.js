@@ -2,11 +2,11 @@
 // Both tabs use these fields and updateResearch to address the same saved sleep/legacy row.
 const SleepShards=(()=>{
  let sourceKey=null,selectedKey='',selector;
- function number(id){const raw=$(id).value.trim(),value=Number(raw);if(raw===''||!Number.isSafeInteger(value)||value<0||value>1000000000)throw Error('個数は0以上の整数で入力してください。');return value;}
+ function number(id,emptyZero=false){const raw=$(id).value.trim(),value=Number(raw);if(raw===''&&emptyZero)return 0;if(raw===''||!Number.isSafeInteger(value)||value<0||value>1000000000)throw Error('個数は0以上の整数で入力してください。');return value;}
  function fields(prefix,values,change){
   const root=el('div',undefined,'filters research-fields');
   for(const [key,title,suffix] of [['researchRank','リサーチランク','level'],['researchExp','リサーチEXP','exp'],['baseAmount','ゆめのかけら','base']]){
-   const label=el('label',title),input=el('input');label.dataset.researchField=key;Object.assign(input,{id:prefix+'-'+suffix,type:'number',inputMode:'numeric',min:key==='researchRank'?'1':'0',max:key==='researchRank'?'70':'1000000000',step:'1',required:true,readOnly:key==='researchRank',value:values[key]??''});input.setAttribute('aria-label',title);
+   const label=el('label',key==='researchRank'?title:undefined),input=el('input');label.dataset.researchField=key;Object.assign(input,{id:prefix+'-'+suffix,type:'number',inputMode:'numeric',min:key==='researchRank'?'1':'0',max:key==='researchRank'?'70':'1000000000',step:'1',required:key!=='researchExp',placeholder:key==='researchRank'?'':title,readOnly:key==='researchRank',value:values[key]??''});input.setAttribute('aria-label',title);
    if(key!=='researchRank')input.oninput=()=>change(key,input.value);label.append(input);root.append(label);
   }
   return root;
@@ -27,12 +27,12 @@ const SleepShards=(()=>{
   selector.replaceChildren();for(const o of options)selector.add(new Option(o.text,o.key));selector.value=selectedKey;
   const row=rows.find(r=>r.key===selectedKey),r=row?.record,n=row?.number||Number(selectedKey.split(':')[1]),draft=state.sleepDrafts?.[date+':'+n],rank=row?(row.kind==='legacy'?r.researchLevel:(r.shardsRecorded===false?state.settings.researchRank:r.researchRank)):state.settings.researchRank;
   $('research-daily-total').textContent='その日の合計 '+SleepResearch.researchTotal(state,date).toLocaleString('ja-JP')+'個'+(rows.length?'（'+rows.length+'回分）':'');
-  $('shard-research-level').required=!row||rank!==null;$('shard-research-level').value=rank??'';$('shard-research-base').value=draft?.baseAmount??(r?.shardsRecorded===false?'':r?.baseAmount??'');$('shard-research-exp').value=draft?.researchExp??r?.researchExp??'0';
+  $('shard-research-level').required=!row||rank!==null;$('shard-research-level').value=rank??'';$('shard-research-base').value=draft?.baseAmount??(r?.shardsRecorded===false?'':r?.baseAmount??'');$('shard-research-exp').value=draft?.researchExp??(r?.shardsRecorded===false?'':r?.researchExp??'');
   $('research-save').textContent=row?'訂正を保存':'リサーチを記録';$('research-rank-hint').hidden=Boolean(row);$('research-rank-hint').textContent=row?'':rank?'設定のリサーチランクを使用します。':'設定でリサーチランクを設定してください。';
  }
  function init(){
   const old=$('shard-research-form').querySelector('.research-fields'),shared=fields('shard-research',{},keepDraft);const dateInput=$('shard-research-date');dateInput.type='hidden';dateInput.hidden=true;shared.prepend(dateInput);old.replaceWith(shared);
-  $('shard-research-form').onsubmit=e=>{e.preventDefault();try{const stamp=recordDate();if(!Number.isFinite(stamp.getTime()))throw Error('記録日時を入力してください。');const date=C.gameDay(stamp);if(date!==$('shard-research-date').value){render(true);throw Error('記録日時が変わりました。対象の入力を確認してください。');}const next=SleepResearch.updateResearch(state,date,selectedKey,{baseAmount:number('shard-research-base'),researchExp:number('shard-research-exp')},candyMap,uid(),new Date().toISOString());if(commit(next,'睡眠リサーチを保存しました。'))render(true);}catch(err){notice(err.message,true);}};
+  $('shard-research-form').onsubmit=e=>{e.preventDefault();try{const stamp=recordDate();if(!Number.isFinite(stamp.getTime()))throw Error('記録日時を入力してください。');const date=C.gameDay(stamp);if(date!==$('shard-research-date').value){render(true);throw Error('記録日時が変わりました。対象の入力を確認してください。');}const next=SleepResearch.updateResearch(state,date,selectedKey,{baseAmount:number('shard-research-base'),researchExp:number('shard-research-exp',true)},candyMap,uid(),new Date().toISOString());if(commit(next,'睡眠リサーチを保存しました。'))render(true);}catch(err){notice(err.message,true);}};
  }
  return {init,render,fields};
 })();

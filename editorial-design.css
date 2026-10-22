@@ -402,3 +402,6 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 #record #nap-island-shard-form input{height:44px;font-size:16px;text-align:center}
 #record #nap-island-shard-form button{height:44px;justify-self:end;min-width:64px}
 #record-nap-view[hidden]{display:none!important}
+
+[data-tab]{touch-action:manipulation}
+.research-fields input::placeholder{color:var(--mh-muted);opacity:.8}
