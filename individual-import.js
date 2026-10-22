@@ -1,5 +1,5 @@
 'use strict';
-// Independent reader for pokesleep-tool's header-based CSV/TSV, not its serialized box format.
+// Preview/apply share the same validation for upstream CSV/TSV and custom box data.
 const IndividualImport=(()=>{
  const M=typeof IndividualImportMaps!=='undefined'?IndividualImportMaps:require('./individual-import-maps.js');
  const headers={species:['ポケモン','Pokemon','Pokémon'],nickname:['ニックネーム','Nickname'],level:['レベル','Level'],skillLevel:['スキルレベル','Skill Level'],nature:['せいかく','性格','Nature'],mainSkill:['メインスキル','Main Skill'],ingredients1:['食材1','Ing 1','Ingredient 1'],ingredients2:['食材2','Ing 2','Ingredient 2'],ingredients3:['食材3','Ing 3','Ingredient 3'],sub0:['Lv10'],sub1:['Lv25'],sub2:['Lv50'],sub3:['Lv70'],sub4:['Lv80'],sleepHours:['一緒に眠った時間','Sleeping Time Shared','Ribbon'],shiny:['色違い','Shiny']};
@@ -32,9 +32,14 @@ const IndividualImport=(()=>{
  }
  function translated(group,value){return Object.hasOwn(M[group],value)?M[group][value]:value;}
  function preview(text,env){
-  const seen=new Set();return table(text).map(({line,fields:f,unknown})=>{
+  const Custom=typeof IndividualCustom!=='undefined'?IndividualCustom:require('./individual-custom.js');
+  const clean=text.replace(/^\uFEFF/,'').trim();
+  const input=/^(?:ニックネーム|ポケモン|Nickname|Pokemon|Pokémon|レベル|Level|せいかく|性格|Nature|スキルレベル|Skill Level)[,\t]/i.test(clean)||clean.split(/\r?\n/,1)[0].includes('\t')?table(text):(/^[A-Za-z0-9+\-]{12,16}(?:[.@]|$)/.test(clean.split(/\r?\n/,1)[0])?Custom.parse(text):table(text));
+  const seen=new Set();return input.map(({line,fields:f,unknown,custom,parseError})=>{
    const warnings=[],errors=[],patch={},info={source:'nitoyon/pokesleep-tool',fields:{...f}};
-   const species=env.species.find(s=>s===translated('pokemons',f.species)||env.speciesName(s)===translated('pokemons',f.species));
+   const canonical=v=>String(v||'').normalize('NFKC').replace(/\s/g,'').replace(/(こだま|ちゅうだま|おおだま|ギガだま)しゅ/g,'$1');
+   const species=env.species.find(s=>canonical(s)===canonical(translated('pokemons',f.species))||canonical(env.speciesName(s))===canonical(translated('pokemons',f.species)));
+   if(parseError)errors.push(parseError);if(custom)info.custom=custom;
    if(!species)errors.push('未対応のポケモン：'+f.species);
    if('nickname'in f){if(f.nickname.length>40)errors.push('ニックネームは40文字以内です。');else patch.nickname=f.nickname;}
    function integer(k,min,max){if(!f[k])return;const v=Number(f[k]);if(!/^\d+$/.test(f[k])||!Number.isSafeInteger(v)||v<min||v>max){warnings.push(headers[k][0]+'「'+f[k]+'」は反映できません。');return;}info[k]=v;}
@@ -48,8 +53,11 @@ const IndividualImport=(()=>{
    if(unknown.length)warnings.push('未対応の列：'+unknown.join('・')+'列目（取り込みません）。');
    if(info.level===undefined||info.skillLevel===undefined||!info.nature)warnings.push('レベル・スキルレベル・せいかくが揃わない場合、新規個体の詳細は未設定です。読み取れた値は補足に保持します。');
    const candidates=env.pokemon.filter(p=>p.species===species),key=JSON.stringify([species,patch.nickname||'']),repeated=seen.has(key);seen.add(key);
+   const linked=custom?candidates.filter(p=>p.importedIndividual?.custom?.serialized===custom.serialized):[];
+   const score=p=>Number(linked.includes(p))*100+Number(!!patch.nickname&&p.nickname===patch.nickname)*10+Number(!!info.nature&&p.profile?.nature===info.nature)*2+info.subskills.filter((v,i)=>v&&v===p.profile?.subskills?.[i]).length;
+   if(linked.length)warnings.push('前回取り込んだデータと一致します。個体IDは含まれないため、更新先は確認して選択してください。');
    if(repeated)warnings.push('ファイル内に同じ種類・名前があります。別個体か確認してください。');
-   return {line,species,patch,info,warnings,errors,candidates:candidates.map(p=>p.id),action:errors.length||candidates.length||repeated?'skip':'add'};
+   return {line,species,patch,info,warnings,errors,candidates:candidates.sort((a,b)=>score(b)-score(a)).map(p=>p.id),action:errors.length||candidates.length||repeated?'skip':'add'};
   });
  }
  function apply(current,rows,env){

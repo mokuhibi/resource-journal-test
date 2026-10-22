@@ -6,6 +6,8 @@ https://github.com/nitoyon/pokesleep-tool
 ライセンス: MIT（参照元 README.md の License 記載）
 参照した版: 11ebec8de7b7803e5d095e4f32ee29f6bc7db2fb
 
+独自形式の仕様・名称・食材対応は版 8f48006811d9e58cd05949120b08982636341872 の
+src/util/PokemonIv.ts、src/util/Box/PokemonBox.ts、src/util/{Nature,SubSkill,MainSkill,PokemonRp}.ts、src/data/pokemon.json を参照しています。性能計算処理は利用していません。
 CSV/TSV の列定義は src/util/Formatter/BoxExporter.ts を参照しています。
 individual-import-maps.js の名称対応表は、同リポジトリの
 src/i18n/{ja,en}/{data,pokemons,skills}.json の名称部分を利用しています。

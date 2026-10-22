@@ -17,7 +17,7 @@ const IndividualImportUI=(()=>{
  }
  function editor(p){
   let root=$('individual-import-supplement');if(!root){root=el('details');root.id='individual-import-supplement';$('profile-species').after(root);}
-  root.replaceChildren();root.hidden=!p.importedIndividual;if(root.hidden)return;
+  root.replaceChildren();root.hidden=!p.importedIndividual?.source;if(root.hidden)return;
   root.append(el('summary','取り込んだ個体情報'),details(p));
   // All original recognized column values remain available, including unsupported values.
   const original=el('details');original.append(el('summary','ファイルにあった値'));
@@ -31,7 +31,7 @@ const IndividualImportUI=(()=>{
   const root=$('individual-import-list');root.replaceChildren();
   rows.forEach(row=>{
    const box=el('section',undefined,'individual-import-row');
-   box.append(el('h3',row.line+'行目　'+(row.patch.nickname||row.species||row.info.fields.species)));
+   box.append(el('h3',row.line+'行目　'+(row.patch.nickname||row.species||row.info.fields.species||'読み取り不可')));
    if(row.species)box.append(el('p',C.speciesName(row.species),'muted'));
    box.append(details({species:row.species,...row.patch,importedIndividual:row.info}));
    for(const warning of row.warnings)box.append(el('p',warning,'import-warning'));
@@ -45,17 +45,20 @@ const IndividualImportUI=(()=>{
    s.value=row.action;s.onchange=()=>{row.action=s.value;updateCount();};l.append(s);box.append(l);root.append(box);
   });updateCount();
  }
- function updateCount(){const add=rows.filter(r=>r.action==='add').length,update=rows.filter(r=>!['skip','add'].includes(r.action)).length;$('individual-import-count').textContent=add+'匹を追加・'+update+'匹を更新';$('individual-import-save').disabled=add+update===0;}
+ function updateCount(){const errors=rows.filter(r=>r.errors.length).length,candidates=rows.filter(r=>r.candidates.length).length;const add=rows.filter(r=>r.action==='add').length,update=rows.filter(r=>!['skip','add'].includes(r.action)).length;$('individual-import-count').textContent=rows.length+'件を解析・更新候補'+candidates+'件・エラー'+errors+'件／'+add+'匹を追加・'+update+'匹を更新';$('individual-import-save').disabled=add+update===0;}
  function close(){$('individual-import-dialog').close();}
  async function read(file){
   if(!file)return;
   try{
    if(file.size>5000000)throw Error('5MB以下のファイルを選んでください。');
    const text=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer());
+   showText(text);
+  }catch(e){notice('取り込めませんでした：'+e.message,true);}finally{$('individual-import-file').value='';}
+ }
+ function showText(text){
    rows=IndividualImport.preview(text,env());snapshot=current();render();$('individual-import-error').textContent='';
    scrollY=window.scrollY;bodyStyle={position:document.body.style.position,top:document.body.style.top,width:document.body.style.width,overflow:document.body.style.overflow};Object.assign(document.body.style,{position:'fixed',top:-scrollY+'px',width:'100%',overflow:'hidden'});
    $('individual-import-dialog').showModal();$('individual-import-close').focus({preventScroll:true});
-  }catch(e){notice('取り込めませんでした：'+e.message,true);}finally{$('individual-import-file').value='';}
  }
  function save(){
   if(current()!==snapshot){$('individual-import-error').textContent='登録情報が変更されました。ファイルを選び直して確認してください。';return;}
@@ -67,6 +70,7 @@ const IndividualImportUI=(()=>{
   }catch(e){$('individual-import-error').textContent=e.message;}
  }
  function init(){
+  $('individual-import-paste').onclick=()=>{try{showText($('individual-import-text').value);}catch(e){notice('取り込めませんでした：'+e.message,true);}};
   $('individual-import-open').onclick=()=>$('individual-import-file').click();
   $('individual-import-file').onchange=()=>read($('individual-import-file').files[0]);
   $('individual-import-close').onclick=close;$('individual-import-cancel').onclick=close;$('individual-import-save').onclick=save;

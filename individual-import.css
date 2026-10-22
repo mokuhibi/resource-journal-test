@@ -9,3 +9,22 @@
 .individual-import-details{margin:10px 0;font-size:14px}.import-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px;padding:4px 0}.import-detail dt{color:#777C80}.import-detail dd{margin:0;overflow-wrap:anywhere}.import-warning{color:#78633E;font-size:14px;line-height:1.6}.import-error{color:#A34444;font-size:14px;line-height:1.6}
 .individual-import-actions{bottom:0;border-top:1px solid #ECEDEE;padding-bottom:max(14px,env(safe-area-inset-bottom))}.individual-import-actions button{flex:1;min-height:46px;font-size:16px}
 #individual-import-supplement{padding:12px 0;border-bottom:1px solid #ECEDEE}#individual-import-supplement summary{min-height:44px;align-content:center;font-size:15px;color:#555}
+/* Registration and roster share existing controls; only density changes here. */
+#individual-import-text{box-sizing:border-box;width:100%;min-height:120px;font:16px var(--mh-font,system-ui);resize:vertical}
+#team .profile-ingredients{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#team .profile-ingredients :is(label,input){min-width:0;width:100%;box-sizing:border-box}
+#team #roster-columns{width:auto;min-height:44px;margin:0 0 16px 8px}
+#team #roster-other-toggle{min-height:44px;margin-bottom:16px}
+#team #registered-pokemon-list{display:block}
+#team #registered-pokemon-list .individual-roster-grid{display:grid;grid-template-columns:repeat(var(--roster-columns,3),minmax(0,1fr));gap:8px}
+#team #registered-pokemon-list .registered-row{box-sizing:border-box;cursor:pointer;min-height:100px;padding:8px;gap:4px;border:1px solid var(--mh-border);border-radius:var(--mh-radius);background:var(--mh-surface)}
+#team #registered-pokemon-list .registered-row:focus-visible{outline:2px solid var(--mh-accent)}
+#team #registered-pokemon-list .registered-info{min-width:0;width:100%}
+#team #registered-pokemon-list .team-individual-name{min-width:0;display:block;overflow-wrap:anywhere}
+#team #registered-pokemon-list .team-individual-name strong{font-size:14px;line-height:1.4;display:block;white-space:normal}
+#team #registered-pokemon-list .team-individual-name small{font-size:12px;line-height:1.4;display:block;white-space:normal}
+#team #registered-pokemon-list .individual-number{font-size:11px}
+#team #registered-pokemon-list .row-actions:empty{display:none}
+#team #registered-pokemon-list .row-actions{align-self:center}
+#team #registered-pokemon-list .row-actions button{min-width:28px;padding:2px}
+#team :is(#roster-other-toggle,#roster-columns){display:inline-block;vertical-align:middle}
