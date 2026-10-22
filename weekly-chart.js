@@ -10,7 +10,8 @@ const WeeklyChart={
  manAmount(n,suffix=''){return n===0?'0':(Math.floor(n/1000)/10).toFixed(1)+suffix;},
  renderShards(root,records,day){
   CandyGraphs.closePopover();
-  const sources=SummaryExtras.shardSources;
+  records=SummaryExtras.shardRecords(records,'week');
+  const sources=SummaryExtras.visibleShardSources('week');
   const days=C.weeklyTotals(records,day),max=Math.max(1,...days.map(d=>d.amount));
   const parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>key==='skill'?['skill','lucky'].includes(r.method):r.method===key),day));
   root.replaceChildren();headingTotal(root.id,days.reduce((n,d)=>n+d.amount,0));

@@ -63,6 +63,7 @@ const CandyCore = (() => {
    result[group]={...saved};for(const key of keys){if(saved?.[key]!==undefined&&typeof saved[key]!=='boolean')throw Error('集計設定');result[group][key]=saved?.[key]??(group==='aggregateCandy'?settings[old[key]]!==false:true);}
   }
   if(settings.candyFilters!==undefined){if(!settings.candyFilters||Array.isArray(settings.candyFilters)||typeof settings.candyFilters!=='object')throw Error('集計フィルター');for(const scope of ['types','week','month','breakdown']){const flags=settings.candyFilters[scope];if(flags===undefined)continue;if(!flags||Array.isArray(flags)||typeof flags!=='object'||Object.keys(old).some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean'))throw Error('集計フィルター');}}
+  if(settings.shardFilters!==undefined){if(!settings.shardFilters||Array.isArray(settings.shardFilters)||typeof settings.shardFilters!=='object')throw Error('集計フィルター');for(const scope of ['week','month']){const flags=settings.shardFilters[scope];if(flags!==undefined&&(!flags||Array.isArray(flags)||typeof flags!=='object'||['research','skill','cluster','other'].some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean')))throw Error('集計フィルター');}}
   return result;
  }
  function migrate(raw,map){

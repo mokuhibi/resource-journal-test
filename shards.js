@@ -94,7 +94,8 @@ const ShardUI=(()=>{
   const title=SummaryExtras.periodCaption(period),root=$('shard-total');root.replaceChildren(el('small',title),qel('div',C.sum(rs)+'個','total'));
   const body=totalBreakdown(root,'ゆめのかけら');
   appendBreakdown(body,rs);
-  WeeklyChart.render($('shard-weekly-chart'),summaryRecords(),day);
+  const all=summaryRecords();for(const scope of ['week','month']){const chart=$(scope==='week'?'shard-weekly-chart':'shard-calendar');let controls=$('shard-'+scope+'-filters');if(!controls){controls=el('div');controls.id='shard-'+scope+'-filters';chart.before(controls);}SummaryExtras.filterControls(controls,scope,all.filter(r=>C.inRange(r,C.range(scope,day))),'shard');}
+  WeeklyChart.render($('shard-weekly-chart'),all,day);
   SummaryExtras.monthly('shard',summaryRecords(),day);
  }
  function appendHistory(root,period){

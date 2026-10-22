@@ -50,8 +50,8 @@ const CandyGraphs=(()=>{
  // Both resources share the day-total calendar; each retains its own records and selection.
  function monthly(records,day,kind='candy'){
   closePopover();const shard=kind==='shard',prefix=shard?'shard':'candy',selectionKey=shard?'shardMonth':'month';
-  if(!shard)records=SummaryExtras.candyRecords(records,'month');
-  const month=day.slice(0,7),root=$(prefix+'-calendar'),sources=shard?SummaryExtras.shardSources:SummaryExtras.visibleCandySources('month'),rs=records.filter(r=>C.gameDay(r.datetime).startsWith(month)),totals=new Map();
+  records=shard?SummaryExtras.shardRecords(records,'month'):SummaryExtras.candyRecords(records,'month');
+  const month=day.slice(0,7),root=$(prefix+'-calendar'),sources=shard?SummaryExtras.visibleShardSources('month'):SummaryExtras.visibleCandySources('month'),rs=records.filter(r=>C.gameDay(r.datetime).startsWith(month)),totals=new Map();
   for(const r of rs){const date=C.gameDay(r.datetime);totals.set(date,(totals.get(date)||0)+r.amount);}
   const positives=[...totals.values()].filter(n=>n>0),min=Math.min(...positives),max=Math.max(0,...positives);
   $(prefix+'-month').textContent=month.replace('-','年')+'月';$(prefix+'-month-legend').replaceChildren(...legend(sources,rs,kind).children);headingTotal(root.id,C.sum(rs));$(prefix+'-month-totals').replaceChildren();$(prefix+'-month-totals').hidden=true;

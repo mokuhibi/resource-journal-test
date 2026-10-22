@@ -11,14 +11,18 @@ const SummaryExtras=(()=>{
  const candySourceVisible=(method,scope)=>aggregateVisible('candy',method)&&localVisible(scope,method);
  const candyRecords=(records,scope)=>records.filter(r=>candySourceVisible(r.method,scope));
  const visibleCandySources=scope=>candySources.filter(([key])=>candySourceVisible(key,scope));
- function filterControls(root,scope,records){
-  root.replaceChildren();root.className='candy-source-switches';root.setAttribute('aria-label',({types:'種類別アメ',week:'週間のアメ',month:'月間のアメ',breakdown:'獲得数の内訳'})[scope]+'の集計対象');
-  const filtered=candyRecords(records,scope),total=C.sum(filtered);
-  for(const key of ['help','mew','delibird','research','skill']){
-   const name=key==='research'?'睡眠':key==='skill'?'その他':candySources.find(([k])=>k===key)[1],toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),global=aggregateVisible('candy',key),on=localVisible(scope,key),amount=C.sum(filtered.filter(r=>r.method===key));
-   toggle.type='button';toggle.dataset.source=key;item.dataset.source=key;toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',name+(global?'':'（全体設定で集計対象外）'));if(!global){toggle.dataset.excluded='true';toggle.title='設定の「集計する記録」で除外されています';}
-   toggle.onclick=()=>commit({...state,settings:{...state.settings,candyFilters:{...state.settings.candyFilters,[scope]:{...state.settings.candyFilters?.[scope],[key]:!on}}}},'この集計のフィルターを保存しました。');
-   item.append(toggle,el('small',global&&on&&amount&&total?(amount/total*100).toFixed(1)+'%':'—','candy-source-percent'));if(!global)item.append(el('small','全体設定OFF','candy-filter-excluded'));root.append(item);
+ const shardSourceVisible=(method,scope)=>aggregateVisible('shard',method)&&(!scope||state.settings.shardFilters?.[scope]?.[shardKey(method)]!==false);
+ const shardRecords=(records,scope)=>records.filter(r=>shardSourceVisible(r.method,scope));
+ const visibleShardSources=scope=>shardSources.filter(([key])=>shardSourceVisible(key,scope));
+ function filterControls(root,scope,records,kind='candy'){
+  root.replaceChildren();root.className='candy-source-switches';root.setAttribute('aria-label',((kind==='shard'?{week:'週間のゆめのかけら',month:'月間のゆめのかけら'}:{types:'種類別アメ',week:'週間のアメ',month:'月間のアメ',breakdown:'獲得数の内訳'})[scope])+'の集計対象');
+  const shard=kind==='shard',group=shard?'shardFilters':'candyFilters',filtered=shard?shardRecords(records,scope):candyRecords(records,scope),total=C.sum(filtered);
+  for(const [key,title] of shard?shardSources:['help','mew','delibird','research','skill'].map(key=>candySources.find(([k])=>k===key))){
+   if(!aggregateVisible(kind,key))continue;
+   const name=!shard&&key==='research'?'睡眠':title,toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),on=state.settings[group]?.[scope]?.[key]!==false,amount=C.sum(filtered.filter(r=>(shard?shardKey(r.method):r.method)===key));
+   toggle.type='button';toggle.dataset.source=key;item.dataset.source=key;toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',name);
+   toggle.onclick=()=>commit({...state,settings:{...state.settings,[group]:{...state.settings[group],[scope]:{...state.settings[group]?.[scope],[key]:!on}}}},'フィルターを保存しました。');
+   item.append(toggle,el('small',on&&amount&&total?(amount/total*100).toFixed(1)+'%':'—','candy-source-percent'));root.append(item);
   }
  }
  function sourceTotals(root,kind,records,sourceVisible=()=>true){
@@ -82,8 +86,8 @@ const SummaryExtras=(()=>{
   for(const label of ['アメの種類',...sources.map(key=>labels[key]||candySources.find(([k])=>k===key)[1]),'合計']){const th=el('th',label);th.setAttribute('scope','col');header.append(th);}
   head.append(header);table.append(head);const body=el('tbody');
   for(const g of groups){const line=el('tr'),name=el('th',candyName(g.name));name.setAttribute('scope','row');line.append(name);
-   for(const key of sources){const cell=el('td');if(!g.counts[key]&&!g.sources[key])cell.append(el('span','—'));else{cell.append(el('span',g.counts[key].toLocaleString('ja-JP')+(key==='research'?'匹':'回'),'candy-method-count'),el('strong',g.sources[key]?g.sources[key].toLocaleString('ja-JP')+'個':'—','candy-method-amount'));}line.append(cell);}
-   line.append(el('td',g.total.toLocaleString('ja-JP')+'個','candy-table-total'));body.append(line);
+   for(const key of sources){const cell=el('td');if(!g.counts[key]&&!g.sources[key])cell.append(el('span','—'));else{cell.append(qel('span',g.counts[key].toLocaleString('ja-JP')+(key==='research'?'匹':'回'),'candy-method-count'),qel('strong',g.sources[key]?g.sources[key].toLocaleString('ja-JP')+'個':'—','candy-method-amount'));}line.append(cell);}
+   line.append(qel('td',g.total.toLocaleString('ja-JP')+'個','candy-table-total'));body.append(line);
   }
   table.append(body);scroll.append(table);root.append(scroll);
  }
@@ -137,5 +141,5 @@ const SummaryExtras=(()=>{
   $('create-candy-image').onclick=()=>{try{const period=RangePicker.get('period');ImagePreview.open('アメ種類別合計',imagePages(candyGroups(candyRecords(filteredRecords(),'types')),summaryTitle(period)));}catch(e){notice('画像を作成できませんでした：'+e.message);}};
  }
  function settings(){for(const [kind,sources] of [['candy',candySources],['shard',shardSources]])for(const [key] of sources)$('aggregate-'+kind+'-'+key).checked=aggregateVisible(kind,key);for(const [key,id] of Object.entries(settingKeys))$('setting-'+id).checked=shardVisible(key);}
- return {aggregateVisible,localVisible,candySourceVisible,filterControls,periodCaption,candyRecords,visibleCandySources,recordSummary,sourceTotals,candySources,shardSources,shardKey,shardVisible,candyGroups,candyList,monthly,imagePages,init,settings};
+ return {shardSourceVisible,shardRecords,visibleShardSources,aggregateVisible,localVisible,candySourceVisible,filterControls,periodCaption,candyRecords,visibleCandySources,recordSummary,sourceTotals,candySources,shardSources,shardKey,shardVisible,candyGroups,candyList,monthly,imagePages,init,settings};
 })();
