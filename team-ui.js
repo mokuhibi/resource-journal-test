@@ -21,9 +21,10 @@ const TeamUI=(()=>{
  function renderRoster(){
   const root=$('registered-pokemon-list'),q=normalize($('roster-search').value);root.replaceChildren();root.style.setProperty('--roster-columns',columns);
   const normal=state.pokemon.filter(p=>!special(p));
-  const visible=orderedPokemon().filter(p=>speciesEnabled(p.species)&&(q||showOtherPokemon||relatedPokemon(p))&&(!q||normalize(p.species).includes(q)||normalize(C.speciesName(p.species)).includes(q)||normalize(p.nickname||'').includes(q)));
   const candy=p=>special(p)||SK.id(SK.forPokemon(p))==='metronome'||CopySkills.sources(p,'candy').length>0;
-  const groups=[['アメゲットのポケモン',visible.filter(candy)],['ゆめのかけらゲットのポケモン',visible.filter(p=>!candy(p)&&relatedPokemon(p))],['その他のポケモン',visible.filter(p=>!candy(p)&&!relatedPokemon(p))]];
+  const target=p=>candy(p)||relatedPokemon(p)||CopySkills.sources(p,'shards').length>0;
+  const visible=orderedPokemon().filter(p=>speciesEnabled(p.species)&&(q||showOtherPokemon||target(p))&&(!q||normalize(p.species).includes(q)||normalize(C.speciesName(p.species)).includes(q)||normalize(p.nickname||'').includes(q)));
+  const groups=[['アメゲットのポケモン',visible.filter(candy)],['ゆめのかけらゲットのポケモン',visible.filter(p=>!candy(p)&&target(p))],['その他のポケモン',visible.filter(p=>!candy(p)&&!target(p))]];
   for(const [title,members] of groups){if(!members.length)continue;root.append(el('h3',title,'roster-purpose-heading'));const group=el('div',undefined,'individual-roster-grid');root.append(group);
   for(const p of members){
    const line=el('div',undefined,'registered-row'),info=el('div',undefined,'registered-info'),actions=el('div',undefined,'row-actions');
