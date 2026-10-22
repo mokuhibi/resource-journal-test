@@ -4,7 +4,7 @@ const SleepUI=(()=>{
  const fields=['ワカクサ本島','シアンの砂浜','トープ洞窟','ウノハナ雪原','ラピスラズリ湖畔','ゴールド旧発電所','アンバー渓谷','ワカクサ本島EX','シアンの砂浜EX'];
  const sessions=()=>state.sleepSessions||[],draftKey=()=>date+':'+number;
  const rowFor=()=>SleepResearch.researchRows(state,date).find(r=>r.number===number);
- function loadDraft(){const d=SleepResearch.getDraft(state,date,number,uid());return {...d,...(!rowFor()&&(d.researchExp==='0'||d.researchExp===0)?{researchExp:''}:{}),candyMultiplier:number===1?SleepResearch.candyMultiplier(state,date):1};}
+ function loadDraft(){const d=SleepResearch.getDraft(state,date,number,uid());return {...d,...((!rowFor()||rowFor().kind==='session'&&rowFor().record.shardsRecorded===false)&&(d.researchExp==='0'||d.researchExp===0)?{researchExp:''}:{}),candyMultiplier:number===1?SleepResearch.candyMultiplier(state,date):1};}
  const effectiveMultiplier=()=>number===1?SleepResearch.candyMultiplier(state,date):1;
  function keep(){if(!draft)return true;try{const drafts={...(state.sleepDrafts||{}),[draftKey()]:clone(draft)},next={...state,sleepDrafts:drafts};if(blocked)throw Error('保存を停止しています');SleepResearch.validateDrafts(drafts,candyMap);localStorage.setItem(KEY,JSON.stringify(next));state=next;return true;}catch(e){notice('入力途中の保存ができません：'+e.message,true);return false;}}
  function choose(n){if(!keep())return;number=n;researchSource=null;draft=loadDraft();loaded=true;render();}
@@ -62,7 +62,8 @@ const SleepUI=(()=>{
   if(mode!=='history')inputMode=mode;
   mode=tab==='history'&&historyView?'history':inputMode;syncNavigation();render();
  }
- function selectView(host,sleep){if(host==='record'){recordView=sleep;napView=false;}else historyView=sleep;showTab(host);}
+ function selectResearch(day,round){if(!SleepResearch.validDate(day)||![1,2].includes(round))return;date=day;number=round;draft=loadDraft();loaded=true;researchSource=null;}
+ function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date)SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;napView=false;}else historyView=sleep;showTab(host);}
  function openResearch(day,round,nextMode){
   if(mode!=='history'&&!keep())return;date=day;number=round;mode=inputMode=nextMode;draft=loadDraft();loaded=true;researchSource=null;recordView=true;napView=false;showTab('record');
  }
@@ -174,7 +175,7 @@ const SleepUI=(()=>{
   form.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const saved=saveStatus().saved,next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(commit(next,saved?'睡眠リサーチを保存しました':'睡眠リサーチを記録しました')){draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
   const shardForm=el('form');shardForm.id='sleep-shard-form';shardForm.hidden=mode!=='shards';
   const shardFields=SleepShards.fields('sleep-shard',draft,(key,v)=>{draft[key]=v;keep();updateTotal();});shardForm.append(shardFields);if(!draft.researchRank)shardForm.append(el('p','設定でリサーチランクを設定してください。','rank-hint'));
-  shardForm.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const values={baseAmount:whole(draft.baseAmount),researchExp:whole(draft.researchExp===''?0:draft.researchExp)},row=rowFor(),saved=saveStatus().saved,next=SleepResearch.updateResearch(state,date,row?.key||'new:'+number,values,candyMap,draft.id,new Date().toISOString());if(commit(next,saved?'睡眠リサーチを保存しました':'睡眠リサーチを記録しました')){draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
+  shardForm.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const values={baseAmount:whole(draft.baseAmount),researchExp:whole(draft.researchExp===''?0:draft.researchExp)},row=rowFor(),saved=saveStatus().saved,next=SleepResearch.updateResearch(state,date,row?.key||'new:'+number,values,candyMap,draft.id,new Date().toISOString());if(commit(next,saved?'睡眠リサーチを保存しました':'睡眠リサーチを記録しました')){draft=loadDraft();researchSource=null;SleepShards.selectResearch(date,number);render();}}catch(err){notice(err.message,true);}};
   root.append(form,shardForm);
   bindSearchViewport(root,header,q);updateTotal();
  }
@@ -184,5 +185,5 @@ const SleepUI=(()=>{
   const r={id:'sleep:'+s.id,recordedAt:s.recordedAt,datetime:SleepResearch.datetime(s),amount:shardsOnly?s.amount:C.sum(s.entries),method:'research',sleepSession:s},card=el('div',undefined,'card research'+(shardsOnly?' shards':'')),actions=el('div',undefined,'history-actions');if(!C.inRange(r,period))continue;card.dataset.datetime=r.datetime;if(shardsOnly)card.dataset.shardSource='research';actions.append(button('訂正',()=>edit(s.id)),button('削除',()=>remove(s.id),'danger'));
   historyCard(card,r,'睡眠リサーチ',shardsOnly?'ゆめのかけら':'アメ',s.number+'回目'+(!shardsOnly&&s.shardsRecorded!==false?' · ゆめのかけら '+s.amount.toLocaleString('ja-JP')+'個':''),actions);finishHistoryCard(card);root.append(card);
  }}
- return {render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
+ return {selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
 })();
