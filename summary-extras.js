@@ -17,12 +17,12 @@ const SummaryExtras=(()=>{
  function filterControls(root,scope,records,kind='candy'){
   root.replaceChildren();root.className='candy-source-switches';root.setAttribute('aria-label',((kind==='shard'?{week:'週間のゆめのかけら',month:'月間のゆめのかけら'}:{types:'種類別アメ',week:'週間のアメ',month:'月間のアメ',breakdown:'獲得数の内訳'})[scope])+'の集計対象');
   const shard=kind==='shard',group=shard?'shardFilters':'candyFilters',filtered=shard?shardRecords(records,scope):candyRecords(records,scope),total=C.sum(filtered);
-  for(const [key,title] of shard?shardSources:['help','mew','delibird','research','skill'].map(key=>candySources.find(([k])=>k===key))){
+  for(const [key,title] of shard?['skill','research','cluster','other'].map(key=>shardSources.find(([k])=>k===key)):['help','mew','delibird','research','skill'].map(key=>candySources.find(([k])=>k===key))){
    if(!aggregateVisible(kind,key))continue;
-   const name=!shard&&key==='research'?'睡眠':title,toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),on=state.settings[group]?.[scope]?.[key]!==false,amount=C.sum(filtered.filter(r=>(shard?shardKey(r.method):r.method)===key));
+   const name=shard?({skill:'スキル',research:'睡眠',cluster:'かたまり',other:'その他'})[key]:key==='research'?'睡眠':title,toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),on=state.settings[group]?.[scope]?.[key]!==false,amount=C.sum(filtered.filter(r=>(shard?shardKey(r.method):r.method)===key));
    toggle.type='button';toggle.dataset.source=key;item.dataset.source=key;toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',name);
    toggle.onclick=()=>commit({...state,settings:{...state.settings,[group]:{...state.settings[group],[scope]:{...state.settings[group]?.[scope],[key]:!on}}}},'フィルターを保存しました。');
-   item.append(toggle,el('small',on&&amount&&total?(amount/total*100).toFixed(1)+'%':'—','candy-source-percent'));root.append(item);
+   item.append(toggle,el('small',on&&amount&&total?(amount/total*100).toFixed(1)+'%':'—','candy-source-percent'));if(['week','month'].includes(scope))item.append(qel('small',on?(shard?(amount?(Math.round(amount/1000)/10).toFixed(1)+'万':'0'):amount.toLocaleString('ja-JP')+'個'):'—','candy-source-amount'));root.append(item);
   }
  }
  function sourceTotals(root,kind,records,sourceVisible=()=>true){

@@ -34,7 +34,7 @@ const CandyGraphs=(()=>{
  function weekly(root,records,day){
   closePopover();records=SummaryExtras.candyRecords(records,'week');const sources=SummaryExtras.visibleCandySources('week'),days=C.weeklyTotals(records,day),parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>r.method===key),day));
   const weekRecords=records.filter(r=>C.inRange(r,C.range('week',day)));root.replaceChildren();headingTotal(root.id,C.sum(weekRecords));$('candy-week-totals').replaceChildren();$('candy-week-totals').hidden=true;
-  root.append(el('p',C.displayDate(days[0].date)+' 〜 '+C.displayDate(days[6].date),'weekly-range'),legend(sources,weekRecords));
+  root.append(el('p',C.displayDate(days[0].date)+' 〜 '+C.displayDate(days[6].date),'weekly-range'),legend(sources));
   selection.week=days.some(d=>d.date===selection.week)?selection.week:days.some(d=>d.date===day)?day:days[0].date;
   const max=Math.max(1,...days.map(d=>d.amount)),power=10**Math.floor(Math.log10(max)),ceiling=[1,2,2.5,4,5,10].map(n=>n*power).find(n=>n>=max);
   const visual=el('div',undefined,'capsule-visual'),grid=el('div',undefined,'capsule-grid'),columns=el('div',undefined,'capsule-columns'),detail=el('div',undefined,'graph-detail');detail.id='candy-week-detail';detail.hidden=true;grid.setAttribute('aria-hidden','true');for(let i=0;i<3;i++)grid.append(el('i'));
@@ -54,7 +54,7 @@ const CandyGraphs=(()=>{
   const month=day.slice(0,7),root=$(prefix+'-calendar'),sources=shard?SummaryExtras.visibleShardSources('month'):SummaryExtras.visibleCandySources('month'),rs=records.filter(r=>C.gameDay(r.datetime).startsWith(month)),totals=new Map();
   for(const r of rs){const date=C.gameDay(r.datetime);totals.set(date,(totals.get(date)||0)+r.amount);}
   const positives=[...totals.values()].filter(n=>n>0),min=Math.min(...positives),max=Math.max(0,...positives);
-  $(prefix+'-month').textContent=month.replace('-','年')+'月';$(prefix+'-month-legend').replaceChildren(...legend(sources,rs,kind).children);headingTotal(root.id,C.sum(rs));$(prefix+'-month-totals').replaceChildren();$(prefix+'-month-totals').hidden=true;
+  $(prefix+'-month').textContent=month.replace('-','年')+'月';$(prefix+'-month-legend').replaceChildren(...legend(sources,undefined,kind).children);headingTotal(root.id,C.sum(rs));$(prefix+'-month-totals').replaceChildren();$(prefix+'-month-totals').hidden=true;
   if(!selection[selectionKey]?.startsWith(month))selection[selectionKey]=day;
   let detail=$(prefix+'-month-detail');if(!detail){detail=el('div',undefined,'graph-detail');detail.id=prefix+'-month-detail';root.after(detail);}detail.hidden=true;
   let key=$(prefix+'-heat-key');if(!key){key=el('div',undefined,'heat-key');key.id=prefix+'-heat-key';root.after(key);}key.replaceChildren(el('span','少ない'));for(let level=0;level<5;level++){const swatch=el('i');swatch.dataset.level=level;swatch.setAttribute('aria-hidden','true');key.append(swatch);}key.append(el('span','多い'));
