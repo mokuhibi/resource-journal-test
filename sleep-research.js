@@ -30,7 +30,8 @@
  function rewardStatus(species,stars){if(!Number.isInteger(stars)||stars<1||stars>4)return 'unknown';if(absentStars[species]?.includes(stars))return 'absent';return autoStars[species]?.includes(stars)?'verified':'unknown';}
  // 表示する寝顔の個別例外。確認後に「ポケモン名:[1,2,3,5]」等を追加する。
  // 未指定は従来の★1～4を維持。報酬の確認範囲とは独立して管理する。
- const starOverrides={};
+ // ユーザー指定（2026-10-22）。寝顔の存在のみ確認し、報酬は未確認のまま手入力。
+ const starOverrides={'ムウマ':[1,2,3],'ムウマージ':[1,2,3]};
  function displayStars(species){const xs=starOverrides[species];return Array.isArray(xs)&&xs.length&&xs.every(n=>Number.isInteger(n)&&n>=1&&n<=5)&&new Set(xs).size===xs.length?[...xs]:[1,2,3,4];}
  function nextStars(species,stars){const xs=displayStars(species).filter(s=>rewardStatus(species,s)!=='absent'),i=xs.indexOf(stars);return xs.length?xs[(i+1)%xs.length]:stars;}
 
