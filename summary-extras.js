@@ -54,11 +54,11 @@ const SummaryExtras=(()=>{
  const candyValue=value=>value?value.toLocaleString('ja-JP'):'−';
  function candyList(records){
   records=candyRecords(records);
-  sourceTotals($('candy-source-totals'),'candy',records,recordVisible);
+  $('candy-source-totals').replaceChildren();$('candy-source-totals').hidden=true;
   const root=$('candy-list');root.replaceChildren();
   const order=['help','mew','delibird','research','skill'],labels={research:'睡眠',skill:'その他'};
   const switches=el('div',undefined,'candy-source-switches');switches.setAttribute('aria-label','種類別アメの集計対象');
-  for(const key of order){const name=labels[key]||candySources.find(([k])=>k===key)[1],toggle=el('button',name);toggle.type='button';toggle.dataset.source=key;toggle.setAttribute('aria-pressed',String(recordVisible(key)));toggle.onclick=()=>commit({...state,settings:{...state.settings,[recordSettingKeys[key]]:!recordVisible(key)}},'表示設定を保存しました。');switches.append(toggle);}
+  for(const key of order){const name=labels[key]||candySources.find(([k])=>k===key)[1],toggle=el('button',name);toggle.type='button';toggle.dataset.source=key;toggle.setAttribute('aria-pressed',String(recordVisible(key)));const item=el('div',undefined,'candy-source-choice');item.dataset.source=key;const amount=C.sum(records.filter(r=>r.method===key)),total=C.sum(records),percent=recordVisible(key)&&amount&&total?(amount/total*100).toFixed(1)+'%':'—';toggle.onclick=()=>commit({...state,settings:{...state.settings,[recordSettingKeys[key]]:!recordVisible(key)}},'表示設定を保存しました。');item.append(toggle,el('small',percent,'candy-source-percent'));switches.append(item);}
   root.append(switches);
   const groups=candyGroups(records);
   if(!groups.length){root.append(el('p',order.some(recordVisible)?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。'));return;}

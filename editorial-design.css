@@ -390,3 +390,15 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 #summary .candy-totals-table .candy-method-count{display:block;font-size:13px;color:var(--mh-muted);line-height:1.5}
 #summary .candy-totals-table .candy-method-amount{display:block;font-size:15px;font-weight:500;color:var(--mh-text);line-height:1.5}
 #summary .candy-totals-table :is(th,td){padding:8px 6px}
+
+/* 対象切り替えを割合の見出しとして兼用。 */
+#summary .candy-source-switches{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+#summary .candy-source-choice{min-width:0;text-align:center}
+#summary .candy-source-choice button{width:100%;padding-inline:2px;font-size:12px;white-space:nowrap}
+#summary .candy-source-percent{display:block;margin-top:4px;font-size:13px;color:var(--mh-muted)}
+@media(max-width:360px){#summary .candy-source-switches{grid-template-columns:repeat(3,minmax(0,1fr))}}
+#record #nap-island-shard-form{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:12px;align-items:end;margin-bottom:24px}
+#record #nap-island-shard-form label{margin:0;min-width:0}
+#record #nap-island-shard-form input{height:44px;font-size:16px;text-align:center}
+#record #nap-island-shard-form button{height:44px;justify-self:end;min-width:64px}
+#record-nap-view[hidden]{display:none!important}

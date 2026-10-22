@@ -16,6 +16,10 @@ const NapIsland=(()=>{
  }
  function render(){$('nap-island-section').hidden=state.settings.showNapIsland!==true;}
  function init(){
+  const section=$('nap-island-section'),head=section.querySelector('h2');if(head)head.textContent='ポケモンのアメ';
+  const form=el('form'),label=el('label','ゆめのかけらの個数'),amount=el('input'),save=el('button','記録');form.id='nap-island-shard-form';amount.id='nap-island-shard-amount';Object.assign(amount,{type:'number',inputMode:'numeric',min:'1',max:'1000000000',step:'1',required:true});amount.setAttribute('aria-label','おひるね島のゆめのかけらの個数');label.append(amount);save.type='submit';form.append(label,save);section.prepend(el('h2','ゆめのかけら','record-subheading'),form);
+  form.onsubmit=e=>{e.preventDefault();try{const n=Number(amount.value);if(!String(amount.value||'').trim()||!Number.isSafeInteger(n)||n<1||n>1000000000)throw Error('ゆめのかけらの個数は1以上の整数で入力してください。');if(ShardUI.saveRecord({method:'other',otherKind:'nap_island',amount:n,memo:''}))amount.value='';}catch(err){notice(err.message,true);}};
+
   $('show-nap-island').onchange=()=>commit({...state,settings:{...state.settings,showNapIsland:$('show-nap-island').checked}},'表示設定を保存しました。');
   $('nap-island-search').oninput=()=>{selected='';search();};
   $('nap-island-form').onsubmit=e=>{e.preventDefault();try{const raw=$('nap-island-amount').value;if(!raw.trim())throw Error('アメの個数を入力してください。');const r=build(selected,Number(raw),recordDate(),uid());if(commit({...state,records:[...state.records,r]},'おひるね島：'+r.candy+' '+r.amount.toLocaleString('ja-JP')+'個を記録しました。'))$('nap-island-amount').value='';}catch(err){notice(err.message,true);}};

@@ -135,3 +135,12 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep.sleep-keyboard-open #sleep-form .sleep-candidates{flex:1;min-height:0;height:0;max-height:260px}
 
 #sleep #sleep-form .sleep-candidates{align-content:start;grid-auto-rows:max-content}
+
+/* 個数・匹数を上段にまとめ、条件欄は横幅を再配分する。 */
+#sleep .sleep-sticky-total:has(.sleep-entry-count){flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:2px 8px}
+#sleep .sleep-entry-count{font-size:13px;white-space:nowrap}
+#sleep .sleep-research-heading .sleep-fields{width:100%;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 64px;flex-basis:100%}
+#sleep .sleep-research-heading .sleep-fields{align-items:center}
+#sleep .sleep-research-heading .sleep-fields>label{height:44px;margin:0;padding-top:0;padding-bottom:0;box-sizing:border-box}
+#sleep .sleep-research-heading .sleep-bonus{display:flex;align-items:center}
+#sleep .sleep-research-heading .sleep-fields select{margin:0!important}

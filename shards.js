@@ -22,7 +22,7 @@ const ShardUI=(()=>{
  function number(id,min=0,max=1000000000){const raw=$(id).value.trim(),n=Number(raw);if(raw===''||!Number.isSafeInteger(n)||n<min||n>max)throw Error('入力値を確認してください。');return n;}
  function save(data){const date=data.targetDate?C.fromInput(data.targetDate+'T04:00'):recordDate();if(!Number.isFinite(date.getTime())){notice('記録日時を入力してください。',true);return false;}
   const r={id:uid(),datetime:date.toISOString(),...data};if(data.targetDate)r.recordedAt=new Date().toISOString();if(!data.targetDate&&$('auto-now').checked)$('datetime').value=C.localInput(date);
-  return commit({...state,shardRecords:[...records(),r]},`ゆめのかけら：${r.amount}個（${methodNames[r.method]}）を記録しました。`);
+  return commit({...state,shardRecords:[...records(),r]},`ゆめのかけら：${r.amount}個（${r.method==='other'&&r.otherKind==='nap_island'?'おひるね島':methodNames[r.method]}）を記録しました。`);
  }
  // 同日の複数記録は最後に保存されたものを表示。合計ではなく入力値を使います。
  function loadResearch(force=false){
@@ -119,5 +119,5 @@ const ShardUI=(()=>{
   if(typeof SleepShards!=='undefined')SleepShards.init();
   $('shard-other-form').onsubmit=e=>{e.preventDefault();try{if(save({method:'other',otherKind:$('shard-other-kind').value,amount:number('shard-other-amount'),memo:$('shard-other-memo').value.trim()}))$('shard-other-form').reset();}catch(err){notice(err.message,true);}};
  }
- return {recordName,methodName,summaryRecords,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
+ return {saveRecord:save,recordName,methodName,summaryRecords,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
 })();

@@ -204,9 +204,9 @@ function historyCard(card,r,method,primary,target,actions){
  // 分類は保存済みの入手方法で判定。名称や獲得数からスキルを推測しない。
  const mewShards=r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s',shards=card.classList.contains('shards')||mewShards;
  if(mewShards){card.classList.add('shards');card.dataset.shardSource='skill';const actor=actorOf(r.context);target=historyPlace(r.context?.actorSlot)+(actor?'　'+label(actor):'');}
- const categoryMethod=shards?(mewShards||['skill','lucky'].includes(r.method)?'スキル':r.method==='research'?'睡眠リサーチ':['cluster','other'].includes(r.method)?'その他':'入手方法不明'):(C.isNapRecord(r)?'おひるね島':r.method==='skill'?'その他':method||'入手方法不明');
+ const categoryMethod=shards?(mewShards||['skill','lucky'].includes(r.method)?'スキル':r.method==='research'?'睡眠リサーチ':r.method==='other'&&r.otherKind==='nap_island'?'おひるね島':['cluster','other'].includes(r.method)?'その他':'入手方法不明'):(C.isNapRecord(r)?'おひるね島':r.method==='skill'?'その他':method||'入手方法不明');
  const head=el('div',undefined,'history-head');head.append(el('time',historyTime(r.datetime),'history-time'),el('strong',categoryMethod,'history-method'));
- const meta=el('div',undefined,'history-meta'),name=el('strong',mewShards?'ゆめのかけら':primary,'history-primary');name.title=name.textContent;
+ const meta=el('div',undefined,'history-meta'),name=el('strong',shards?categoryMethod:primary,'history-primary');name.title=name.textContent;
  meta.append(name,qel('strong',(mewShards?r.shardAmount:r.amount)+'個','history-amount'),el('small',shards?'ゆめのかけら':'アメ','history-category'));card.append(meta,head);
  if(target){const line=el('p',target,'history-target');line.title=target;card.append(line);}
  card.historyActions=actions;card.historyInfo={r,method:categoryMethod,detailMethod:method,primary:mewShards?'ゆめのかけら':primary,target,shards};
