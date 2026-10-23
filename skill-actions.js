@@ -8,17 +8,17 @@ const SkillActions=(()=>{
  const copies=p=>['メタモン','バリヤード','マネネ'].includes(p.species);
  const metronome=p=>p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome';
  function copySources(p,team=currentTeam()){
-  return team.filter(q=>q&&q.id!==p.id&&!copies(q)&&(q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
+  return team.filter(q=>q&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'&&SK.find(SK.forPokemon(q))?.mew||q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
  }
  function capabilities(p,team=currentTeam()){
   if(metronome(p))return {candy:true,shards:true};
   const sources=copySources(p,team),keys=sources.map(q=>SK.id(SK.forPokemon(q)));
-  // ミュウ固有の追加アメはコピーできると推測しません。
-  return {candy:sources.some(q=>q.species==='デリバード')||keys.includes('metronome'),shards:keys.some(k=>['dream_shard_s','aura_sphere','super_luck','metronome'].includes(k))};
+  // 2026-10-24提供のゲーム画面でミュウの追加アメを確認。コピー時の未確認Lvは実数入力。
+  return {candy:sources.some(q=>['ミュウ','デリバード'].includes(q.species))||keys.includes('metronome'),shards:keys.some(k=>['dream_shard_s','aura_sphere','super_luck','metronome'].includes(k))};
  }
  function effect(source){
   const key=SK.id(SK.forPokemon(source));
-  return source.species==='デリバード'?'candy':key==='metronome'?'metronome':key==='super_luck'?'lucky':source.species==='ミュウ'?'random':SK.shardMode(source);
+  return source.species==='ミュウ'?'mew-copy':source.species==='デリバード'?'candy':key==='metronome'?'metronome':key==='super_luck'?'lucky':SK.shardMode(source);
  }
  const numeric=(value,name)=>{const raw=String(value??'').trim().replaceAll(',',''),n=raw===''?0:Number(raw);if(!Number.isSafeInteger(n)||n<0||n>1000000000)throw Error(name+'は0以上の整数で入力してください。');return n;};
  function build(p,data,options={}){
@@ -28,16 +28,17 @@ const SkillActions=(()=>{
   const source=copies(p)?copySources(p,team).find(q=>q.id===data.sourceId):null,kind=source?effect(source):null;
   if(copies(p)&&!source)throw Error('コピー先を選んでください。');
   const cap=mew?{candy:recordVisible('mew'),shards:SummaryExtras.shardVisible('skill')&&['metronome','dream_shard_s'].includes(SK.id(SK.forPokemon(p)))}:capabilities(p,team);
-  if(source){cap.candy=['candy','metronome'].includes(kind);cap.shards=['fixed','random','lucky','metronome'].includes(kind);}
+  if(source){cap.candy=['candy','metronome','mew-copy'].includes(kind);cap.shards=kind==='mew-copy'?['metronome','dream_shard_s'].includes(SK.id(SK.forPokemon(source))):['fixed','random','lucky','metronome'].includes(kind);}
   if(!mew&&!source&&!ownManual(p)){cap.candy=cap.candy&&recordVisible('skill');cap.shards=cap.shards&&SummaryExtras.shardVisible('skill');}
   if(candy&&!cap.candy||shards&&!cap.shards)throw Error('現在の表示設定・編成では記録できない獲得物です。');
   if(only&&(!(metronome(p)||source&&['candy','lucky','metronome'].includes(kind))||candy||shards)||!only&&!candy&&!shards)throw Error('獲得数を入力してください。');
+  if(kind==='mew-copy'&&!candy)throw Error('ミュウをコピーした時の実際のアメ個数と獲得先を入力してください。');
   if(mew&&!C.mewAmounts(actor.profile.skillLevel).includes(candy))throw Error('ミュウのスキルLvに対応するアメ個数を選んでください。');
   if(source&&kind==='candy'&&(candy&&candy!==4||shards))throw Error('プレゼントの獲得数を確認してください。');
   if(source&&['fixed','lucky'].includes(kind)&&!C.shardAmounts(kind,Math.min(actor.profile.skillLevel,kind==='lucky'?7:8)).includes(shards))throw Error('発動個体のスキルLvに対応する獲得数を選んでください。');
   const event=mew&&typeof state!=='undefined'?C.eventFor(state.events,C.gameDay(date),'mew'):{name:'通常',multiplier:1,boost:0};
   const target=candy?team[Number(data.target)-1]:null;if(candy&&!target)throw Error('アメの獲得先を選んでください。');
-  const outcome=source&&kind!=='metronome'?SK.id(SK.forPokemon(source)):String(data.outcome||'');if(outcome&&!SK.find(outcome))throw Error('発動結果を確認してください。');
+  const outcome=source&&SK.id(SK.forPokemon(source))!=='metronome'?SK.id(SK.forPokemon(source)):String(data.outcome||'');if(outcome&&!SK.find(outcome))throw Error('発動結果を確認してください。');
   const r={id,activationId:id,activationVersion:1,datetime:date.toISOString(),method:mew?'mew':'skill',amount:candy,shardAmount:shards,resourceFlags:{candy:Boolean(candy||only&&cap.candy),shards:Boolean(shards||only&&cap.shards)},outcomeSkillId:outcome,registeredMainSkill:SK.value(SK.forPokemon(p)),mainSkillId:SK.id(SK.forPokemon(p)),recordedSkillLevel:actor.profile.skillLevel,slot:target?Number(data.target):null,pokemonId:target?.id||null,pokemon:target?storedLabel(target):'スキルのみ',species:target?.species||null,nickname:target?.nickname||'',candy:target?candyMap[target.species]:null,context:{rulesVersion:3,team:clone(team),actor,actorId:p.id,actorSlot:slot,event,effectiveLevel:Math.min(C.skillCap(p.species),actor.profile.skillLevel+event.boost)}};
   if(source){r.sourcePokemonId=source.id;r.sourcePokemon=clone(source);r.sourceSkillId=SK.id(SK.forPokemon(source));}
   if(mew&&shards&&SK.id(SK.forPokemon(p))==='dream_shard_s'){r.firedSkill=SK.value('dream_shard_s');r.outcomeSkillId='dream_shard_s';}
@@ -60,6 +61,7 @@ const SkillActions=(()=>{
    for(const q of copySources(p)){const b=button(q.nickname||C.speciesName(q.species),()=>{draft.sourceId=draft.sourceId===q.id?'':q.id;draft.target='';draft.candy=draft.shards='';card.replaceChildren();rewards(card,p,slot);});b.setAttribute('aria-pressed',String(draft.sourceId===q.id));b.dataset.sourceId=q.id;sources.append(b);}card.append(sources);
    const source=copySources(p).find(q=>q.id===draft.sourceId);if(!source)return;
    const kind=effect(source),data={sourceId:source.id};
+   if(kind==='mew-copy'){manual(card,p,draft,{candy:true,shards:['metronome','dream_shard_s'].includes(SK.id(SK.forPokemon(source)))},true);return;}
    if(kind==='candy'){targets(card,p,(target,amount)=>save(p,{...data,target,candy:amount,only:amount===0}),true);return;}
    if(kind!=='metronome'){
     if(!visible(p))return;
@@ -71,10 +73,10 @@ const SkillActions=(()=>{
   }
   manual(card,p,draft);
  }
- function manual(card,p,draft){
-  const cap=capabilities(p);if(!ownManual(p)){cap.candy=cap.candy&&recordVisible('skill');cap.shards=cap.shards&&SummaryExtras.shardVisible('skill');}
+ function manual(card,p,draft,selectedCap=null,requireCandy=false){
+  const cap=selectedCap||capabilities(p);if(!selectedCap&&!ownManual(p)){cap.candy=cap.candy&&recordVisible('skill');cap.shards=cap.shards&&SummaryExtras.shardVisible('skill');}
   const form=el('form',undefined,'activation-form metronome-form'),submit=el('button','記録');submit.type='submit';
-  const valid=()=>{const raw=String(draft.candy||'').replaceAll(',','').trim(),n=Number(raw);submit.disabled=!!(cap.candy&&draft.target&&(!raw||!Number.isSafeInteger(n)||n<=0||n>1000000000));};
+  const valid=()=>{const raw=String(draft.candy||'').replaceAll(',','').trim(),n=Number(raw);submit.disabled=!!((requireCandy&&!draft.target)||cap.candy&&draft.target&&(!raw||!Number.isSafeInteger(n)||n<=0||n>1000000000));};
   if(cap.candy){
    const choices=el('div',undefined,'skill-choice-grid candy-choices');choices.setAttribute('aria-label','アメの獲得先');
    const input=field('アメの個数',draft.candy,v=>{draft.candy=v;valid();});input.disabled=!draft.target;
