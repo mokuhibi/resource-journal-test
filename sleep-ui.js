@@ -42,7 +42,7 @@ const SleepUI=(()=>{
   for(const [hostId,title] of [['record','記録'],['history','履歴']]){
    const host=$(hostId),content=el('div');content.id=hostId+'-main-view';
    for(const child of [...host.children])if(!child.classList.contains('editorial-page-title'))content.append(child);
-   const items=hostId==='record'?[['main','記録'],['sleep','睡眠リサーチ'],['nap','おひるね島']]:[['main',title],['sleep','睡眠リサーチ']];
+   const items=hostId==='record'?[['main','記録'],['sleep','睡眠'],['nap','おひるね島']]:[['main',title],['sleep','睡眠リサーチ']];
    const choices=tabs(items,'main',key=>{if(hostId==='record'&&key==='nap'){if(recordView&&mode!=='history'&&!keep())return;napView=true;recordView=false;showTab('record');}else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.recordTab(choices.children[i],key));host.append(choices,content);
    if(hostId==='record'){const pane=el('div');pane.id='record-nap-view';pane.hidden=true;const section=$('nap-island-section');if(section)pane.append(section);host.append(pane);}
   }

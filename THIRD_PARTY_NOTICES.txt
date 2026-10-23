@@ -40,7 +40,7 @@ SOFTWARE.
 Lucide Icons 0.468.0
 https://github.com/lucide-icons/lucide
 Referenced commit: f12b0de177fbc2a6795e99be065887e72b237123
-Icons: notebook-pen, candy, diamond, history, users, settings, zap, moon, ellipsis
+Icons: notebook-pen, candy, diamond, history, users, settings, moon, mountain
 
 ISC License
 

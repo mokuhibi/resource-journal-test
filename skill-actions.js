@@ -97,7 +97,7 @@ const SkillActions=(()=>{
    const box=el('div',undefined,'card record-cluster-panel');box.id=cluster.id;cluster.replaceWith(box);box.append(el('h3','ゆめのかたまり','record-subheading'),...Array.from(cluster.children).filter(n=>n.tagName!=='SUMMARY'));
   }
   const root=$('action-other');root.classList.add('shards');
-  if(!root.querySelector('h2')){const heading=el('h2','その他','record-subheading');root.prepend(heading);if(typeof TabIcons!=='undefined')TabIcons.section(heading,'other');}
+  if(!root.querySelector('h2')){const heading=el('h2','その他','record-subheading');root.prepend(heading);}
   root.append(other.parentElement,$('cluster-panel'));
  }
  function show(){
@@ -108,7 +108,7 @@ const SkillActions=(()=>{
   for(const method of ['mew','delibird','other'])if($(method+'-section'))$(method+'-section').hidden=true;
  }
  function render(){
-  mount();const root=$('action-skills');if(!root)return;const heading=el('h2','メインスキル','record-subheading');root.replaceChildren(heading);if(typeof TabIcons!=='undefined')TabIcons.section(heading,'skills');
+  mount();const root=$('action-skills');if(!root)return;const heading=el('h2','メインスキル','record-subheading');root.replaceChildren(heading);
   const shardRows=[...$('shard-skill-inputs').querySelectorAll('.shard-skill-row')].filter(n=>!n.classList.contains('copy-skill-card'));
   currentTeam().forEach((p,i)=>{if(!p)return;const slot=i+1,key=SK.id(SK.forPokemon(p)),cap=capabilities(p);
    if(p.species==='ミュウ'&&recordVisible('mew')){const card=el('div',undefined,'card mew activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
@@ -119,7 +119,7 @@ const SkillActions=(()=>{
    }
   });
   if(!root.querySelector('[data-actor-id]'))root.append(el('p','記録できるスキルのポケモンが編成にいません。','muted'));
-  if($('help-section')){const heading=$('help-section').querySelector('h2');heading.textContent='アメ拾い';if(typeof TabIcons!=='undefined')TabIcons.section(heading,'main');}
+  if($('help-section')){const heading=$('help-section').querySelector('h2');heading.textContent='アメ拾い';}
   show();
  }
  function history(root,r){
