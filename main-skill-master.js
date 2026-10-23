@@ -976,6 +976,8 @@ const MainSkillMaster=(()=>{
   }
 };
 
+ entries.push({id:"aura_sphere",name:"はどうだん(ゆめのかけらゲットS)",legacyName:"はどうだん(ゆめのかけらゲットS)",mew:false});
+ species["ルカリオ"].skillId="aura_sphere";
  const find=value=>entries.find(s=>s.id===value||s.legacyName===value||s.name===value||s.aliases?.includes(value));
  const id=value=>find(value)?.id||value||'';
  const name=value=>find(value)?.name||value||'未設定';
@@ -985,7 +987,7 @@ const MainSkillMaster=(()=>{
  const forPokemon=p=>p?((p.mainSkillId&&find(p.mainSkillId)?p.mainSkillId:p.mainSkill||p.mainSkillId||defaultId(p.species))):'';
  const fields=key=>key?({mainSkillId:id(key),mainSkill:value(key)}):{};
  const mewEntries=()=>entries.filter(s=>s.mew);
- const shardMode=p=>{const key=id(forPokemon(p));if(key==='super_luck')return 'lucky';if(p?.species==='ミュウ'&&key==='metronome')return 'fixed';if(key!=='dream_shard_s')return null;return species[p.species]?.shardMode==='random'?'random':'fixed';};
+ const shardMode=p=>{const key=id(forPokemon(p));if(key==='super_luck')return 'lucky';if(p?.species==='ミュウ'&&key==='metronome')return 'fixed';if(!['dream_shard_s','aura_sphere'].includes(key))return null;return species[p.species]?.shardMode==='random'?'random':'fixed';};
  return {entries,species,find,id,name,value,defaultId,forPokemon,fields,mewEntries,shardMode};
 })();
 if(typeof module!=='undefined')module.exports=MainSkillMaster;

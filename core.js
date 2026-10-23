@@ -27,6 +27,8 @@ const CandyCore = (() => {
  const displayDate=day=>dateOnly(day)?day.replaceAll('-','/')+weekday(day).replace('（','(').replace('）',')'):day;
  // ミュウの同一発動から、集計専用のかけら行を作ります。保存・履歴表示は元の1件だけです。
  const mewShardRecords=records=>records.filter(r=>r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s').map(r=>{const p=r.context?.actor||r.context?.team?.[r.context?.actorSlot-1];return {id:r.id,datetime:r.datetime,method:'skill',amount:r.shardAmount,pokemonId:p?.id||r.context?.actorId||'unknown-mew',pokemon:p?.nickname||'ミュウ',species:'ミュウ',slot:r.context?.actorSlot??null,pokemonSnapshot:p,skillName:r.firedSkill,skillLevel:r.context?.effectiveLevel,source:'mew'};});
+ // 統合記録は元の1件から参照用のかけら行だけを生成します。
+ const activationShardRecords=records=>[...mewShardRecords(records.filter(r=>r.activationVersion!==1)),...records.filter(r=>r.activationVersion===1&&r.resourceFlags.shards).map(r=>({id:r.id,activationId:r.activationId,datetime:r.datetime,method:r.outcomeSkillId==='super_luck'?'lucky':'skill',amount:r.shardAmount,pokemonId:r.context.actorId,pokemon:r.context.actor.nickname||r.context.actor.species,species:r.context.actor.species,slot:r.context.actorSlot,pokemonSnapshot:r.context.actor,skillName:r.outcomeSkillId?SK.value(r.outcomeSkillId):r.registeredMainSkill,skillLevel:r.recordedSkillLevel,source:'activation'}))];
  const profileDefault=species=>({level:1,nature:species==='ミュウ'?'きまぐれ':'',skillLevel:1,subskills:['','','','','']});
  const recordProfile=p=>p.profile||{...profileDefault(p.species),nature:p.species==='ミュウ'?'きまぐれ':'未設定'};
  // 0個のスキル発動も保存対象。獲得数だけを理由に履歴を削除しません。
@@ -76,13 +78,17 @@ const CandyCore = (() => {
   const occupied=raw.team.filter(x=>x!==null);if(occupied.some(id=>!ids.has(id))||new Set(occupied).size!==occupied.length)throw Error('編成');
   const rids=new Set();for(const r of raw.records){
    if(!r||typeof r.id!=='string'||rids.has(r.id)||!['help','mew','delibird','skill'].includes(r.method)||typeof r.datetime!=='string'||!Number.isFinite(Date.parse(r.datetime)))throw Error('履歴');rids.add(r.id);
-   const noCandy=(r.method==='delibird'&&r.amount===0&&r.slot===6)||(r.method==='mew'&&r.amount===0&&r.slot===null&&(r.firedSkill!==undefined||r.registeredMainSkill!==undefined));
+   const unified=r.activationVersion===1;
+   if(unified){const f=r.resourceFlags;if(!['mew','skill'].includes(r.method)||r.activationId!==r.id||!f||typeof f.candy!=='boolean'||typeof f.shards!=='boolean'||!f.candy&&!f.shards||!Number.isSafeInteger(r.shardAmount)||r.shardAmount<0||r.shardAmount>1000000000||!f.shards&&r.shardAmount!==0||!f.candy&&r.amount!==0||!Number.isInteger(r.recordedSkillLevel)||r.recordedSkillLevel<1||r.recordedSkillLevel>8||typeof r.outcomeSkillId!=='string'||r.outcomeSkillId&&!SK.find(r.outcomeSkillId)||!r.context?.actor||r.method==='mew'&&r.amount<1)throw Error('統合スキル記録');}
+   const noCandy=(unified&&r.amount===0)||(r.method==='delibird'&&r.amount===0&&r.slot===6)||(r.method==='mew'&&r.amount===0&&r.slot===null&&(r.firedSkill!==undefined||r.registeredMainSkill!==undefined));
    if(r.recordedSkillLevel!==undefined&&(!Number.isInteger(r.recordedSkillLevel)||r.recordedSkillLevel<1||r.recordedSkillLevel>8))throw Error('記録時スキルLv');
    if(r.registeredMainSkill!==undefined&&(typeof r.registeredMainSkill!=='string'||!r.registeredMainSkill.trim()))throw Error('記録時メインスキル');
    if(r.firedSkill!==undefined&&(r.method!=='mew'||!mewSkills.slice(1).includes(r.firedSkill)||!r.context||!Number.isSafeInteger(r.shardAmount)||r.shardAmount<0||r.shardAmount>1000000000||(SK.id(r.firedSkill)==='dream_shard_s'?r.shardAmount===0:r.shardAmount!==0)))throw Error('ミュウ発動スキル');
    if(isNapRecord(r)){if(!Object.hasOwn(map,r.species)||r.candy!==map[r.species]||typeof r.pokemon!=='string'||r.pokemonId!==null||r.slot!==null||r.context!==null||!Number.isSafeInteger(r.amount)||r.amount<1||r.amount>1000000000)throw Error('おひるね島のアメ履歴');}
    else if(noCandy){if((r.method==='mew'&&!r.context)||r.candy!==null||r.pokemonId!==null)throw Error('アメなし');}
    else if(!Object.hasOwn(map,r.species)||r.candy!==map[r.species]||typeof r.pokemonId!=='string'||typeof r.pokemon!=='string'||!(Number.isInteger(r.slot)&&r.slot>=1&&r.slot<=5||r.method!=='help'&&r.slot===null)||!(r.method==='help'?r.amount===2:r.method==='mew'?[1,2,3,4].includes(r.amount):r.method==='skill'?Number.isSafeInteger(r.amount)&&r.amount>0&&r.amount<=1000000000:r.amount===4))throw Error('アメ履歴');
+   if(unified&&r.sourcePokemonId!==undefined){const source=r.context.team.find(p=>p?.id===r.sourcePokemonId);if(!['メタモン','バリヤード','マネネ'].includes(r.context.actor.species)||!source||source.id===r.context.actorId||r.sourcePokemon?.id!==source.id||r.sourcePokemon.species!==source.species||r.sourceSkillId!==SK.id(SK.forPokemon(source))||r.recordedSkillLevel!==recordProfile(r.context.actor).skillLevel)throw Error('コピー元と発動個体');}
+   if(unified&&r.amount===0&&r.shardAmount===0&&SK.id(SK.forPokemon(r.context.actor))!=='metronome'&&!(r.sourcePokemonId&&['skill_20','super_luck','metronome'].includes(r.sourceSkillId)))throw Error('0個の統合スキル記録');
    if(r.method==='skill'&&!isNapRecord(r)&&!r.context)throw Error('スキル記録時の編成');
    if(r.context!=null){const c=r.context;if(!Array.isArray(c.team)||c.team.length!==5)throw Error('記録時編成');
     for(const p of c.team)if(p!==null&&(!p||typeof p.id!=='string'||typeof p.nickname!=='string'||!Object.hasOwn(map,p.species)||(p.profile!=null&&!profileValid(p.profile,p.species,true))))throw Error('記録時個体');
@@ -102,6 +108,6 @@ const CandyCore = (() => {
   return {...raw,version:2,shardRecords,pokemon:raw.pokemon.map((p,i)=>({...p,registrationOrder:Number.isFinite(p.registrationOrder)?p.registrationOrder:i,profile:p.profile?{...p.profile,skillLevel:Math.min(skillCap(p.species),p.profile.skillLevel)}:null})),team:raw.team,records:raw.records.map(r=>({...r,context:r.context||null})),events,settings:aggregationSettings(raw.settings||{mew:true,delibird:true})};
  }
  const sum=rs=>rs.reduce((n,r)=>n+r.amount,0);
- return {aggregationSettings,isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords};
+ return {aggregationSettings,isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords,activationShardRecords};
 })();
 if(typeof module!=='undefined')module.exports=CandyCore;

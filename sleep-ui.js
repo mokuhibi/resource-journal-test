@@ -1,6 +1,6 @@
 'use strict';
 const SleepUI=(()=>{
- let date='',draft=null,number=1,loaded=false,mode='candy',query='',showOtherTypes=false,historyKind='all',historyDay='',researchSource=null,inputMode='candy',recordView=false,napView=false,historyView=false,navigationReady=false,pickupOnly=false,calendarMonth='',calendarOpen=true,searchViewportCleanup=null;
+ let date='',draft=null,number=1,loaded=false,mode='candy',query='',showOtherTypes=false,historyKind='all',historyDay='',researchSource=null,inputMode='candy',recordView=false,napView=false,actionView='main',historyView=false,navigationReady=false,pickupOnly=false,calendarMonth='',calendarOpen=true,searchViewportCleanup=null;
  const fields=['ワカクサ本島','シアンの砂浜','トープ洞窟','ウノハナ雪原','ラピスラズリ湖畔','ゴールド旧発電所','アンバー渓谷','ワカクサ本島EX','シアンの砂浜EX'];
  const sessions=()=>state.sleepSessions||[],draftKey=()=>date+':'+number;
  const rowFor=()=>SleepResearch.researchRows(state,date).find(r=>r.number===number);
@@ -42,7 +42,9 @@ const SleepUI=(()=>{
   for(const [hostId,title] of [['record','記録'],['history','履歴']]){
    const host=$(hostId),content=el('div');content.id=hostId+'-main-view';
    for(const child of [...host.children])if(!child.classList.contains('editorial-page-title'))content.append(child);
-   const choices=tabs([['main',title],['sleep','睡眠リサーチ'],...(hostId==='record'?[['nap','おひるね島']]:[])],'main',key=>{if(hostId==='record'&&key==='nap'){napView=true;recordView=false;showTab('record');}else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';host.append(choices,content);if(hostId==='record'){const pane=el('div');pane.id='record-nap-view';pane.hidden=true;const section=$('nap-island-section');if(section)pane.append(section);host.append(pane);}
+   const items=hostId==='record'?[['main','アメ拾い'],['skills','メインスキル'],['sleep','睡眠リサーチ'],['other','その他']]:[['main',title],['sleep','睡眠リサーチ']];
+   const choices=tabs(items,'main',key=>{if(hostId==='record'){actionView=key;selectView(hostId,key==='sleep');}else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.recordTab(choices.children[i],key));host.append(choices,content);
+
   }
   $('sleep').querySelector('.editorial-page-title').hidden=true;navigationReady=true;syncNavigation();
  }
@@ -50,10 +52,10 @@ const SleepUI=(()=>{
   if(!navigationReady)return;
   if(napView&&state.settings.showNapIsland!==true)napView=false;const enabled=SleepResearch.visible(state);if(!enabled&&activeTab!=='record')recordView=false;
   for(const [hostId,on] of [['record',recordView],['history',historyView]]){
-   $(hostId+'-main-view').hidden=on||(hostId==='record'&&napView);const buttons=$(hostId+'-view-switch').children;
-   for(const b of buttons){const selected=b===buttons[hostId==='record'&&napView?2:on?1:0];b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-pressed',String(selected));}
-   // The existing preference hides the input entry only; saved history stays reachable.
-   if(hostId==='record'){buttons[1].hidden=!enabled&&!recordView;buttons[2].hidden=state.settings.showNapIsland!==true;const pane=$('record-nap-view');pane.hidden=!napView;const dateCard=$(hostId).querySelector('.record-date-card');if(dateCard){const target=napView?pane:$(hostId+'-main-view');if(dateCard.parentElement!==target)target.prepend(dateCard);}}
+   $(hostId+'-main-view').hidden=on;const buttons=$(hostId+'-view-switch').children;
+   for(const b of buttons){const selected=hostId==='record'?b.textContent===({main:'アメ拾い',skills:'メインスキル',sleep:'睡眠リサーチ',other:'その他'})[recordView?'sleep':actionView]:b===buttons[on?1:0];b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-pressed',String(selected));}
+   if(hostId==='record'){buttons[2].hidden=!enabled&&!(typeof SummaryExtras!=='undefined'&&SummaryExtras.shardVisible('research'))&&!recordView;if(typeof SkillActions!=='undefined')SkillActions.show(actionView);}
+
   }
   const host=activeTab==='history'&&historyView?'history':activeTab==='record'&&recordView?'record':null;
   $('sleep').hidden=!host;if(host&&$(host).nextElementSibling!==$('sleep'))$(host).after($('sleep'));
@@ -63,7 +65,7 @@ const SleepUI=(()=>{
   mode=tab==='history'&&historyView?'history':inputMode;syncNavigation();render();
  }
  function selectResearch(day,round){if(!SleepResearch.validDate(day)||![1,2].includes(round))return;date=day;number=round;draft=loadDraft();loaded=true;researchSource=null;}
- function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date)SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;napView=false;}else historyView=sleep;showTab(host);}
+ function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date)SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;if(sleep)actionView='sleep';else if(actionView==='sleep')actionView='main';napView=false;}else historyView=sleep;showTab(host);}
  function openResearch(day,round,nextMode){
   if(mode!=='history'&&!keep())return;date=day;number=round;mode=inputMode=nextMode;draft=loadDraft();loaded=true;researchSource=null;recordView=true;napView=false;showTab('record');
  }
@@ -75,8 +77,8 @@ const SleepUI=(()=>{
   researchSource=key;
  }
  function tabs(items,current,change,label){const root=el('div',undefined,'period-quick-buttons sleep-switch');root.setAttribute('role','tablist');root.setAttribute('aria-label',label);for(const [key,title] of items){const b=button(title,()=>change(key));b.setAttribute('role','tab');b.setAttribute('aria-selected',String(current===key));b.setAttribute('aria-pressed',String(current===key));root.append(b);}return root;}
- function home(host){if(recordView&&mode!=='history'&&!keep())return false;if(host==='record')mode=inputMode='candy';selectView(host,false);return true;}
- function reset(){date='';draft=null;loaded=false;number=1;researchSource=null;mode=inputMode='candy';recordView=napView=historyView=false;query='';showOtherTypes=false;historyKind='all';historyDay='';pickupOnly=false;calendarMonth='';calendarOpen=true;}
+ function home(host){if(recordView&&mode!=='history'&&!keep())return false;if(host==='record'){mode=inputMode='candy';actionView='main';}selectView(host,false);return true;}
+ function reset(){date='';draft=null;loaded=false;number=1;researchSource=null;mode=inputMode='candy';recordView=napView=historyView=false;actionView='main';query='';showOtherTypes=false;historyKind='all';historyDay='';pickupOnly=false;calendarMonth='';calendarOpen=true;}
  function renderHistory(root){
   if(!historyDay)historyDay=date||C.gameDay(new Date());
   const input=el('input');Object.assign(input,{type:'date',value:historyDay,id:'sleep-history-date'});input.setAttribute('aria-label','睡眠履歴の基準日');input.onchange=()=>{if(C.dateOnly(input.value)){historyDay=input.value;calendarMonth=historyDay.slice(0,7);render();}};
@@ -131,6 +133,7 @@ const SleepUI=(()=>{
   refresh();
  }
  function render(){
+  if(typeof SkillActions!=='undefined')SkillActions.show(actionView);
   searchViewportCleanup?.();searchViewportCleanup=null;
   const root=$('sleep-root');if(!root||$('sleep')?.hidden===true)return;
   if(mode==='history'){root.replaceChildren();renderHistory(root);return;}

@@ -6,7 +6,7 @@ const HistoryDetails=(()=>{
   const {r,method,primary,target}=info,root=el('div',undefined,'history-detail-content');root.tabIndex=0;
   const group=title=>{const s=el('section');s.append(el('h3',title));root.append(s);return s;};
   const item=(s,name,value)=>{if(value===undefined||value===null||value==='')return;const row=el('div',undefined,'history-detail-row');row.append(el('span',name),el('strong',String(value)));s.append(row);};
-  const record=group('記録内容');if(!r.sleepSession)item(record,'日時',DateUI.datetime(r.datetime));item(record,'獲得方法',method);if(info.detailMethod&&info.detailMethod!==method)item(record,'記録の内訳',info.detailMethod);item(record,info.shards?'種類':'アメの種類',primary);item(record,'獲得個数',(info.shards&&r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s'?r.shardAmount:r.amount).toLocaleString('ja-JP')+'個');if(!r.sleepSession&&!r.targetDate&&r.method!=='cluster')item(record,C.isNapRecord(r)?'ポケモン':'対象・編成位置',target);
+  const record=group('記録内容');if(!r.sleepSession)item(record,'日時',DateUI.datetime(r.datetime));item(record,'獲得方法',method);if(info.detailMethod&&info.detailMethod!==method)item(record,'記録の内訳',info.detailMethod);item(record,info.shards?'種類':'アメの種類',primary);item(record,r.activationVersion===1?'アメの獲得個数':'獲得個数',(r.activationVersion!==1&&info.shards&&r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s'?r.shardAmount:r.amount).toLocaleString('ja-JP')+'個');if(r.activationVersion===1&&r.amount){const recipient=r.context.team[r.slot-1];item(record,'アメの獲得先',r.slot+'番 '+label(recipient));}if(!r.sleepSession&&!r.targetDate&&r.method!=='cluster')item(record,C.isNapRecord(r)?'ポケモン':'対象・編成位置',target);
   if(r.shardAmount!==undefined)item(record,'ゆめのかけら',r.shardAmount.toLocaleString('ja-JP')+'個');
   if(r.targetDate)item(record,'リサーチ日',C.displayDate(r.targetDate));
   if(r.recordedAt)item(record,'入力日時',DateUI.datetime(r.recordedAt));
@@ -26,7 +26,7 @@ const HistoryDetails=(()=>{
    const level=r.recordedSkillLevel??r.skillLevel??actor?.profile?.skillLevel;item(skill,'スキルLv',level);
    if(c?.effectiveLevel!==undefined&&c.effectiveLevel!==level)item(skill,'補正後のスキルLv',c.effectiveLevel);
    if(c?.actorSlot)item(skill,'発動した場所',c.actorSlot===1?'1リーダー':c.actorSlot+'番');
-   if(r.firedSkill)item(skill,'発動したスキル',SK.name(r.firedSkill));
+   if(r.firedSkill||r.outcomeSkillId)item(skill,'発動したスキル',SK.name(r.firedSkill||r.outcomeSkillId));
    if(r.sourcePokemon){item(skill,'参照するポケモン',label(r.sourcePokemon));item(skill,'参照するスキル',mainSkillText(r.sourcePokemon,r.sourceSkillId));}
    else if(r.sourceSkillId)item(skill,'参照するスキル',SK.name(r.sourceSkillId));
    if(c?.event){item(skill,'イベント',c.event.name);item(skill,'確率倍率',c.event.multiplier===undefined?undefined:c.event.multiplier+'倍');item(skill,'レベル補正',c.event.boost===undefined?undefined:'+'+c.event.boost);}

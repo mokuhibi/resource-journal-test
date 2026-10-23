@@ -9,7 +9,7 @@ const SummaryExtras=(()=>{
  const aggregateVisible=(kind,method)=>(state.settings[kind==='candy'?'aggregateCandy':'aggregateShards']||C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'])[kind==='candy'?method:shardKey(method)]!==false;
  const localVisible=(scope,method)=>!scope||state.settings.candyFilters?.[scope]?.[method]!==false;
  const candySourceVisible=(method,scope)=>aggregateVisible('candy',method)&&localVisible(scope,method);
- const candyRecords=(records,scope)=>records.filter(r=>candySourceVisible(r.method,scope));
+ const candyRecords=(records,scope)=>records.filter(r=>(r.activationVersion!==1||r.resourceFlags.candy)&&candySourceVisible(r.method,scope));
  const visibleCandySources=scope=>candySources.filter(([key])=>candySourceVisible(key,scope));
  const shardSourceVisible=(method,scope)=>aggregateVisible('shard',method)&&(!scope||state.settings.shardFilters?.[scope]?.[shardKey(method)]!==false);
  const shardRecords=(records,scope)=>records.filter(r=>shardSourceVisible(r.method,scope));

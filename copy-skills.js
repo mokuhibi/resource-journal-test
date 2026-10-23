@@ -2,7 +2,7 @@
 // 新しい獲得記録も既存の履歴配列に1件だけ追加します。表示合計は保存しません。
 const CopySkills=(()=>{
  const drafts=new Map();
- const isCopy=p=>['メタモン','バリヤード'].includes(p?.species);
+ const isCopy=p=>['メタモン','バリヤード','マネネ'].includes(p?.species);
  function sources(p,kind,team=currentTeam()){
   const eligible=q=>kind==='candy'?(q.species==='デリバード'||SK.id(SK.forPokemon(q))==='metronome'):['dream_shard_s','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)));
   if(isCopy(p))return team.filter(q=>q&&q.id!==p.id&&speciesEnabled(q.species)&&eligible(q));

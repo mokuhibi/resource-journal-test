@@ -16,7 +16,7 @@ const ShardUI=(()=>{
  const typeOf=p=>SK.shardMode(p);
  const skillName=type=>SK.name(type==='lucky'?'super_luck':'dream_shard_s');
  const records=()=>state.shardRecords||[];
- const summaryRecords=()=>[...records(),...C.mewShardRecords(state.records),...(typeof SleepResearch!=='undefined'?SleepResearch.shardRecords(state):[])].filter(r=>SummaryExtras.aggregateVisible('shard',r.method));
+ const summaryRecords=()=>[...records(),...C.activationShardRecords(state.records),...(typeof SleepResearch!=='undefined'?SleepResearch.shardRecords(state):[])].filter(r=>SummaryExtras.aggregateVisible('shard',r.method));
  const individual=p=>label(p);
  const amountInput=(id,min=0)=>{const input=el('input');Object.assign(input,{id,type:'number',inputMode:'numeric',min:String(min),max:'1000000000',step:'1',required:true});return input;};
  function number(id,min=0,max=1000000000){const raw=$(id).value.trim(),n=Number(raw);if(raw===''||!Number.isSafeInteger(n)||n<min||n>max)throw Error('入力値を確認してください。');return n;}
@@ -45,7 +45,7 @@ const ShardUI=(()=>{
  function renderInputs(){
   if(!researchDateTouched)$('shard-research-date').value=C.addDays(C.gameDay(new Date()),-1);
   loadResearch();updateCluster();$('research-rank-setting').value=sharedRank()??'';
-  const root=$('shard-skill-inputs');for(const input of root.querySelectorAll('input'))drafts.set(input.dataset.pokemon,input.value);
+  const root=$('shard-skill-inputs');for(const input of [...root.querySelectorAll('input'),...($('action-skills')?.querySelectorAll('input[data-pokemon]')||[])])drafts.set(input.dataset.pokemon,input.value);
   root.replaceChildren();const members=currentTeam().map((p,i)=>p&&speciesEnabled(p.species)&&isTarget(p)?{p,slot:i+1}:null).filter(Boolean);root.hidden=!members.length;
   if(members.length||currentTeam().some(p=>p&&CopySkills.handlesShards(p)))root.append(el('h2','スキル','record-subheading'));
   for(const {p,slot} of members){
