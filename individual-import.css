@@ -28,3 +28,31 @@
 #team #registered-pokemon-list .row-actions{align-self:center}
 #team #registered-pokemon-list .row-actions button{min-width:28px;padding:2px}
 #team :is(#roster-other-toggle,#roster-columns){display:inline-block;vertical-align:middle}
+
+/* 登録・編集の6項目とサブスキル。既存入力を移動し保存値は変えない。 */
+#team :is(#roster-other-toggle,#roster-columns){box-sizing:border-box;height:44px;min-height:44px;border-radius:6px;font-size:14px;line-height:1.4;padding:8px 12px;margin-top:0;margin-bottom:16px;vertical-align:middle;width:auto}
+#team .individual-top-grid,#team .individual-subskills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0;margin:16px 0}
+#team .individual-top-grid .individual-field{position:relative;min-width:0;margin:0}
+#team .individual-top-grid :is(input,select){box-sizing:border-box;min-width:0;max-width:100%;width:100%;height:44px;margin:0;font-size:16px;padding:8px}
+#team .individual-subskills label{min-width:0;margin:0}
+#team .individual-subskills select{min-width:0;max-width:100%;width:100%}
+#team .profile-stats:empty{display:none}
+#team .individual-field #pokemon-search-results{position:absolute;top:44px;left:0;width:calc(200% + 12px);z-index:4;background:var(--mh-surface);border:1px solid var(--mh-border);max-height:240px}
+#team .individual-field-hint{display:none;position:absolute;left:8px;top:12px;font-size:12px;line-height:20px;color:var(--mh-muted);pointer-events:none}
+#team .individual-number-field:has(input:not(:placeholder-shown)) .individual-field-hint{display:block}
+#team .individual-number-field:has(input:not(:placeholder-shown)) input{padding-left:72px;text-align:right}
+#team .individual-number-field:has(input[id$="level"]:not(:placeholder-shown)) input{padding-left:32px}
+/* native dialogの上部・本文・フッターを独立。スクロールは本文だけ。 */
+#individual-import-dialog[open]{display:flex;flex-direction:column;isolation:isolate;background:var(--mh-surface)!important;height:min(760px,calc(100dvh - 24px));max-height:calc(100dvh - max(12px,env(safe-area-inset-top)) - max(12px,env(safe-area-inset-bottom)));overflow:hidden;margin:auto}
+#individual-import-dialog .individual-import-head,#individual-import-dialog .individual-import-actions{position:static;flex:none;background:var(--mh-surface)!important;z-index:auto}
+#individual-import-dialog .individual-import-head h2{min-width:0;line-height:1.4}
+#individual-import-dialog .individual-import-head button{flex:none}
+#individual-import-dialog .individual-import-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;background:var(--mh-surface)}
+#individual-import-dialog .individual-import-actions{padding-bottom:max(14px,env(safe-area-inset-bottom))}
+#individual-import-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex:none;gap:4px;padding:4px 12px;background:var(--mh-surface);border-bottom:1px solid var(--mh-border)}
+#individual-import-dialog #individual-import-tabs button{min-width:0;min-height:44px;padding:6px 2px;font-size:13px;white-space:nowrap;background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0}
+#individual-import-dialog #individual-import-tabs button[aria-selected=true]{color:var(--mh-accent);border-bottom-color:var(--mh-accent);font-weight:600}
+#individual-import-dialog .individual-import-row>summary{min-height:44px;font-size:15px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+#individual-import-dialog .individual-import-row[open]>summary{margin-bottom:8px}
+#individual-import-dialog .individual-import-row .check{display:flex;gap:8px;align-items:center}
+#individual-import-dialog .individual-import-row .check input{width:auto;min-height:24px;margin:0}
