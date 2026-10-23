@@ -182,3 +182,7 @@ body .tabs .tab-icon{width:12px;height:12px}
 #record #action-skills>.shard-skill-row .shard-lucky-actions{margin:0;max-width:100%}
 #record #action-other>summary.record-subheading{display:list-item;list-style-position:inside;cursor:pointer;min-height:44px;box-sizing:border-box;padding:8px 0;margin:0 0 var(--record-heading-gap);font-size:18px;font-weight:600;line-height:28px;border-bottom:1px solid var(--record-line)}
 #record #action-other>summary.record-subheading::before{display:none}
+
+/* 記録操作の面だけをアメ拾いに合わせる。寸法と選択操作には触れない。 */
+#record #action-skills :is(.activation-targets .mew-actions button,.activation-form>button[type="submit"],.copied-shard-form button):not(:disabled),
+#record #nap-island-shard-form>button:not(:disabled){background:var(--record-action);border-color:transparent}

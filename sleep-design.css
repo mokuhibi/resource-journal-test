@@ -165,3 +165,6 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep #sleep-entries .sleep-entry-amount input{margin-top:0}
 #sleep .sleep-sticky-total :is(#sleep-candy-total,.sleep-entry-count)[data-saved=true]{font-weight:700}
 #sleep #sleep-root .period-picker-date{font-size:16px;font-weight:600;color:var(--editorial-ink);height:var(--period-control-height);padding:8px 4px;line-height:1.5}
+
+/* 保存状態・寸法・背景はそのまま、見える枠線だけをなくす。 */
+:is(#sleep,#sleep-editor) .sleep-save:not(:disabled){border-color:transparent}
