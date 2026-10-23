@@ -16,7 +16,7 @@ const ShardUI=(()=>{
  const typeOf=p=>SK.shardMode(p);
  const skillName=type=>SK.name(type==='lucky'?'super_luck':'dream_shard_s');
  const records=()=>state.shardRecords||[];
- const summaryRecords=()=>[...records(),...C.activationShardRecords(state.records),...(typeof SleepResearch!=='undefined'?SleepResearch.shardRecords(state):[])].filter(r=>SummaryExtras.aggregateVisible('shard',r.method));
+ const summaryRecords=()=>[...records(),...C.activationShardRecords(state.records),...(typeof SleepResearch!=='undefined'?SleepResearch.shardRecords(state):[])].filter(r=>SummaryExtras.allowedRecord(r,'shard'));
  const individual=p=>label(p);
  const amountInput=(id,min=0)=>{const input=el('input');Object.assign(input,{id,type:'number',inputMode:'numeric',min:String(min),max:'1000000000',step:'1',required:true});return input;};
  function number(id,min=0,max=1000000000){const raw=$(id).value.trim(),n=Number(raw);if(raw===''||!Number.isSafeInteger(n)||n<min||n>max)throw Error('入力値を確認してください。');return n;}

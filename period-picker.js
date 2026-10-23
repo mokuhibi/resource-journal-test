@@ -21,7 +21,7 @@ const PeriodPicker=(()=>{
   input.dataset.nativeRange='true';
   input.addEventListener('change',()=>{if(C.dateOnly(input.value))text.textContent=rangeText(kind,input.value);});
   const move=amount=>{input.value=shift(input.value,kind,amount);input.dispatchEvent(new Event('change',{bubbles:true}));};
-  const prev=button('＜',()=>move(-1)),next=button('＞',()=>move(1));const unit=kind==='week'?'週':kind==='month'?'月':'日';prev.setAttribute('aria-label','前の'+unit);next.setAttribute('aria-label','次の'+unit);prev.hidden=next.hidden=kind==='all';
+  const prev=button('＜',()=>move(-1)),next=button('＞',()=>move(1));const unit=kind==='week'?'週':kind==='month'?'月':'日';prev.setAttribute('aria-label','前の'+unit);next.setAttribute('aria-label','次の'+unit);prev.disabled=next.disabled=kind==='all';
   center.append(text,input);top.append(prev,center,next);root.append(top);return root;
  }
  function rangeText(kind,day){const range=C.range(kind,day);return range?datesText(range[0],C.addDays(range[1],-1)):'全期間';}
@@ -40,7 +40,7 @@ const PeriodPicker=(()=>{
   period.hidden=true;dialog.append(title,choices,label,close);root.append(period,dialog);old.remove();
   const compact=config.period!=='history-period';if(compact){root.classList.add('period-picker-compact');range.hidden=true;}
   let validDay=date.value||C.gameDay(new Date());date.value=validDay;
-  const item={sync(){if(C.dateOnly(date.value))validDay=date.value;center.textContent=rangeText(period.value,validDay);range.textContent=rangeText(period.value,validDay);prev.hidden=next.hidden=period.value==='all';const unit={day:'日',week:'週',month:'月'}[period.value]||'';prev.setAttribute('aria-label','前の'+unit);next.setAttribute('aria-label','次の'+unit);for(const b of bottom.querySelectorAll('[data-period]'))b.setAttribute('aria-pressed',String(b.dataset.period===period.value));}};
+  const item={sync(){if(C.dateOnly(date.value))validDay=date.value;center.textContent=rangeText(period.value,validDay);range.textContent=rangeText(period.value,validDay);prev.disabled=next.disabled=period.value==='all';const unit={day:'日',week:'週',month:'月'}[period.value]||'';prev.setAttribute('aria-label','前の'+unit);next.setAttribute('aria-label','次の'+unit);for(const b of bottom.querySelectorAll('[data-period]'))b.setAttribute('aria-pressed',String(b.dataset.period===period.value));}};
   const refresh=()=>{if(!C.dateOnly(date.value))date.value=validDay;validDay=date.value;item.sync();config.render();item.sync();DateUI.update();};
   for(const [key,text] of [['day','日'],['week','週'],['month','月'],['all','全期間']]){const b=make('button',text);b.type='button';b.dataset.period=key;b.onclick=()=>{period.value=key;refresh();};choices.append(b);}
   period.onchange=refresh;date.onchange=refresh;

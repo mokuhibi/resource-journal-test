@@ -18,7 +18,7 @@ const WeeklyChart={
   $('shard-week-totals').replaceChildren();$('shard-week-totals').hidden=true;
   root.append(el('p',`${C.displayDate(days[0].date)} 〜 ${C.displayDate(days[6].date)}`,'weekly-range'));
   const legend=el('div',undefined,'shard-chart-legend');
-  for(const [key,name] of sources){const item=el('span'),swatch=el('i',undefined,'shard-source-'+key);swatch.setAttribute('aria-hidden','true');item.append(swatch,el('span',name));legend.append(item);}root.append(legend);
+  for(const [key,name] of sources){const item=el('span'),swatch=el('i',undefined,'shard-source-'+key);swatch.setAttribute('aria-hidden','true');item.append(swatch,el('span',name));legend.append(item);}
   const chart=el('div',undefined,'weekly-bars shard-stacked-chart');
   const popup=el('div',undefined,'graph-detail');popup.id='shard-week-detail';popup.hidden=true;
   const columns=[];

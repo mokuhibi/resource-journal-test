@@ -56,6 +56,22 @@ const CandyCore = (() => {
   }
  }
  const isNapRecord=r=>r?.method==='skill'&&r.source==='nap_island';
+ // 行動別設定は既存のリソース別設定とANDで判定し、旧設定・記録は移行しない。
+ function actionCategory(r){
+  if(r.source==='nap_island'||r.otherKind==='nap_island')return 'nap';
+  if(['help','research'].includes(r.method))return r.method;
+  const p=r.context?.actor||r.pokemonSnapshot,species=p?.species||(['skill','lucky'].includes(r.method)?r.species:'');
+  if(r.method==='mew'||r.source==='mew'||species==='ミュウ')return 'mew';
+  if(r.method==='delibird'||species==='デリバード')return 'delibird';
+  if(['メタモン','マネネ','バリヤード'].includes(species))return 'copy';
+  if(SK.id(r.mainSkillId||p&&SK.forPokemon(p))==='metronome')return 'metronome';
+  if(['skill','lucky'].includes(r.method)&&!r.candy)return 'shards';
+  return 'other';
+ }
+ const skillActions=['mew','delibird','shards','copy','metronome'];
+ function actionAllowed(settings,key,group='aggregateActions'){
+  return settings[group]?.[key]!==false&&(!skillActions.includes(key)||settings[group]?.skills!==false);
+ }
  // 旧兼用設定は入力表示として残し、集計設定は初回移行時にだけ確定する。
  function aggregationSettings(settings={}){
   const old={help:'showCandyHelp',mew:'mew',delibird:'delibird',skill:'showOtherCandy',research:'showCandyResearch'};
@@ -66,6 +82,7 @@ const CandyCore = (() => {
   }
   if(settings.candyFilters!==undefined){if(!settings.candyFilters||Array.isArray(settings.candyFilters)||typeof settings.candyFilters!=='object')throw Error('集計フィルター');for(const scope of ['types','week','month','breakdown']){const flags=settings.candyFilters[scope];if(flags===undefined)continue;if(!flags||Array.isArray(flags)||typeof flags!=='object'||Object.keys(old).some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean'))throw Error('集計フィルター');}}
   if(settings.shardFilters!==undefined){if(!settings.shardFilters||Array.isArray(settings.shardFilters)||typeof settings.shardFilters!=='object')throw Error('集計フィルター');for(const scope of ['week','month']){const flags=settings.shardFilters[scope];if(flags!==undefined&&(!flags||Array.isArray(flags)||typeof flags!=='object'||['research','skill','cluster','other'].some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean')))throw Error('集計フィルター');}}
+  for(const group of ['displayActions','aggregateActions'])if(settings[group]!==undefined&&(!settings[group]||Array.isArray(settings[group])||typeof settings[group]!=='object'||Object.values(settings[group]).some(v=>typeof v!=='boolean')))throw Error('行動別設定');
   return result;
  }
  function migrate(raw,map){
@@ -108,6 +125,6 @@ const CandyCore = (() => {
   return {...raw,version:2,shardRecords,pokemon:raw.pokemon.map((p,i)=>({...p,registrationOrder:Number.isFinite(p.registrationOrder)?p.registrationOrder:i,profile:p.profile?{...p.profile,skillLevel:Math.min(skillCap(p.species),p.profile.skillLevel)}:null})),team:raw.team,records:raw.records.map(r=>({...r,context:r.context||null})),events,settings:aggregationSettings(raw.settings||{mew:true,delibird:true})};
  }
  const sum=rs=>rs.reduce((n,r)=>n+r.amount,0);
- return {aggregationSettings,isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords,activationShardRecords};
+ return {actionCategory,actionAllowed,aggregationSettings,isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords,activationShardRecords};
 })();
 if(typeof module!=='undefined')module.exports=CandyCore;

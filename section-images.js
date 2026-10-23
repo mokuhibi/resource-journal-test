@@ -2,13 +2,13 @@
 // 描画済みの表示だけを読む。記録・設定・集計の状態は変更しない。
 const SectionImages=(()=>{
  const definitions=[
-  ['candy-breakdown','獲得数の内訳','#summary-total','candy'],
-  ['candy-types','アメ種類別合計','#candy-list','candy','create-candy-image'],
+  ['candy-breakdown','アメゲットの記録','#summary-total','candy'],
+  ['candy-types','ポケモンのアメ一覧','#candy-list','candy','create-candy-image'],
   ['candy-week','週間のアメ','#candy-weekly-chart','candy'],
   ['candy-month','月間のアメ','#candy-calendar','candy'],
   ['candy-help','アメ拾いの記録','#slot-counts','candy'],
-  ['candy-get','アメゲット記録','#analysis','candy','create-mew-image'],
-  ['shard-breakdown','獲得数の内訳','#shard-total','shard'],
+  ['candy-get','メインスキルの記録','#analysis','candy','create-mew-image'],
+  ['shard-breakdown','ゆめのかけらの記録','#shard-total','shard'],
   ['shard-week','週間のゆめのかけら','#shard-weekly-chart','shard'],
   ['shard-month','月間のゆめのかけら','#shard-calendar','shard']
  ];
@@ -50,6 +50,7 @@ const SectionImages=(()=>{
   if(id.endsWith('-week'))label=text(root.querySelector('.weekly-range'));
   if(id.endsWith('-month'))label=text(section.querySelector('.calendar-month'));
   const result=[];
+  if(graph){const controls=section.querySelector('.candy-source-switches');if(controls)result.push({type:'legend',items:[...controls.querySelectorAll('button[aria-pressed=true]')].map(b=>({text:text(b),color:getComputedStyle(b).backgroundColor}))});}
   if(id==='candy-get')for(const select of document.querySelectorAll('#analysis-card select'))if(!select.closest('label').hidden)result.push({type:'text',text:text(select.closest('label').firstChild)+'：'+text(select.selectedOptions[0]),muted:true});
   const heading=section?.querySelector('h3 .heading-total');if(heading)result.push({type:'text',text:text(heading),bold:true,size:26});
   if(id.endsWith('-breakdown')){result.push(...blocks(root));const rows=[...root.querySelectorAll('tbody tr')];if(rows.every(r=>/^0回$/.test(text(r.cells[1]))))result.push({type:'text',text:'この条件の記録はありません。',muted:true});}
