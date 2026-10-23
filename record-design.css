@@ -206,9 +206,9 @@ body .tabs .tab-icon{width:12px;height:12px}
 #record #action-skills>:is(.mew,.delibird){--skill-heading-color:var(--record-candy)}
 #record #action-skills>.shard-skill-row{--skill-heading-color:var(--shard-skill-color)}
 #record #action-skills>:is(.mew,.delibird) .activation-targets .record-row-content>strong{font-weight:400}
-#record #action-skills>.delibird .activation-targets .skill-only-target{align-content:stretch;grid-template-rows:minmax(0,1fr);padding-block:0}
+#record #action-skills>.delibird .activation-targets .skill-only-target{align-content:stretch;grid-template-rows:minmax(0,1fr);padding-block:6px}
 #record #action-skills>.delibird .skill-only-target .mew-actions{grid-row:1/-1;margin:0;height:100%}
-#record #action-skills>.delibird .skill-only-target button{height:100%}
+#record #action-skills>.delibird .skill-only-target button{height:100%;display:flex;align-items:center;justify-content:center;text-align:center}
 @media(max-width:599px){#record #action-skills>.shard-lucky-row .shard-lucky-actions{grid-column:1/-1;grid-row:3}}
 
 #record #action-skills>.shard-skill-row .shard-amount-option{display:flex;justify-content:flex-end}
