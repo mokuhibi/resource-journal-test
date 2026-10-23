@@ -40,13 +40,13 @@ const SkillActions=(()=>{
   if(mew&&shards&&SK.id(SK.forPokemon(p))==='dream_shard_s'){r.firedSkill=SK.value('dream_shard_s');r.outcomeSkillId='dream_shard_s';}
   return r;
  }
- function save(p,data){try{const r=build(p,data);if($('auto-now').checked)$('datetime').value=C.localInput(r.datetime);if(commit({...state,records:[...state.records,r]},C.speciesName(p.species)+'のスキルを記録')){drafts.delete(p.id);renderRecord();return true;}}catch(e){notice(e.message,true);}return false;}
+ function save(p,data){try{const r=build(p,data);if($('auto-now').checked)$('datetime').value=C.localInput(r.datetime);if(commit({...state,records:[...state.records,r]},resourceNotice(r))){drafts.delete(p.id);renderRecord();return true;}}catch(e){notice(e.message,true);}return false;}
  function field(placeholder,value,oninput){const i=el('input');Object.assign(i,{type:'number',inputMode:'numeric',min:'0',max:'1000000000',step:'1',value:value||'',placeholder});i.setAttribute('aria-label',placeholder);i.oninput=()=>oninput(i.value);return i;}
- function title(card,p,slot){card.append(recordCardTitle(p,slot),el('p',mainSkillText(p)+' · スキルLv.'+C.recordProfile(p).skillLevel,'muted'));}
+ function title(card,p,slot){card.append(skillRecordHeading(p),skillRecordDetail(p));}
  function rewards(card,p,slot){
   const draft=drafts.get(p.id)||{candy:'',shards:'',target:'',outcome:''};drafts.set(p.id,draft);
   if(p.species==='ミュウ'){
-   card.append(el('h2','ミュウ','record-subheading'));MewUI.renderRecord(card,skillContext('mew',p.id));
+   title(card,p,slot);
    const canShard=SummaryExtras.shardVisible('skill')&&['metronome','dream_shard_s'].includes(SK.id(SK.forPokemon(p)));
    if(canShard)card.append(field('ゆめのかけら',draft.shards,v=>draft.shards=v));
    targets(card,p,(target,amount)=>save(p,{candy:amount,shards:canShard?draft.shards:'',target}),false);return;
@@ -87,9 +87,9 @@ const SkillActions=(()=>{
  }
  function mount(){
   const host=$('record-main-view');if(!host)return;
-  for(const [key,name] of [['skills','メインスキル'],['other','その他']])if(!$('action-'+key)){const pane=el('section');pane.id='action-'+key;pane.setAttribute('aria-label',name);host.append(pane);}
+  for(const [key,name] of [['skills','メインスキル'],['other','その他']])if(!$('action-'+key)){const pane=el(key==='other'?'details':'section');pane.id='action-'+key;pane.setAttribute('aria-label',name);host.append(pane);}
   const other=$('shard-other-form'),cluster=$('cluster-panel');
-  // 元のフォームとハンドラーをそのまま移動。3セクションは常時展開する。
+  // 元のフォームとハンドラーをそのまま移動。その他のみ折りたたむ。
   if(other.parentElement.tagName==='DETAILS'){
    const old=other.parentElement,box=el('div',undefined,'card shard-other-record');old.replaceWith(box);box.append(other);
   }
@@ -97,7 +97,7 @@ const SkillActions=(()=>{
    const box=el('div',undefined,'card record-cluster-panel');box.id=cluster.id;cluster.replaceWith(box);box.append(el('h3','ゆめのかたまり','record-subheading'),...Array.from(cluster.children).filter(n=>n.tagName!=='SUMMARY'));
   }
   const root=$('action-other');root.classList.add('shards');
-  if(!root.querySelector('h2')){const heading=el('h2','その他','record-subheading');root.prepend(heading);}
+  if(!root.querySelector('summary')){const heading=el('summary','その他','record-subheading');root.prepend(heading);}
   root.append(other.parentElement,$('cluster-panel'));
  }
  function show(){
@@ -115,7 +115,7 @@ const SkillActions=(()=>{
    else if(p.species==='デリバード'&&recordVisible('delibird')){const card=el('div',undefined,'card delibird activation-card');card.dataset.actorId=p.id;title(card,p,slot);targets(card,p,(target,n)=>record('delibird',target,n,p.id),true);root.append(card);}
    else if((metronome(p)||copies(p))&&(cap.candy&&recordVisible('skill')||cap.shards&&SummaryExtras.shardVisible('skill'))){const card=el('div',undefined,'card activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
    else if(p.species!=='ミュウ'&&!copies(p)&&!metronome(p)&&SummaryExtras.shardVisible('skill')&&SK.shardMode(p)){
-    const row=shardRows.find(n=>n.querySelector('.shard-record-name small')?.textContent===recordPosition(slot));if(row){row.dataset.actorId=p.id;row.insertBefore(el('p',mainSkillText(p)+' · スキルLv.'+C.recordProfile(p).skillLevel,'muted'),row.children[1]||null);root.append(row);}
+    const row=shardRows.find(n=>n.querySelector('.shard-record-name small')?.textContent===recordPosition(slot));if(row){row.dataset.actorId=p.id;row.querySelector('.shard-record-name').replaceWith(skillRecordHeading(p));row.insertBefore(skillRecordDetail(p),row.children[1]||null);root.append(row);}
    }
   });
   if(!root.querySelector('[data-actor-id]'))root.append(el('p','記録できるスキルのポケモンが編成にいません。','muted'));

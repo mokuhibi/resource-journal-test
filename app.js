@@ -26,6 +26,31 @@ const fresh=()=>({version:2,pokemon:[],team:[null,null,null,null,null],records:[
 let state=fresh(),blocked=false,selected='',activeTab='record',actors={mew:'',delibird:''};
 const activeNotices=[];
 // 全画面で共有。通知ごとに5秒表示し、3件目は一番古いものと入れ替える。
+// 保存する記録の値から成功通知を構成。保存・集計の値は変更しない。
+function resourceNotice(r,resource='candy',source=''){
+ const actor=r.context?.actor||r.pokemonSnapshot;
+ const who=p=>C.speciesName(p.species)+(p.nickname?.trim()?'（'+p.nickname.trim()+'）':'');
+ if(!source)source=r.source==='nap_island'||r.otherKind==='nap_island'?'おひるね島':r.method==='help'?'アメ拾い'+(r.nickname?'（'+r.nickname+'）':''):r.method==='research'?'睡眠リサーチ':r.method==='cluster'?'ゆめのかたまり':actor?who(actor):r.species&&resource==='shards'?who(r):(typeof methods!=='undefined'&&methods[r.method])||'その他';
+ const parts=[],amount=resource==='shards'?0:r.amount,shards=resource==='shards'?r.amount:r.shardAmount;
+ if(shards>0)parts.push('ゆめのかけら ×'+shards.toLocaleString('ja-JP'));
+ if(amount>0)parts.push((r.candy||'アメ')+' ×'+amount.toLocaleString('ja-JP'));
+ return source+'：'+(parts.length?parts.join('、')+' を保存':['mew','delibird','skill','lucky'].includes(r.method)?'スキル発動のみを保存':(resource==='shards'?'ゆめのかけら':'アメ')+' ×0 を保存');
+}
+function sleepResourceNotice(next,date,number,resource){
+ const row=SleepResearch.researchRows(next,date).find(r=>r.number===number),r=row?.record;
+ if(!r)return '睡眠リサーチを保存';
+ if(resource==='shards')return resourceNotice(r,'shards','睡眠リサーチ（'+number+'回目）');
+ const session=row.kind==='session'?r:row.sleepSession,amounts=new Map();
+ for(const e of session?.entries||[])amounts.set(e.candy,(amounts.get(e.candy)||0)+e.amount);
+ const parts=[...amounts].filter(([,n])=>n>0).map(([name,n])=>name+' ×'+n.toLocaleString('ja-JP'));
+ return '睡眠リサーチ（'+number+'回目）：'+(parts.length?parts.join('、')+' を保存':'アメ0個を保存');
+}
+function skillRecordHeading(p){
+ const head=el('h3',undefined,'skill-record-heading');head.append(el('span',C.speciesName(p.species),'skill-species'));
+ if(p.nickname?.trim())head.append(el('span',p.nickname.trim(),'skill-nickname'));
+ return head;
+}
+function skillRecordDetail(p){return el('p',mainSkillText(p)+'　Lv.'+C.recordProfile(p).skillLevel,'skill-record-detail');}
 function notice(s,error=false){
  if(!error){
   const text=String(s),match=text.match(/^([\s\S]*?)(記録|保存|削除|更新|訂正|復元|登録|追加|取り込み|並べ替え|変更|解除|反映|書き出し)(?:しました|ました)[。！!]?$/);
@@ -79,7 +104,7 @@ function record(method,slot,amount,actorId){const date=recordDate();if(!Number.i
  const r={id:uid(),datetime:date.toISOString(),method,amount,slot,pokemonId:skillOnly?null:p.id,pokemon:skillOnly?'スキルのみ':storedLabel(p),species:skillOnly?null:p.species,nickname:skillOnly?'':p.nickname,candy:skillOnly?null:candyMap[p.species],context};
  if(method==='delibird')Object.assign(r,{registeredMainSkill:SK.value(SK.forPokemon(actorOf(context))),mainSkillId:SK.id(SK.forPokemon(actorOf(context)))});
  if(method==='mew'){try{Object.assign(r,MewUI.recordFields(context));}catch(e){notice(e.message,true);return;}}
- commit({...state,records:[...state.records,r]},method==='help'?'アメ拾いを記録':methods[method]+(skillOnly?'のスキルを記録':'のアメを記録'));
+ commit({...state,records:[...state.records,r]},resourceNotice(r));
 }
 // 合計カードだけで使う表示用の表。集計済みの値を列に分けます。
 function totalBreakdown(parent,amountLabel){const table=el('table',undefined,'total-breakdown'),head=el('thead'),tr=el('tr'),body=el('tbody');for(const text of ['', '回数',amountLabel]){const th=el('th',text);th.scope='col';tr.append(th);}head.append(tr);table.append(head,body);parent.append(table);return body;}
@@ -154,12 +179,13 @@ function renderSlotCounts(records){
  const source=records.filter(r=>r.method==='help');
  if(!source.length){root.append(el('p','この期間の記録はありません。'));return;}
  const group=el('div',undefined,'slot-group help');group.append(qel('h4',`アメ拾い · ${source.length}回`));
- const table=el('table',undefined,'slot-table'),head=el('thead'),headRow=el('tr'),body=el('tbody');
- for(const name of ['位置','回数','割合','アメ']){const th=el('th',name);th.scope='col';headRow.append(th);}head.append(headRow);table.append(head,body);
+ const table=el('table',undefined,'slot-table slot-horizontal'),head=el('thead'),headRow=el('tr'),body=el('tbody');
  const denominator=source.filter(r=>r.slot>=1&&r.slot<=5).length;
- function entry(name,xs,percent){const tr=el('tr'),th=el('th',name);th.scope='row';tr.append(th,qel('td',xs.length+'回'),el('td',percent),qel('td',C.sum(xs)+'個'));body.append(tr);}
- for(let i=1;i<=5;i++){const xs=source.filter(r=>r.slot===i);entry(i===1?'R':String(i),xs,denominator?(100*xs.length/denominator).toFixed(1)+'%':'―');}
- const unknown=source.filter(r=>r.slot===null&&r.amount!==0);if(unknown.length)entry('位置不明',unknown,'―');
+ const cells=Array.from({length:5},(_,i)=>({name:i===0?'R':String(i+1),xs:source.filter(r=>r.slot===i+1)}));
+ const unknown=source.filter(r=>r.slot===null&&r.amount!==0);if(unknown.length)cells.push({name:'位置不明',xs:unknown,unknown:true});
+ const corner=el('th','位置');corner.scope='col';headRow.append(corner);
+ for(const c of cells){const th=el('th',c.name);th.scope='col';headRow.append(th);}head.append(headRow);table.append(head,body);
+ for(const [name,value] of [['回数',c=>c.xs.length+'回'],['割合',c=>c.unknown||!denominator?'―':(100*c.xs.length/denominator).toFixed(1)+'%'],['アメ',c=>C.sum(c.xs)+'個']]){const tr=el('tr'),th=el('th',name);th.scope='row';tr.append(th);for(const c of cells)tr.append(qel('td',value(c)));body.append(tr);}
  group.append(table);root.append(group);
 }
 function renderAnalysis(){

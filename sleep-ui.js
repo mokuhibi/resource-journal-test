@@ -178,10 +178,10 @@ const SleepUI=(()=>{
    if(!results.children.length)results.append(el('p',target?'この日付・フィールドに該当するピックアップはありません。':'確認済みの候補はありません。条件を変更してください。','sleep-note'));
   }
   q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);form.append(searchRow,results);renderCandidates();
-  form.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const saved=saveStatus().saved,next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(commit(next,saved?'睡眠リサーチを保存しました':'睡眠リサーチを記録しました')){draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
+  form.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(commit(next,sleepResourceNotice(next,date,number,'candy'))){draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
   const shardForm=el('form');shardForm.id='sleep-shard-form';shardForm.hidden=mode!=='shards';
   const shardFields=SleepShards.fields('sleep-shard',draft,(key,v)=>{draft[key]=v;keep();updateTotal();});shardForm.append(shardFields);if(!draft.researchRank)shardForm.append(el('p','設定でリサーチランクを設定してください。','rank-hint'));
-  shardForm.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const values={baseAmount:whole(draft.baseAmount),researchExp:whole(draft.researchExp===''?0:draft.researchExp)},row=rowFor(),saved=saveStatus().saved,next=SleepResearch.updateResearch(state,date,row?.key||'new:'+number,values,candyMap,draft.id,new Date().toISOString());if(commit(next,saved?'睡眠リサーチを保存しました':'睡眠リサーチを記録しました')){draft=loadDraft();researchSource=null;SleepShards.selectResearch(date,number);render();}}catch(err){notice(err.message,true);}};
+  shardForm.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const values={baseAmount:whole(draft.baseAmount),researchExp:whole(draft.researchExp===''?0:draft.researchExp)},row=rowFor(),next=SleepResearch.updateResearch(state,date,row?.key||'new:'+number,values,candyMap,draft.id,new Date().toISOString());if(commit(next,sleepResourceNotice(next,date,number,'shards'))){draft=loadDraft();researchSource=null;SleepShards.selectResearch(date,number);render();}}catch(err){notice(err.message,true);}};
   root.append(form,shardForm);
   bindSearchViewport(root,header,q);updateTotal();
  }

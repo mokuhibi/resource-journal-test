@@ -88,3 +88,8 @@
 #summary .candy-stacked-chart .weekly-bar{display:flex;flex-direction:column-reverse;overflow:hidden;background:transparent}
 #summary .candy-stacked-chart .weekly-bar>span{display:block;flex-shrink:0;width:100%}
 #summary .candy-stacked-chart .weekly-value{white-space:nowrap;overflow-wrap:normal;font-size:11px}
+
+/* アメ拾いの5枠だけを横方向に比較。Rは従来の1枠目。 */
+#summary #slot-counts .slot-horizontal{width:100%;table-layout:fixed;font-size:12px}
+#summary #slot-counts .slot-horizontal :is(th,td){padding:8px 2px;text-align:center;overflow-wrap:anywhere}
+#summary #slot-counts .slot-horizontal th:first-child{width:40px;text-align:left}
