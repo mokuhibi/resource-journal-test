@@ -1,7 +1,7 @@
 'use strict';
 // 入力の再配置だけを担当。睡眠・かたまり・その他の既存フォームは移動して再利用します。
 const SkillActions=(()=>{
- const drafts=new Map();let view='main';
+ const drafts=new Map();
  const copies=p=>['メタモン','バリヤード','マネネ'].includes(p.species);
  const metronome=p=>p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome';
  function copySources(p,team=currentTeam()){
@@ -87,19 +87,28 @@ const SkillActions=(()=>{
  }
  function mount(){
   const host=$('record-main-view');if(!host)return;
-  for(const key of ['skills','cluster','other'])if(!$('action-'+key)){const pane=el('div');pane.id='action-'+key;host.append(pane);}
-  const cluster=$('cluster-panel');if(cluster.parentElement!==$('action-other'))$('action-other').prepend(cluster);
-  cluster.querySelector('summary').textContent='ゆめのかたまり';
-  const other=$('shard-other-form').closest('details');if(other.parentElement!==$('action-other'))$('action-other').append(other);
-  const nap=$('nap-island-section');if(nap.parentElement!==$('action-other'))$('action-other').append(nap);
+  for(const [key,name] of [['skills','メインスキル'],['other','その他']])if(!$('action-'+key)){const pane=el('section');pane.id='action-'+key;pane.setAttribute('aria-label',name);host.append(pane);}
+  const other=$('shard-other-form'),cluster=$('cluster-panel');
+  // 元のフォームとハンドラーをそのまま移動。3セクションは常時展開する。
+  if(other.parentElement.tagName==='DETAILS'){
+   const old=other.parentElement,box=el('div',undefined,'card shard-other-record');old.replaceWith(box);box.append(other);
+  }
+  if(cluster.tagName==='DETAILS'){
+   const box=el('div',undefined,'card record-cluster-panel');box.id=cluster.id;cluster.replaceWith(box);box.append(el('h3','ゆめのかたまり','record-subheading'),...Array.from(cluster.children).filter(n=>n.tagName!=='SUMMARY'));
+  }
+  const root=$('action-other');root.classList.add('shards');
+  if(!root.querySelector('h2')){const heading=el('h2','その他','record-subheading');root.prepend(heading);if(typeof TabIcons!=='undefined')TabIcons.section(heading,'other');}
+  root.append(other.parentElement,$('cluster-panel'));
  }
- function show(key=view){view=key;const host=$('record-main-view');if(!host)return;const help=$('help-section');if(help)help.hidden=key!=='main'||!recordVisible('help');
-  for(const k of ['skills','cluster','other'])if($('action-'+k))$('action-'+k).hidden=key!==k;
+ function show(){
+  if(!$('record-main-view'))return;
+  if($('help-section'))$('help-section').hidden=!recordVisible('help');
+  for(const k of ['skills','other'])if($('action-'+k))$('action-'+k).hidden=false;
   for(const id of ['record-candy-heading','record-shard-heading','shard-records','research-panel'])if($(id))$(id).hidden=true;
   for(const method of ['mew','delibird','other'])if($(method+'-section'))$(method+'-section').hidden=true;
  }
  function render(){
-  mount();const root=$('action-skills');if(!root)return;root.replaceChildren();
+  mount();const root=$('action-skills');if(!root)return;const heading=el('h2','メインスキル','record-subheading');root.replaceChildren(heading);if(typeof TabIcons!=='undefined')TabIcons.section(heading,'skills');
   const shardRows=[...$('shard-skill-inputs').querySelectorAll('.shard-skill-row')].filter(n=>!n.classList.contains('copy-skill-card'));
   currentTeam().forEach((p,i)=>{if(!p)return;const slot=i+1,key=SK.id(SK.forPokemon(p)),cap=capabilities(p);
    if(p.species==='ミュウ'&&recordVisible('mew')){const card=el('div',undefined,'card mew activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
@@ -109,8 +118,8 @@ const SkillActions=(()=>{
     const row=shardRows.find(n=>n.querySelector('.shard-record-name small')?.textContent===recordPosition(slot));if(row){row.dataset.actorId=p.id;row.insertBefore(el('p',mainSkillText(p)+' · スキルLv.'+C.recordProfile(p).skillLevel,'muted'),row.children[1]||null);root.append(row);}
    }
   });
-  if(!root.children.length)root.append(el('p','記録できるスキルのポケモンが編成にいません。','muted'));
-  if($('help-section'))$('help-section').querySelector('h2').textContent='アメ拾い';
+  if(!root.querySelector('[data-actor-id]'))root.append(el('p','記録できるスキルのポケモンが編成にいません。','muted'));
+  if($('help-section')){const heading=$('help-section').querySelector('h2');heading.textContent='アメ拾い';if(typeof TabIcons!=='undefined')TabIcons.section(heading,'main');}
   show();
  }
  function history(root,r){

@@ -12,9 +12,9 @@ const TabIcons=(()=>{
  "moon": "<path d=\"M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z\" />",
  "ellipsis": "<circle cx=\"12\" cy=\"12\" r=\"1\" />\n  <circle cx=\"19\" cy=\"12\" r=\"1\" />\n  <circle cx=\"5\" cy=\"12\" r=\"1\" />"
 };
- const main={record:'notebook-pen',summary:'candy',shards:'diamond',history:'history',team:'users',settings:'settings'},record={main:'candy',skills:'zap',sleep:'moon',other:'ellipsis'};
+ const main={record:'notebook-pen',summary:'candy',shards:'diamond',history:'history',team:'users',settings:'settings'},record={main:'notebook-pen',sleep:'moon',nap:'candy'},sections={main:'candy',skills:'zap',other:'ellipsis'};
  function add(button,name){if(!paths[name]||button.querySelector('.tab-watermark'))return;const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true',focusable:'false',class:'tab-watermark'}))svg.setAttribute(k,v);svg.innerHTML=paths[name].replace(/>\s+</g,'><').trim();button.classList.add('has-tab-watermark');button.append(svg);}
  function recordTab(button,key){add(button,record[key]);}
  for(const button of document.querySelectorAll('button[data-tab]'))add(button,main[button.dataset.tab]);
- return {recordTab};
+ return {recordTab,section:(heading,key)=>add(heading,sections[key])};
 })();

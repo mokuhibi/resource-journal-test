@@ -66,7 +66,7 @@ const ShardUI=(()=>{
   root.hidden=!SummaryExtras.shardVisible('skill')||!root.children.length;
   $('cluster-panel').hidden=!SummaryExtras.shardVisible('cluster');
   $('research-panel').hidden=!SummaryExtras.shardVisible('research');
-  $('shard-other-form').closest('details').hidden=!SummaryExtras.shardVisible('other');
+  $('shard-other-form').closest('.shard-other-record,details').hidden=!SummaryExtras.shardVisible('other');
   $('record-shard-heading').hidden=root.hidden&&['research','cluster','other'].every(key=>!SummaryExtras.shardVisible(key));
  }
  function addSkillSetting(card,p){card.append(el('small',mainSkillText(p)+(p.profile?` · Lv.${p.profile.skillLevel}`:''),'shard-setting'));}
