@@ -177,8 +177,10 @@ body .tabs .tab-icon{width:12px;height:12px}
 #record #action-skills .skill-record-heading{display:flex;flex-wrap:wrap;gap:0 10px;margin:0 0 4px;font-size:15px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
 #record #action-skills .skill-nickname{font-weight:400}
 #record #action-skills .skill-record-detail{margin:0 0 12px;font-size:13px;color:var(--record-muted);line-height:1.5;overflow-wrap:anywhere}
-#record #action-skills>.shard-skill-row{display:flex;flex-direction:column;align-items:stretch;gap:0}
-#record #action-skills>.shard-skill-row :is(.shard-skill-form,.shard-amount-buttons){margin:0;width:calc(51.22% - 6px);min-width:min(154px,100%);max-width:100%;align-self:flex-start}
+#record #action-skills>.shard-skill-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(154px,32%);align-items:end;gap:6px 12px}
+#record #action-skills>.shard-skill-row .skill-record-heading{grid-column:1/-1;grid-row:1}
+#record #action-skills>.shard-skill-row .skill-record-detail{grid-column:1;grid-row:2;margin:0}
+#record #action-skills>.shard-skill-row :is(.shard-skill-form,.shard-amount-buttons,.shard-lucky-actions){grid-column:2;grid-row:2;margin:0;min-width:0;max-width:100%;align-self:end}
 #record #action-skills>.shard-skill-row .shard-lucky-actions{margin:0;max-width:100%}
 #record #action-other>summary.record-subheading{display:list-item;list-style-position:inside;cursor:pointer;min-height:44px;box-sizing:border-box;padding:8px 0;margin:0 0 var(--record-heading-gap);font-size:18px;font-weight:600;line-height:28px;border-bottom:1px solid var(--record-line)}
 #record #action-other>summary.record-subheading::before{display:none}
@@ -186,3 +188,27 @@ body .tabs .tab-icon{width:12px;height:12px}
 /* 記録操作の面だけをアメ拾いに合わせる。寸法と選択操作には触れない。 */
 #record #action-skills :is(.activation-targets .mew-actions button,.activation-form>button[type="submit"],.copied-shard-form button):not(:disabled),
 #record #nap-island-shard-form>button:not(:disabled){background:var(--record-action);border-color:transparent}
+
+/* 記録内の3見出しは同じ点・文字・間隔。その他の開閉矢印は右側へ。 */
+#record #record-main-view :is(#help-section>h2,#action-skills>h2,#action-other>summary).record-subheading{position:relative;display:block;min-height:44px;box-sizing:border-box;margin:0 0 var(--record-heading-gap);padding:8px 22px 8px 13px;font-size:18px;font-weight:600;line-height:28px;border-bottom:1px solid var(--record-line);list-style:none}
+#record #record-main-view :is(#help-section>h2,#action-skills>h2,#action-other>summary).record-subheading::before{content:'';display:block;position:absolute;left:0;top:20px;width:5px;height:5px;border-radius:50%;background:currentColor}
+#record #help-section>h2.record-subheading{color:var(--shard-skill-color)}
+#record #action-skills>h2.record-subheading{color:var(--record-candy)}
+#record #action-other>summary.record-subheading{color:var(--shard-other-color)}
+#record #action-other>summary::-webkit-details-marker{display:none}
+#record #action-other>summary::after{content:'⌄';position:absolute;right:2px;top:8px}
+#record #action-other[open]>summary::after{content:'⌃'}
+
+/* 個体名だけを色分け。ニックネームは通常色、縦線はCSSで描画。 */
+#record #action-skills .skill-record-heading{border-left:3px solid var(--skill-heading-color,var(--mh-accent));padding-left:8px;min-height:22px}
+#record #action-skills .skill-species{color:var(--skill-heading-color,var(--mh-accent))}
+#record #action-skills .skill-nickname{color:var(--record-text);font-weight:400}
+#record #action-skills>:is(.mew,.delibird){--skill-heading-color:var(--record-candy)}
+#record #action-skills>.shard-skill-row{--skill-heading-color:var(--shard-skill-color)}
+#record #action-skills>:is(.mew,.delibird) .activation-targets .record-row-content>strong{font-weight:400}
+#record #action-skills>.delibird .activation-targets .skill-only-target{align-content:stretch;grid-template-rows:minmax(0,1fr);padding-block:0}
+#record #action-skills>.delibird .skill-only-target .mew-actions{grid-row:1/-1;margin:0;height:100%}
+#record #action-skills>.delibird .skill-only-target button{height:100%}
+@media(max-width:599px){#record #action-skills>.shard-lucky-row .shard-lucky-actions{grid-column:1/-1;grid-row:3}}
+
+#record #action-skills>.shard-skill-row .shard-amount-option{display:flex;justify-content:flex-end}
