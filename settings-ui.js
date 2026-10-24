@@ -8,7 +8,7 @@ const SettingsUI=(()=>{
   controls.push({input,key,group,legacy});input.onchange=()=>{const settings=clone(state.settings);if(key==='other'||C.otherKeys.includes(key)){const oldGroup=settings[group]||{};settings[group]={...oldGroup};for(const child of C.otherKeys)if(oldGroup[child]===undefined)settings[group][child]=group==='displayActions'?settings[child==='cluster'?'showShardCluster':'showShardOther']!==false:oldGroup.other===true||settings.aggregateShards?.[child==='cluster'?'cluster':'other']!==false;}settings[group]={...settings[group],[key]:input.checked};for(const path of input.checked&&group==='displayActions'&&!['copy','metronome'].includes(key)?legacy:[]){if(path.length===1)settings[path[0]]=input.checked;else settings[path[0]]={...settings[path[0]],[path[1]]:input.checked};}if(!commit({...state,settings},null))sync();};return label;
  }
  function init(){
-  const root=$('settings'),old=[...root.children].filter(n=>n.classList.contains('card')&&!['research-rank-settings','data-sources'].includes(n.id)&&!n.querySelector('#export'));
+  const root=$('settings'),old=[...root.children].filter(n=>n.classList.contains('card')&&!['research-rank-settings','data-sources','about-app'].includes(n.id)&&!n.querySelector('#export'));
   const stash=el('div');stash.hidden=true;stash.id='legacy-setting-controls';for(const n of old)stash.append(n);root.append(stash);
   const anchor=$('research-rank-settings');root.insertBefore(anchor,root.children[1]);
   const card=name=>{const n=el('div',undefined,'card');n.append(el('h3',name));anchor.after(n);return n;};

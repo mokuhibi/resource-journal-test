@@ -450,3 +450,12 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 #shards .candy-source-choice{flex:0 0 59px;width:59px}
 #shards .candy-source-choice button{width:100%;padding-inline:2px}
 :is(#summary,#shards) .candy-source-amount .quantity{white-space:normal}
+
+/* About disclosure reuses the settings and existing source/license disclosures. */
+#settings #about-app>summary{font-size:17px;font-weight:600;min-height:44px;line-height:1.5;padding:10px 0;cursor:pointer}
+#settings #about-app>summary::marker{color:var(--mh-muted)}
+#settings #about-app[open]>summary{margin-bottom:12px}
+#settings #about-app>h3,#settings #about-app>.about-contact>h3{margin:16px 0 6px;font-size:14px;line-height:1.6;font-weight:600}
+#settings #about-app>p,#settings #about-app>.about-contact>p{margin:6px 0 0;font-size:13px;line-height:1.7;color:var(--editorial-muted);overflow-wrap:anywhere}
+#settings #about-app>#data-sources{margin:16px 0;padding:0;border:0;background:none}
+#settings #about-app>.about-contact a{color:var(--editorial-ink);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
