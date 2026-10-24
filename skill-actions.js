@@ -100,6 +100,10 @@ const SkillActions=(()=>{
   currentTeam().forEach((q,i)=>{const box=el('div',undefined,'help-card candy-target-row'),content=el('span',undefined,'record-row-content');content.append(el('strong',q?candyMap[q.species]:'未設定'));box.append(el('small',recordPosition(i+1)),content);const actions=el('div',undefined,'mew-actions');for(const amount of (amounts||(zero?[4]:C.mewAmounts(eventSkill(p).effectiveLevel)))){const b=button(amount+'個',()=>recordTarget(i+1,amount));b.disabled=!q;actions.append(b);}box.append(actions);grid.append(box);});
   if(zero){const box=el('div',undefined,'help-card candy-target-row skill-only-target'),actions=el('div',undefined,'mew-actions');actions.append(button('スキルのみ',()=>recordTarget(6,0)));box.append(actions);grid.append(box);}card.append(grid);
  }
+ function setupGuide(root){
+  const empty=state.pokemon.length===0;if(!empty&&currentTeam().some(Boolean))return false;
+  const guide=el('div',undefined,'record-setup-guide');guide.append(el('p',empty?'ポケモンが登録されていません。':'ポケモンが編成されていません。'),button(empty?'新規登録へ':'チーム編成へ',()=>{showTab('team');TeamUI.show(empty?'register':'team');}));root.append(guide);return true;
+ }
  function mount(){
   const host=$('record-main-view');if(!host)return;
   for(const [key,name] of [['skills','メインスキル'],['other','その他']])if(!$('action-'+key)){const pane=el(key==='other'?'details':'section');pane.id='action-'+key;pane.setAttribute('aria-label',name);host.append(pane);}
@@ -124,7 +128,7 @@ const SkillActions=(()=>{
    methodRow.append($('shard-other-kind').closest('label'),$('shard-other-amount').closest('label'));const save=other.querySelector('button[type=submit]');save.textContent='保存';saveRow.append($('shard-other-memo').closest('label'),save);other.append(methodRow,saveRow);
    root.prepend($('cluster-panel'));root.prepend(root.querySelector('summary'));other.parentElement.prepend(el('h3','その他','record-subheading'));$('cluster-panel').querySelector('h3').textContent='ゆめのかたまり';
   }
-  root.append($('cluster-panel'),other.parentElement);
+  root.append($('cluster-panel'),other.parentElement);if($('nap-island-details'))root.append($('nap-island-details'));
   const select=$('shard-other-kind');
   for(const option of select.options)if(option.value){const enabled=SummaryExtras.otherVisible(option.value);option.hidden=!enabled;option.disabled=!enabled;}
   if(select.selectedOptions[0]?.disabled)select.value='';
@@ -134,12 +138,16 @@ const SkillActions=(()=>{
  function show(){
   if(!$('record-main-view'))return;
   if($('help-section'))$('help-section').hidden=!recordVisible('help');
-  for(const k of ['skills','other'])if($('action-'+k))$('action-'+k).hidden=k==='other'&&(!C.actionAllowed(state.settings,'other','displayActions')||$('cluster-panel').hidden&&$('shard-other-form').hidden);
+  if(!$('action-skills')||!$('action-other'))return;
+  $('action-skills').hidden=!C.actionAllowed(state.settings,'skills','displayActions');
+  $('action-other').hidden=!C.actionAllowed(state.settings,'other','displayActions');
+  let empty=$('record-empty');if(!empty){empty=el('p','表示する記録項目がありません。設定タブから変更できます。','muted');empty.id='record-empty';$('record-main-view').append(empty);}
+  empty.hidden=!!($('help-section')&&!$('help-section').hidden)||!$('action-skills').hidden||!$('action-other').hidden&&(!$('cluster-panel').hidden||!$('shard-other-form').hidden||state.settings.showNapIsland===true);
   for(const id of ['record-candy-heading','record-shard-heading','shard-records','research-panel'])if($(id))$(id).hidden=true;
   for(const method of ['mew','delibird','other'])if($(method+'-section'))$(method+'-section').hidden=true;
  }
  function render(){
-  mount();const root=$('action-skills');if(!root)return;const heading=el('h2','メインスキル','record-subheading');root.replaceChildren(heading);if(typeof EventEffects!=='undefined')EventEffects.renderField(root,EventEffects.recordDay());
+  mount();const root=$('action-skills');if(!root)return;const heading=el('h2','メインスキル','record-subheading');root.replaceChildren(heading);if(!C.actionAllowed(state.settings,'skills','displayActions')||setupGuide(root)){show();return;}if(typeof EventEffects!=='undefined')EventEffects.renderField(root,EventEffects.recordDay());
   const shardRows=[...$('shard-skill-inputs').querySelectorAll('.shard-skill-row')].filter(n=>!n.classList.contains('copy-skill-card'));
   currentTeam().forEach((p,i)=>{if(!p||!visible(p))return;const slot=i+1,key=SK.id(SK.forPokemon(p)),cap=capabilities(p);
    if(p.species==='ミュウ'&&recordVisible('mew')){const card=el('div',undefined,'card mew activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
@@ -170,5 +178,5 @@ const SkillActions=(()=>{
   form.onsubmit=e=>{e.preventDefault();try{const current=state.records.find(x=>x.id===r.id);if(!current)throw Error('記録が見つかりません。');const a=numeric(amount.value,'アメ'),s=numeric(shards.value,'ゆめのかけら'),p=a?r.context.team[Number(target.value)-1]:null;if(a&&!p||r.method==='mew'&&!C.mewAmounts(r.context?.effectiveLevel??r.recordedSkillLevel).includes(a))throw Error('アメ個数と獲得先を確認してください。');const next={...current,datetime:date.value===C.localInput(r.datetime)?r.datetime:C.fromInput(date.value).toISOString(),amount:a,shardAmount:s,resourceFlags:{candy:!!a||r.resourceFlags.candy,shards:!!s||r.resourceFlags.shards},slot:p?Number(target.value):null,pokemonId:p?.id||null,pokemon:p?storedLabel(p):'スキルのみ',species:p?.species||null,nickname:p?.nickname||'',candy:p?candyMap[p.species]:null,updatedAt:new Date().toISOString()};if(next.method==='mew'&&!s){delete next.firedSkill;next.outcomeSkillId='';}else if(next.method==='mew'&&SK.id(next.registeredMainSkill)==='dream_shard_s'&&s){next.firedSkill=SK.value('dream_shard_s');next.outcomeSkillId='dream_shard_s';}if(commit({...state,records:state.records.map(x=>x.id===r.id?next:x)},'スキル記録を保存'))dialog.close();}catch(e){error.textContent=e.message;}};
   DateUI.update();dialog.showModal();
  }
- return {render,show,build,capabilities,copySources,copiedMewAmounts,history,edit};
+ return {setupGuide,render,show,build,capabilities,copySources,copiedMewAmounts,history,edit};
 })();

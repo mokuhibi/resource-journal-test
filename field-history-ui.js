@@ -8,7 +8,7 @@ const FieldHistoryUI=(()=>{
  function saveAt(date,value){const at=C.localInput(date),d=C.gameDay(date);return commit(FieldHistory.save(state,{id:uid(),date:d,time:at.slice(11),field:value}),'フィールドを保存');}
  function sync(){
   if(!ready)return;const root=$('record-field-row'),date=recordDate(),value=context(date);root.replaceChildren();
-  const choice=select(value.field,'記録フィールド');choice.id='record-field';choice.className='record-event-field';const history=button('履歴',open);history.id='field-history-open';root.append(choice,history);
+  const choice=select(value.field,'記録フィールド');choice.id='record-field';choice.className='record-event-field';const colors=FieldHistory.labelColors(value.field);if(value.field){choice.style.backgroundColor=colors.background;choice.style.color=colors.color;}root.append(choice);
   const hint=$('record-field-hint');hint.replaceChildren();hint.hidden=value.confirmed===true&&value.status!=='record';
   const ambiguous=value.status==='ambiguous';let only=null;
   if(value.status==='record'){hint.append(el('small','今回のみ：'+FieldHistory.info(value.field).name),button('解除',()=>{override=null;renderRecord();}));}
@@ -18,7 +18,8 @@ const FieldHistoryUI=(()=>{
   choice.onchange=()=>{if(!choice.value)return;if(only?.checked){override={key:stamp(date),field:choice.value};renderRecord();return;}saveAt(date,choice.value);};
  }
  function afterCommit(old,next){if(!override)return;const added=next.records.some(r=>!old.records.some(x=>x.id===r.id)&&['mew','delibird','skill'].includes(r.method))||next.shardRecords.some(r=>!old.shardRecords.some(x=>x.id===r.id)&&['skill','lucky'].includes(r.method));if(added)override=null;}
- function open(){selected=C.gameDay(recordDate());start=FieldHistory.week(selected);editing=null;AppPanels.open('フィールド履歴',root=>{body=root;render();});}
+ function showHistory(root){body=root;if(!selected){selected=C.gameDay(new Date());start=FieldHistory.week(selected);}render();}
+ function open(){SleepUI.selectFieldHistory();}
  function render(){
   if(!body)return;body.replaceChildren();const nav=el('div',undefined,'field-history-nav');nav.append(button('＜',()=>{start=FieldHistory.add(start,-28);render();}),button('今日',()=>{selected=C.gameDay(new Date());start=FieldHistory.week(selected);editing=null;render();}),button('＞',()=>{start=FieldHistory.add(start,28);render();}));body.append(nav);
   const calendar=el('div',undefined,'field-history-weeks');calendar.setAttribute('aria-label','週ごとのフィールド履歴');
@@ -30,7 +31,7 @@ const FieldHistoryUI=(()=>{
  }
  function details(){
   const view=FieldHistory.dayView(state,selected),box=el('section',undefined,'field-history-detail');box.append(el('h3',C.displayDate(selected)),el('p',(view.confirmed?'確定':view.status==='sleep'?'睡眠リサーチから参照':'未登録')+(view.field?'：'+FieldHistory.info(view.field).name:'')));
-  const rows=(state.fieldHistory||[]).filter(r=>r.date===selected);for(const r of rows){const line=el('div',undefined,'field-history-change');line.append(el('span',(r.time?(Number(r.time.slice(0,2))<4?'翌日 ':'')+r.time:'時刻未指定')+'　'+FieldHistory.info(r.field).name),button('編集',()=>{editing=r.id;render();}));box.append(line);}
+  const rows=(state.fieldHistory||[]).filter(r=>r.date===selected);for(const r of rows){const line=el('div',undefined,'field-history-change');line.append(el('span',(r.time?(Number(r.time.slice(0,2))<4?'翌日 ':'')+r.time:'時刻未指定')+'　'+FieldHistory.info(r.field).name),button('編集',()=>{editing=r.id;render();}),button('削除',()=>{if(!confirm('このフィールド履歴を削除しますか？'))return;if(commit({...state,fieldHistory:(state.fieldHistory||[]).filter(x=>x.id!==r.id)},'フィールド履歴を削除')){editing=null;sync();render();}},'danger'));box.append(line);}
   if(!rows.length&&view.entry)box.append(el('small',C.displayDate(view.entry.date)+'から継続'));
   if(view.status==='legacy')box.append(el('small','旧フィールド設定（当日のみ）'));
   for(const ref of view.references)box.append(el('p','睡眠リサーチ '+ref.number+'回目：'+FieldHistory.info(ref.field).name+(ref.recordedAt?'／記録日時 '+DateUI.datetime(ref.recordedAt):''),'field-reference'));
@@ -39,5 +40,5 @@ const FieldHistoryUI=(()=>{
   form.onsubmit=e=>{e.preventDefault();try{const item={...(original||{}),id:original?.id||uid(),date:toggle.checked&&time.value?C.gameDay(C.fromInput(date.value+'T'+time.value)):date.value,time:toggle.checked?time.value:null,field:fieldInput.value};if(toggle.checked&&!time.value)throw Error('変更時刻を入力してください。');const next=FieldHistory.save(state,item);if(commit(next,'フィールドを保存')){selected=item.date;editing=null;sync();render();}}catch(e){error.textContent=e.message;}};box.append(form);body.append(box);
  }
  function init(){const card=$('record').querySelector('.record-date-card'),row=el('div',undefined,'record-date-row'),fieldRow=el('div',undefined,'record-field-row'),hint=el('div',undefined,'record-field-hint');row.append(...card.children);fieldRow.id='record-field-row';hint.id='record-field-hint';card.append(row,fieldRow,hint);ready=true;sync();}
- return {init,sync,context,field,afterCommit,open};
+ return {init,sync,context,field,afterCommit,open,showHistory};
 })();

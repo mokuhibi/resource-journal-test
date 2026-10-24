@@ -277,10 +277,10 @@ textarea[placeholder]:placeholder-shown{align-content:center}
 #app-panel:has(.field-history-weeks){width:720px;max-width:calc(100vw - 20px)}
 .field-history-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .field-history-weeks section{margin-top:16px}
-#app-panel .field-history-weeks h3{font-size:14px;margin-bottom:8px}
+:is(#app-panel,#history-field-view) .field-history-weeks h3{font-size:14px;margin-bottom:8px}
 .field-history-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
-body #app-panel .field-history-days>button:not([role=tab]){min-width:0;min-height:64px;border:0;border-radius:0;padding:5px 1px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;color:var(--mh-text);margin:0}
-#app-panel .field-history-days button[aria-pressed=true]{outline:2px solid var(--mh-accent);outline-offset:-2px}
+body :is(#app-panel,#history-field-view) .field-history-days>button:not([role=tab]){min-width:0;min-height:64px;border:0;border-radius:0;padding:5px 1px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;color:var(--mh-text);margin:0}
+:is(#app-panel,#history-field-view) .field-history-days button[aria-pressed=true]{outline:2px solid var(--mh-accent);outline-offset:-2px}
 .field-history-days small{font-size:11px;line-height:1.3}
 .field-history-days strong{font-size:15px}
 .field-history-detail{margin-top:20px;border-top:1px solid var(--mh-border);padding-top:16px}
@@ -296,3 +296,11 @@ body #app-panel .field-history-days>button:not([role=tab]){min-width:0;min-heigh
 
 #events-settings-panel .event-calendar-dates>.event-full-moon{display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}
 #events-settings-panel .event-full-moon small{font-size:10px;color:var(--mh-accent);line-height:1.2}
+
+/* Record setup guides and relocated field / Nap panels. */
+.record-setup-guide{padding:8px 0 16px}.record-setup-guide p{margin:0 0 8px;color:var(--mh-muted)}
+.record-setup-guide button{min-height:44px;margin:0}
+#record #record-field{width:100%;flex:1}
+#nap-island-details{margin-top:16px}#nap-island-details>summary{min-height:44px;padding:10px 0;font-size:15px;font-weight:600}
+#nap-island-details .nap-island-settings{margin-top:12px;border-top:1px solid var(--mh-border)}
+#history-field-view{min-width:0}.field-history-change{flex-wrap:wrap}.field-history-change>span{flex:1;min-width:0}

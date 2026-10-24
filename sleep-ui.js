@@ -1,6 +1,6 @@
 'use strict';
 const SleepUI=(()=>{
- let date='',draft=null,number=1,loaded=false,mode='candy',query='',showOtherTypes=false,historyKind='all',historyDay='',researchSource=null,inputMode='candy',recordView=false,napView=false,historyView=false,navigationReady=false,pickupOnly=false,calendarMonth='',calendarOpen=true,searchViewportCleanup=null;
+ let date='',draft=null,number=1,loaded=false,mode='candy',query='',showOtherTypes=false,historyKind='all',historyDay='',researchSource=null,inputMode='candy',recordView=false,historyView=false,fieldView=false,navigationReady=false,pickupOnly=false,calendarMonth='',calendarOpen=true,searchViewportCleanup=null;
  const fields=(typeof FieldHistory!=='undefined'?FieldHistory:require('./field-history.js')).fields;
  const sessions=()=>state.sleepSessions||[],draftKey=()=>date+':'+number;
  const rowFor=()=>SleepResearch.researchRows(state,date).find(r=>r.number===number);
@@ -48,24 +48,25 @@ const SleepUI=(()=>{
   for(const [hostId,title] of [['record','記録'],['history','履歴']]){
    const host=$(hostId),content=el('div');content.id=hostId+'-main-view';
    for(const child of [...host.children])if(!child.classList.contains('editorial-page-title'))content.append(child);
-   const items=hostId==='record'?[['main','記録'],['sleep','睡眠リサーチ'],['nap','おひるね島']]:[['main',title],['sleep','睡眠リサーチ']];
-   const choices=tabs(items,'main',key=>{if(hostId==='record'&&key==='nap'){if(recordView&&mode!=='history'&&!keep())return;napView=true;recordView=false;showTab('record');}else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.recordTab(choices.children[i],key));if(hostId==='history'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.add(choices.children[i],key==='main'?'history':'moon'));host.append(choices,content);
-   if(hostId==='record'){const pane=el('div');pane.id='record-nap-view';pane.hidden=true;const section=$('nap-island-section');if(section)pane.append(section);host.append(pane);}
+   const items=hostId==='record'?[['main','記録'],['sleep','睡眠リサーチ']]:[['main',title],['sleep','睡眠リサーチ'],['field','フィールド']];
+   const choices=tabs(items,'main',key=>{if(hostId==='history'&&key==='field')selectFieldHistory();else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.recordTab(choices.children[i],key));if(hostId==='history'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.add(choices.children[i],key==='main'?'history':key==='field'?'map':'moon'));host.append(choices,content);
+   if(hostId==='history'){const pane=el('div');pane.id='history-field-view';pane.hidden=true;host.append(pane);}
   }
   $('sleep').querySelector('.editorial-page-title').hidden=true;navigationReady=true;syncNavigation();
  }
  function syncNavigation(){
   if(!navigationReady)return;
-  if(napView&&state.settings.showNapIsland!==true)napView=false;const enabled=SleepResearch.visible(state);if(!enabled&&activeTab!=='record')recordView=false;
+  const enabled=SleepResearch.visible(state);if(!enabled&&activeTab!=='record')recordView=false;
   for(const [hostId,on] of [['record',recordView],['history',historyView]]){
-   $(hostId+'-main-view').hidden=on||(hostId==='record'&&napView);const buttons=$(hostId+'-view-switch').children;
-   for(const b of buttons){const selected=b===buttons[hostId==='record'&&napView?2:on?1:0];b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-pressed',String(selected));}
+   $(hostId+'-main-view').hidden=on||(hostId==='history'&&fieldView);const buttons=$(hostId+'-view-switch').children;
+   for(const b of buttons){const selected=b===buttons[hostId==='history'&&fieldView?2:on?1:0];b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-pressed',String(selected));}
    if(hostId==='record'){
-    buttons[1].hidden=!enabled&&!(typeof SummaryExtras!=='undefined'&&SummaryExtras.shardVisible('research'))&&!recordView;buttons[2].hidden=state.settings.showNapIsland!==true;
-    const pane=$('record-nap-view');pane.hidden=!napView;const dateCard=$(hostId).querySelector('.record-date-card');if(dateCard){const target=napView?pane:$(hostId+'-main-view');if(dateCard.parentElement!==target)target.prepend(dateCard);}
+    buttons[1].hidden=!enabled&&!(typeof SummaryExtras!=='undefined'&&SummaryExtras.shardVisible('research'))&&!recordView;
+
     if(typeof SkillActions!=='undefined')SkillActions.show();
    }
   }
+  $('history-field-view').hidden=!fieldView;if(fieldView&&activeTab==='history')FieldHistoryUI.showHistory($('history-field-view'));
   const host=activeTab==='history'&&historyView?'history':activeTab==='record'&&recordView?'record':null;
   $('sleep').hidden=!host;if(host&&$(host).nextElementSibling!==$('sleep'))$(host).after($('sleep'));
  }
@@ -74,9 +75,10 @@ const SleepUI=(()=>{
   mode=tab==='history'&&historyView?'history':inputMode;syncNavigation();render();
  }
  function selectResearch(day,round){if(!SleepResearch.validDate(day)||![1,2].includes(round))return;date=day;number=round;draft=loadDraft();loaded=true;researchSource=null;}
- function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date)SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;napView=false;}else historyView=sleep;showTab(host);}
+ function selectFieldHistory(){historyView=false;fieldView=true;showTab('history');}
+ function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date)SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;}else{historyView=sleep;fieldView=false;}showTab(host);}
  function openResearch(day,round,nextMode){
-  if(mode!=='history'&&!keep())return;date=day;number=round;mode=inputMode=nextMode;draft=loadDraft();loaded=true;researchSource=null;recordView=true;napView=false;showTab('record');
+  if(mode!=='history'&&!keep())return;date=day;number=round;mode=inputMode=nextMode;draft=loadDraft();loaded=true;researchSource=null;recordView=true;showTab('record');
  }
  function edit(id){const item=sessions().find(s=>s.id===id);if(item)openResearch(item.date,item.number,'candy');}
  function syncResearch(){
@@ -87,7 +89,7 @@ const SleepUI=(()=>{
  }
  function tabs(items,current,change,label){const root=el('div',undefined,'period-quick-buttons sleep-switch');root.setAttribute('role','tablist');root.setAttribute('aria-label',label);for(const [key,title] of items){const b=button(title,()=>change(key));b.setAttribute('role','tab');b.setAttribute('aria-selected',String(current===key));b.setAttribute('aria-pressed',String(current===key));if(typeof TabIcons!=='undefined'&&!['day','week','month','all'].includes(key))TabIcons.add(b,({candy:'candy',shards:'diamond'})[key]);root.append(b);}return root;}
  function home(host){if(recordView&&mode!=='history'&&!keep())return false;if(host==='record'){mode=inputMode='candy';}selectView(host,false);return true;}
- function reset(){date='';draft=null;loaded=false;number=1;researchSource=null;mode=inputMode='candy';recordView=napView=historyView=false;query='';showOtherTypes=false;historyKind='all';historyDay='';pickupOnly=false;calendarMonth='';calendarOpen=true;}
+ function reset(){date='';draft=null;loaded=false;number=1;researchSource=null;mode=inputMode='candy';recordView=historyView=fieldView=false;query='';showOtherTypes=false;historyKind='all';historyDay='';pickupOnly=false;calendarMonth='';calendarOpen=true;}
  function renderHistory(root){
   if(!historyDay)historyDay=date||C.gameDay(new Date());
   const input=el('input');Object.assign(input,{type:'date',value:historyDay,id:'sleep-history-date'});input.setAttribute('aria-label','睡眠履歴の基準日');input.onchange=()=>{if(C.dateOnly(input.value)){historyDay=input.value;calendarMonth=historyDay.slice(0,7);render();}};
@@ -197,5 +199,5 @@ const SleepUI=(()=>{
   const r={id:'sleep:'+s.id,recordedAt:s.recordedAt,datetime:SleepResearch.datetime(s),amount:shardsOnly?s.amount:C.sum(s.entries),method:'research',sleepSession:s},card=el('div',undefined,'card research'+(shardsOnly?' shards':'')),actions=el('div',undefined,'history-actions');if(!C.inRange(r,period))continue;card.dataset.datetime=r.datetime;if(shardsOnly)card.dataset.shardSource='research';actions.append(button('訂正',()=>edit(s.id)),button('削除',()=>remove(s.id),'danger'));
   historyCard(card,r,'睡眠リサーチ',shardsOnly?'ゆめのかけら':'アメ',s.number+'回目'+(!shardsOnly&&s.shardsRecorded!==false?' · ゆめのかけら '+s.amount.toLocaleString('ja-JP')+'個':''),actions);finishHistoryCard(card);root.append(card);
  }}
- return {selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
+ return {selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
 })();

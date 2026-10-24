@@ -120,6 +120,7 @@ function renderRecord(){
  for(const [method,name] of Object.entries(methods)){
   if(method==='skill'||method==='research'||!recordVisible(method))continue;
   const section=el('div',undefined,method);section.id=method+'-section';section.append(el('h2',name,'record-subheading'));let context=null;
+  if(method==='help'&&typeof SkillActions!=='undefined'&&SkillActions.setupGuide(section)){root.append(section);continue;}
   if(method!=='help'){
    const candidates=method==='mew'?state.pokemon.filter(p=>p.species==='ミュウ').slice(0,1).map(p=>({id:p.id,text:label(p)})):team.map((p,i)=>p&&p.species===name?{id:p.id,text:`${recordPosition(i+1)} · ${label(p)}`} : null).filter(Boolean);
    if(!candidates.some(p=>p.id===actors[method]))actors[method]=candidates.length===1?candidates[0].id:'';

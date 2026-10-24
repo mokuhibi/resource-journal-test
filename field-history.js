@@ -5,6 +5,7 @@ const FieldHistory=(()=>{
  const fields=definitions.map(d=>d.id),iso=d=>d.toISOString().slice(0,10),validDay=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&iso(new Date(d))===d;
  const add=(d,n)=>iso(new Date(Date.parse(d)+n*86400000)),day=t=>iso(new Date(new Date(t).getTime()+5*3600000)),local=t=>new Date(new Date(t).getTime()+9*3600000).toISOString().slice(0,16),week=d=>add(d,-(new Date(d).getUTCDay()+6)%7);
  const info=id=>definitions.find(f=>f.id===id)||{id,name:id||'未登録',color:'#d9d9d9',ex:false};
+ function labelColors(id){const background=info(id).color,rgb=background.slice(1).match(/../g).map(x=>parseInt(x,16)/255).map(x=>x<=0.04045?x/12.92:((x+0.055)/1.055)**2.4),l=rgb[0]*0.2126+rgb[1]*0.7152+rgb[2]*0.0722;return {background,color:(l+0.05)/0.0556>=1.05/(l+0.05)?'#111111':'#ffffff'};}
  function validate(rows){if(rows===undefined)return;if(!Array.isArray(rows)||rows.length>100000)throw Error('フィールド履歴');const ids=new Set();for(const r of rows){if(!r||typeof r.id!=='string'||!r.id||ids.has(r.id)||!validDay(r.date)||typeof r.field!=='string'||!r.field.trim()||r.field.length>100||r.time!==null&&r.time!==undefined&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(r.time))throw Error('フィールド履歴の内容を確認してください。');ids.add(r.id);}}
  // A precise time before 04:00 belongs to the following civil date of this game day.
  function instant(r){if(!r.time)return null;const civil=Number(r.time.slice(0,2))<4?add(r.date,1):r.date;return new Date(civil+'T'+r.time+':00+09:00').getTime();}
@@ -25,6 +26,6 @@ const FieldHistory=(()=>{
  }
  function save(s,item){validate([item]);const rows=[...(s.fieldHistory||[]).filter(r=>r.id!==item.id),{...item,time:item.time||null}];validate(rows);return {...s,fieldHistory:rows};}
  function dayView(s,d){const resolved=resolve(s,d),changes=entries(s,d).filter(r=>r.date===d),previous=resolve(s,add(d,-1));let colors=changes.some(r=>r.time)?[previous.confirmed&&week(add(d,-1))===week(d)?previous.field:'',...changes.map(r=>r.field)]:[resolved.field];if(!resolved.confirmed&&resolved.candidates.length)colors=resolved.candidates;colors=colors.filter((f,i)=>i===0||colors[i-1]!==f);return {...resolved,colors,changes,references:references(s,d)};}
- return {definitions,fields,info,validDay,add,day,local,week,instant,validate,entries,references,resolve,save,dayView};
+ return {definitions,fields,info,labelColors,validDay,add,day,local,week,instant,validate,entries,references,resolve,save,dayView};
 })();
 if(typeof module!=='undefined')module.exports=FieldHistory;
