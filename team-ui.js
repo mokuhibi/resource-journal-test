@@ -24,7 +24,7 @@ const TeamUI=(()=>{
   const normal=state.pokemon.filter(p=>!special(p));
   const category=p=>['メタモン','マネネ','バリヤード'].includes(p.species)?'スキルコピー':p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome'?'ゆびをふる':special(p)?'アメ':relatedPokemon(p)?'ゆめのかけら':'その他のポケモン';
   const target=p=>category(p)!=='その他のポケモン';
-  const visible=orderedPokemon().filter(p=>speciesEnabled(p.species)&&(q||showOtherPokemon||target(p))&&(!q||normalize(p.species).includes(q)||normalize(C.speciesName(p.species)).includes(q)||normalize(p.nickname||'').includes(q)));
+  const visible=state.pokemon.filter(p=>speciesEnabled(p.species)&&(q||showOtherPokemon||target(p))&&(!q||normalize(p.species).includes(q)||normalize(C.speciesName(p.species)).includes(q)||normalize(p.nickname||'').includes(q)));
   const groups=['アメ','ゆめのかけら','スキルコピー','ゆびをふる','その他のポケモン'].map(title=>[title,visible.filter(p=>category(p)===title)]);
   for(const [title,members] of groups){if(!members.length)continue;root.append(el('h3',title,'roster-purpose-heading'));const group=el('div',undefined,'individual-roster-grid');root.append(group);
   for(const p of members){
@@ -43,7 +43,7 @@ const TeamUI=(()=>{
   const xs=[...state.pokemon],from=xs.findIndex(p=>p.id===id),to=xs.findIndex(p=>p.id===beforeId);if(from<0||to<0||from===to)return false;
   const [item]=xs.splice(from,1);xs.splice(to,0,item);
   // 固定の用途別グループは維持し、その中の表示順だけ保存する。
-  return commit({...state,pokemon:xs.map((p,i)=>({...p,registrationOrder:i}))},null);
+  return commit({...state,pokemon:xs},null);
  }
  function bindReorder(line,p){
   if(!sorting){suppressClick=false;return;}line.classList.add('reorder-enabled');
