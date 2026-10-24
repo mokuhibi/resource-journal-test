@@ -17,11 +17,15 @@ const EventEffects=(()=>{
   return {amount:multiplier===1?amount:Math[rounding](amount*multiplier),baseAmount:amount,date,field,number,multiplier,bonuses};
  }
  function recordDay(date=recordDate()){return Number.isFinite(date.getTime())?C.gameDay(date):'';}
- function recordField(date){return typeof state==='undefined'?'':state.settings.recordFields?.[date]||'';}
- function renderField(root,date){
-  if(!SleepPickups.list().some(e=>e.start<=date&&date<=e.end&&(e.skillBonuses?.length||e.shardBonuses?.some(b=>b.scope==='skill'))&&!e.fields.includes('*')))return;
-  const select=el('select');select.className='record-event-field';select.setAttribute('aria-label','スキル記録のフィールド');select.add(new Option('フィールドを選択',''));for(const field of SleepPickups.fields)select.add(new Option(field,field));select.value=recordField(date);select.onchange=()=>{const old=recordField(date);if(!commit({...state,settings:{...state.settings,recordFields:{...state.settings.recordFields,[date]:select.value}}},null))select.value=old;};root.append(select);
+ function recordField(date,when){
+  if(typeof state==='undefined')return '';
+  if(typeof FieldHistory==='undefined')return state.settings.recordFields?.[date]||'';
+  const current=when||recordDate();if(!Number.isFinite(current.getTime())||C.gameDay(current)!==date)return '';const value=current;
+  if(typeof FieldHistoryUI!=='undefined'&&typeof value!=='string')return FieldHistoryUI.field(value);
+  const resolved=FieldHistory.resolve(state,value);return resolved.confirmed?resolved.field:'';
  }
+ function renderField(){if(typeof FieldHistoryUI!=='undefined')FieldHistoryUI.sync();}
+
  return {skill,shards,recordDay,recordField,renderField};
 })();
 if(typeof module!=='undefined')module.exports=EventEffects;

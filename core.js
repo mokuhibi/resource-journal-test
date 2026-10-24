@@ -100,7 +100,7 @@ const CandyCore = (() => {
  }
  function migrate(raw,map){
   if(!raw||![1,2].includes(raw.version)||!Array.isArray(raw.pokemon)||!Array.isArray(raw.records)||!Array.isArray(raw.team)||raw.team.length!==5)throw Error('保存形式');
-  const shardRecords=raw.shardRecords??[];validateShards(shardRecords);
+  const shardRecords=raw.shardRecords??[];validateShards(shardRecords);if(raw.fieldHistory!==undefined)(typeof FieldHistory!=='undefined'?FieldHistory:require('./field-history.js')).validate(raw.fieldHistory);
   if(raw.settings?.sleepPickupEvents!==undefined)(typeof SleepPickups!=='undefined'?SleepPickups:require('./sleep-pickups.js')).validate(raw.settings.sleepPickupEvents,map);
   if(raw.sleepSessions!==undefined||raw.sleepDrafts!==undefined||raw.settings?.sleepCandyMultipliers!==undefined){const sleep=typeof SleepResearch!=='undefined'?SleepResearch:require('./sleep-research.js');sleep.validateMultipliers(raw);sleep.validate(raw.sleepSessions||[],map,shardRecords);sleep.validateDrafts(raw.sleepDrafts,map);}
   const ids=new Set();

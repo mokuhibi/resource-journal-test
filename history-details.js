@@ -18,6 +18,7 @@ const HistoryDetails=(()=>{
   if(r.method==='other')item(record,'その他の入手方法',DreamClusters.otherKinds[DreamClusters.otherKind(r)]);
   if(r.memo)item(record,'メモ',r.memo);
   if(r.sleepSession){const s=r.sleepSession;item(record,'リサーチ日',C.displayDate(s.date));item(record,'回数',s.number+'回目');item(record,'フィールド',s.field);item(record,'睡眠タイプ',s.sleepType);if(s.shardsRecorded!==false)item(record,'ゆめのかけら',s.amount.toLocaleString('ja-JP')+'個');item(record,'記録時ランク',s.researchRank);item(record,'リサーチEXP',s.researchExp);const candy=group('見つけたポケモン');for(const e of s.entries)item(candy,e.species+' ★'+e.stars,e.candy+' '+e.amount.toLocaleString('ja-JP')+'個'+(e.calculatedAmount!==null&&e.amount!==e.calculatedAmount?'（手動修正）':''));}
+  const fieldAt=!r.sleepSession&&typeof FieldHistory!=='undefined'&&typeof state!=='undefined'?FieldHistory.resolve(state,r.datetime):null;if(fieldAt?.field)item(record,'フィールド（現在の履歴）',FieldHistory.info(fieldAt.field).name);else if(fieldAt?.status==='ambiguous')item(record,'フィールド（現在の履歴）','移動時刻未確定');const savedField=r.fieldContext||r.context?.fieldContext;if(savedField?.field)item(record,'記録時のフィールド',savedField.field);
   const c=r.context,actor=actorOf(c)||r.pokemonSnapshot||(info.shards&&['skill','lucky'].includes(r.method)&&r.species?historicalPokemon(r):null);
   if(!C.isNapRecord(r)&&!['help','research','cluster','other'].includes(r.method)){
    const skill=group('スキル情報');if(actor)item(skill,'発動したポケモン',label(actor));

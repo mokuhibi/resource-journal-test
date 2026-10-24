@@ -261,3 +261,35 @@ textarea[placeholder]:placeholder-shown{align-content:center}
 #events-settings-panel .pickup-form{max-width:100%}
 
 .event-bonus-fields{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px;align-items:center}.event-bonus-fields input{width:100%;min-width:0}.event-bonus-editor fieldset{min-width:0}.record-event-field{width:auto;max-width:100%;margin:0 0 12px}
+
+/* The existing datetime controls retain their handlers; field history is the second row. */
+#record .record-date-card{display:block}
+#record .record-date-row{display:flex;align-items:center;gap:8px;min-width:0}
+#record .record-date-row>.date-field{flex:1;min-width:0;width:0;margin:0}
+#record .record-date-row>.record-datetime-field{position:relative;display:flex;align-items:center;min-width:0;height:48px}
+#record .record-date-row #datetime{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0}
+#record .record-field-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+#record #record-field{flex:1;width:auto;min-width:0;height:44px;margin:0;font-size:16px}
+#record #field-history-open{flex:none;min-height:44px;margin:0;font-size:13px;padding:6px 12px}
+#record .record-field-hint{display:flex;align-items:center;gap:8px;margin:4px 0 0;color:var(--mh-muted)}
+#record .record-field-hint .check{min-width:0;min-height:32px;margin:0}
+#record .record-field-hint button{min-height:36px;padding:4px 12px}
+#app-panel:has(.field-history-weeks){width:720px;max-width:calc(100vw - 20px)}
+.field-history-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.field-history-weeks section{margin-top:16px}
+#app-panel .field-history-weeks h3{font-size:14px;margin-bottom:8px}
+.field-history-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
+body #app-panel .field-history-days>button:not([role=tab]){min-width:0;min-height:64px;border:0;border-radius:0;padding:5px 1px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;color:var(--mh-text);margin:0}
+#app-panel .field-history-days button[aria-pressed=true]{outline:2px solid var(--mh-accent);outline-offset:-2px}
+.field-history-days small{font-size:11px;line-height:1.3}
+.field-history-days strong{font-size:15px}
+.field-history-detail{margin-top:20px;border-top:1px solid var(--mh-border);padding-top:16px}
+.field-history-detail h3{margin-bottom:8px}
+.field-history-change{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0;font-size:13px;overflow-wrap:anywhere}
+.field-history-change button{flex:none;min-height:40px}
+.field-history-inputs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
+.field-history-inputs input,.field-history-inputs select{width:100%;min-width:0;margin:0;height:44px}
+.field-history-detail .check{display:flex;align-items:center;gap:6px;margin:8px 0}
+.field-history-detail .check input{width:18px;height:18px;margin:0}
+.field-history-detail input[type=time]{width:130px;margin:8px 0}
+.field-reference{font-size:12px;color:var(--mh-muted)}

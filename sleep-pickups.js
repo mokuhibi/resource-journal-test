@@ -4,7 +4,7 @@
 // Optional shardBonuses: {scope:skill|sleep, multiplier, rounding:ceil|floor|round, firstOnly?, pokemon?, type?}.
 // Type names never infer membership. Enter confirmed species/form keys explicitly; no fictional standard effects.
 const SleepPickups=(()=>{
- const fields=['ワカクサ本島','シアンの砂浜','トープ洞窟','ウノハナ雪原','ラピスラズリ湖畔','ゴールド旧発電所','アンバー渓谷','ワカクサ本島EX','シアンの砂浜EX'];
+ const fields=(typeof FieldHistory!=='undefined'?FieldHistory:require('./field-history.js')).fields;
  let standard=[],status='',editor=null;
  const validDay=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d).toISOString().slice(0,10)===d;
  function validate(events,map){

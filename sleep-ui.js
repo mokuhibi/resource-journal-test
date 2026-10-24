@@ -1,7 +1,7 @@
 'use strict';
 const SleepUI=(()=>{
  let date='',draft=null,number=1,loaded=false,mode='candy',query='',showOtherTypes=false,historyKind='all',historyDay='',researchSource=null,inputMode='candy',recordView=false,napView=false,historyView=false,navigationReady=false,pickupOnly=false,calendarMonth='',calendarOpen=true,searchViewportCleanup=null;
- const fields=['ワカクサ本島','シアンの砂浜','トープ洞窟','ウノハナ雪原','ラピスラズリ湖畔','ゴールド旧発電所','アンバー渓谷','ワカクサ本島EX','シアンの砂浜EX'];
+ const fields=(typeof FieldHistory!=='undefined'?FieldHistory:require('./field-history.js')).fields;
  const sessions=()=>state.sleepSessions||[],draftKey=()=>date+':'+number;
  const rowFor=()=>SleepResearch.researchRows(state,date).find(r=>r.number===number);
  function loadDraft(){const d=SleepResearch.getDraft(state,date,number,uid());return {...d,...((!rowFor()||rowFor().kind==='session'&&rowFor().record.shardsRecorded===false)&&(d.researchExp==='0'||d.researchExp===0)?{researchExp:''}:{}),candyMultiplier:number===1?(d.candyMultiplier??SleepResearch.candyMultiplier(state,date)):1};}

@@ -21,7 +21,7 @@ const ShardUI=(()=>{
  const amountInput=(id,min=0)=>{const input=el('input');Object.assign(input,{id,type:'number',inputMode:'numeric',min:String(min),max:'1000000000',step:'1',required:true});return input;};
  function number(id,min=0,max=1000000000){const raw=$(id).value.trim(),n=Number(raw);if(raw===''||!Number.isSafeInteger(n)||n<min||n>max)throw Error('入力値を確認してください。');return n;}
  function save(data){const date=data.targetDate?C.fromInput(data.targetDate+'T04:00'):recordDate();if(!Number.isFinite(date.getTime())){notice('記録日時を入力してください。',true);return false;}
-  const r={id:uid(),datetime:date.toISOString(),...data};if(data.targetDate)r.recordedAt=new Date().toISOString();if(!data.targetDate&&$('auto-now').checked)$('datetime').value=C.localInput(date);
+  const r={id:uid(),datetime:date.toISOString(),...data,...(['skill','lucky'].includes(data.method)&&typeof FieldHistoryUI!=='undefined'?{fieldContext:FieldHistoryUI.context(date)}:{})};if(data.targetDate)r.recordedAt=new Date().toISOString();if(!data.targetDate&&$('auto-now').checked)$('datetime').value=C.localInput(date);
   return commit({...state,shardRecords:[...records(),r]},resourceNotice(r,'shards'));
  }
  // 同日の複数記録は最後に保存されたものを表示。合計ではなく入力値を使います。
