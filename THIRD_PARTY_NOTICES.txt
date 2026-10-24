@@ -7,13 +7,16 @@ https://github.com/nitoyon/pokesleep-tool
 参照した版: 11ebec8de7b7803e5d095e4f32ee29f6bc7db2fb
 
 独自形式の仕様・名称・食材対応は版 8f48006811d9e58cd05949120b08982636341872 の
-src/util/PokemonIv.ts、src/util/Box/PokemonBox.ts、src/util/{Nature,SubSkill,MainSkill,PokemonRp}.ts、src/data/pokemon.json を参照しています。性能計算処理は利用していません。
+src/util/PokemonIv.ts、src/util/Box/PokemonBox.ts、src/util/{Nature,SubSkill,MainSkill,PokemonRp}.ts、src/data/pokemon.json を参照しています。individual-custom.js には独自形式の序数対応と、
+ポケモン名・既定スキル・食材等を抽出したマスターデータを同梱しています。
+性能計算処理は利用していません。
 CSV/TSV の列定義は src/util/Formatter/BoxExporter.ts を参照しています。
 individual-import-maps.js の名称対応表は、同リポジトリの
 src/i18n/{ja,en}/{data,pokemons,skills}.json の名称部分を利用しています。
-画像素材・アイコンや外部サービスへの接続は利用していません。
+同リポジトリの画像素材・アイコン・外部サービスへの接続は利用していません。
 インポート処理と確認画面は本アプリで独自に実装しています。
-参照元に独立した LICENSE ファイルや全体の著作権年表示はありません。
+参照版のツリーに独立した LICENSE ファイルはなく、README と利用部分の元ファイルに
+著作権年の表示は確認できませんでした。年や著作権者の表記を推測で補っていません。
 以下は参照元が指定している MIT ライセンスの許諾・免責条項です。
 
 MIT License
@@ -40,7 +43,9 @@ SOFTWARE.
 Lucide Icons 0.468.0
 https://github.com/lucide-icons/lucide
 Referenced commit: f12b0de177fbc2a6795e99be065887e72b237123
-Icons: notebook-pen, candy, diamond, history, users, settings, moon, mountain
+Icons: notebook-pen, candy, diamond, history, users, settings, moon, mountain,
+list, calendar-days, user-round-plus
+SVG の図形を同梱し、アプリ側のサイズ・配色・配置で表示しています。
 
 ISC License
 
@@ -57,3 +62,31 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+
+Feather-derived portions of Lucide Icons (including moon)
+https://github.com/feathericons/feather/tree/v4.29.2
+上記 Lucide の ISC 通知を保持したうえで、Feather 由来部分の MIT 通知も補足します。
+Source license: https://github.com/feathericons/feather/blob/v4.29.2/LICENSE
+
+The MIT License (MIT)
+
+Copyright (c) 2013-2023 Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
