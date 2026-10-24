@@ -68,3 +68,5 @@
 #team .registered-row.reorder-dragging{outline:2px solid var(--mh-accent);background:var(--mh-selected)}
 
 #team #register-top-grid .individual-field #pokemon-search-results{width:100%;box-sizing:border-box}
+
+#individual-import-dialog .individual-import-actions{align-items:stretch}

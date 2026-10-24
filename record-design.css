@@ -205,7 +205,7 @@ body .tabs .tab-icon{width:12px;height:12px}
 #record #action-skills .skill-nickname{color:var(--record-text);font-weight:400}
 #record #action-skills>:is(.mew,.delibird){--skill-heading-color:var(--record-candy)}
 #record #action-skills>.shard-skill-row{--skill-heading-color:var(--shard-skill-color)}
-#record #action-skills>:is(.mew,.delibird) .activation-targets .record-row-content>strong{font-weight:400}
+#record #action-skills>:is(.mew,.delibird,.copied-mew) .activation-targets .record-row-content>strong{font-weight:400}
 #record #action-skills>.delibird .activation-targets .skill-only-target{align-content:stretch;grid-template-rows:minmax(0,1fr);padding-block:6px}
 #record #action-skills>.delibird .skill-only-target .mew-actions{grid-row:1/-1;margin:0;height:100%}
 #record #action-skills>.delibird .skill-only-target button{height:100%;display:flex;align-items:center;justify-content:center;text-align:center}
@@ -225,3 +225,8 @@ body .tabs .tab-icon{width:12px;height:12px}
 #action-other .other-cluster-row select{width:100%;min-width:0}
 #action-other .other-cluster-row :is(input,button){box-sizing:border-box;max-width:100%;margin:0}
 #sleep-root .pickup-field{max-width:100%;min-height:44px}
+
+#action-other .other-cluster-row{align-items:center}
+#action-other .other-cluster-row :is(input,select,button){box-sizing:border-box;height:44px;min-height:44px;margin-block:0}
+#action-other .other-cluster-row label{display:flex;align-items:center}
+#action-other .other-cluster-row label :is(input,select){width:100%}

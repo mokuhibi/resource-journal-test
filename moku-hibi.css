@@ -116,8 +116,9 @@ body :is(button,input,select,textarea,a):focus-visible{outline:2px solid var(--m
 #history #history-list .card.shards .history-method{color:var(--shard-method-color,var(--editorial-shard))}
 
 /* Only labels that directly describe input controls, never switches or navigation. */
-body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label:has(>:is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,.date-field)){font-size:var(--mh-text-size);font-weight:400;color:var(--mh-muted);text-align:center}
-body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label>:is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,.date-field){margin-top:6px}
+body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label.input-has-caption:has(>:is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,.text-clear-field,.date-field)){font-size:var(--mh-text-size)!important;font-weight:400!important;color:var(--mh-muted)!important;text-align:center!important}
+body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label.input-has-caption>:is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,.text-clear-field,.date-field){margin-top:6px}
+body :is(#record,#sleep,#summary,#shards,#history,#team,#settings,dialog) label:not(.input-has-caption)>:is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea,.text-clear-field,.date-field){margin-top:0}
 #record #nap-island-section{border:0;border-bottom:1px solid var(--mh-border);background:none;border-radius:0;padding:16px 0;margin:0 0 24px}
 #record #nap-island-section>h2{font-size:17px;color:#686b63;margin:0 0 12px}
 #record #nap-island-form{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:12px;align-items:end}#record #nap-island-form>label{margin:0;min-width:0}
@@ -207,3 +208,15 @@ body .text-clear-field>.text-clear-button{background:transparent!important;borde
 
 #shards .shard-record-filters button{min-height:44px;font-size:13px;border:1px solid var(--source-color);color:var(--source-color);background:var(--mh-surface)}
 #shards .shard-record-filters button[aria-pressed=true]{background:var(--source-color);color:#fff}
+
+/* 空欄の案内と入力済み数値の配置を分離。画面ごとの重複指定を増やさない。 */
+body :is(input[placeholder],textarea[placeholder]){padding-inline:var(--mh-space-sm);box-sizing:border-box}
+body :is(input[placeholder],textarea[placeholder])::placeholder{color:var(--mh-muted)!important;opacity:1;font-weight:400}
+body :is(input[placeholder],textarea[placeholder]):placeholder-shown{text-align:left!important;padding-left:var(--mh-space-sm)!important}
+body :is(input[type=text],input[type=search],input[type=email],input[type=url],input:not([type]),textarea):not(.comma-input):not([inputmode=numeric]):not([readonly]){text-align:left}
+
+body .text-clear-field>.has-text-clear{margin-block:0}
+
+body :is(input[placeholder],textarea[placeholder]):placeholder-shown:not(.has-text-clear):not(.sleep-search input){padding-right:var(--mh-space-sm)!important}
+
+textarea[placeholder]:placeholder-shown{align-content:center}

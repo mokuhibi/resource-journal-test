@@ -13,10 +13,11 @@ const SkillActions=(()=>{
  function capabilities(p,team=currentTeam()){
   if(metronome(p))return {candy:true,shards:true};
   const sources=copySources(p,team),keys=sources.map(q=>SK.id(SK.forPokemon(q)));
-  // 2026-10-24提供のゲーム画面でミュウの追加アメを確認。コピー時の未確認Lvは実数入力。
+  // ミュウの追加アメは通常発動と同じ個数データを使用する。
   return {candy:sources.some(q=>['ミュウ','デリバード'].includes(q.species))||keys.includes('metronome'),shards:keys.some(k=>['dream_shard_s','aura_sphere','super_luck','metronome'].includes(k))};
  }
  const copyLevel=(actor,source)=>Math.min(C.recordProfile(actor).skillLevel,SK.copyCap(source));
+ const copiedMewAmounts=(actor,source)=>{const level=copyLevel(actor,source);if(!Number.isInteger(level)||level<1||level>C.skillCap('ミュウ'))return null;const amounts=C.mewAmounts(level);return Array.isArray(amounts)&&amounts.length&&amounts.every(n=>Number.isSafeInteger(n)&&n>0)?amounts:null;};
  function effect(source){
   const key=SK.id(SK.forPokemon(source));
   return source.species==='ミュウ'?'mew-copy':source.species==='デリバード'?'candy':key==='metronome'?'metronome':key==='super_luck'?'lucky':SK.shardMode(source);
@@ -33,6 +34,7 @@ const SkillActions=(()=>{
   if(!mew&&!source&&!ownManual(p)){cap.candy=cap.candy&&recordVisible('skill');cap.shards=cap.shards&&SummaryExtras.shardVisible('skill');}
   if(candy&&!cap.candy||shards&&!cap.shards)throw Error('現在の表示設定・編成では記録できない獲得物です。');
   if(only&&(!(metronome(p)||source&&['candy','lucky','metronome'].includes(kind))||candy||shards)||!only&&!candy&&!shards)throw Error('獲得数を入力してください。');
+  if(kind==='mew-copy'&&copiedMewAmounts(actor,source)&&!copiedMewAmounts(actor,source).includes(candy))throw Error('適用Lvに対応するアメ個数を選んでください。');
   if(kind==='mew-copy'&&!candy)throw Error('ミュウをコピーした時の実際のアメ個数と獲得先を入力してください。');
   if(mew&&!C.mewAmounts(actor.profile.skillLevel).includes(candy))throw Error('ミュウのスキルLvに対応するアメ個数を選んでください。');
   if(source&&kind==='candy'&&(candy&&candy!==4||shards))throw Error('プレゼントの獲得数を確認してください。');
@@ -61,8 +63,13 @@ const SkillActions=(()=>{
    const sources=el('div',undefined,'skill-choice-grid copy-targets');sources.setAttribute('aria-label','コピー先');
    for(const q of copySources(p)){const b=button(q.nickname||C.speciesName(q.species),()=>{draft.sourceId=draft.sourceId===q.id?'':q.id;draft.target='';draft.candy=draft.shards='';card.replaceChildren();rewards(card,p,slot);});b.setAttribute('aria-pressed',String(draft.sourceId===q.id));b.dataset.sourceId=q.id;sources.append(b);}card.append(sources);
    const source=copySources(p).find(q=>q.id===draft.sourceId);if(!source)return;
-   const kind=effect(source),data={sourceId:source.id};
-   if(kind==='mew-copy'){manual(card,p,draft,{candy:true,shards:['metronome','dream_shard_s'].includes(SK.id(SK.forPokemon(source)))},true);return;}
+   const kind=effect(source),data={sourceId:source.id};card.classList.toggle('copied-mew',kind==='mew-copy');
+   if(kind==='mew-copy'){
+    const amounts=copiedMewAmounts(p,source),canShard=['metronome','dream_shard_s'].includes(SK.id(SK.forPokemon(source)));
+    if(!amounts){manual(card,p,draft,{candy:true,shards:canShard},true);return;}
+    if(canShard)card.append(field('ゆめのかけら',draft.shards,v=>draft.shards=v));
+    targets(card,p,(target,candy)=>save(p,{...data,target,candy,shards:canShard?draft.shards:''}),false,amounts);return;
+   }
    if(kind==='candy'){targets(card,p,(target,amount)=>save(p,{...data,target,candy:amount,only:amount===0}),true);return;}
    if(kind!=='metronome'){
     if(!visible(p))return;
@@ -86,9 +93,9 @@ const SkillActions=(()=>{
   if(cap.shards)form.append(field('ゆめのかけら',draft.shards,v=>{draft.shards=v;valid();}));
   form.append(submit);valid();form.onsubmit=e=>{e.preventDefault();if(submit.disabled)return;const candy=cap.candy&&draft.target?draft.candy:'',shards=cap.shards?draft.shards:'';try{save(p,{sourceId:draft.sourceId,target:draft.target,candy,shards,only:!numeric(candy,'アメ')&&!numeric(shards,'ゆめのかけら')});}catch(error){notice(error.message,true);}};card.append(form);
  }
- function targets(card,p,recordTarget,zero){
+ function targets(card,p,recordTarget,zero,amounts=null){
   const grid=el('div',undefined,'record-slots activation-targets');
-  currentTeam().forEach((q,i)=>{const box=el('div',undefined,'help-card candy-target-row'),content=el('span',undefined,'record-row-content');content.append(el('strong',q?candyMap[q.species]:'未設定'));box.append(el('small',recordPosition(i+1)),content);const actions=el('div',undefined,'mew-actions');for(const amount of zero?[4]:C.mewAmounts(C.recordProfile(p).skillLevel)){const b=button(amount+'個',()=>recordTarget(i+1,amount));b.disabled=!q;actions.append(b);}box.append(actions);grid.append(box);});
+  currentTeam().forEach((q,i)=>{const box=el('div',undefined,'help-card candy-target-row'),content=el('span',undefined,'record-row-content');content.append(el('strong',q?candyMap[q.species]:'未設定'));box.append(el('small',recordPosition(i+1)),content);const actions=el('div',undefined,'mew-actions');for(const amount of (amounts||(zero?[4]:C.mewAmounts(C.recordProfile(p).skillLevel)))){const b=button(amount+'個',()=>recordTarget(i+1,amount));b.disabled=!q;actions.append(b);}box.append(actions);grid.append(box);});
   if(zero){const box=el('div',undefined,'help-card candy-target-row skill-only-target'),actions=el('div',undefined,'mew-actions');actions.append(button('スキルのみ',()=>recordTarget(6,0)));box.append(actions);grid.append(box);}card.append(grid);
  }
  function mount(){
@@ -107,9 +114,10 @@ const SkillActions=(()=>{
   root.append(other.parentElement,$('cluster-panel'));
   if(!$('shard-other-kind').querySelector('[value=cluster]')){
    $('shard-other-kind').add(new Option('ゆめのかたまり','cluster'));
+   for(const option of $('cluster-size').options){const value=option.value;option.value=value;option.textContent='かたまり '+value;}
    const memo=other.querySelector('.shard-other-memo-field'),kind=$('shard-other-kind').closest('label'),choices=el('div',undefined,'other-method-row');other.before(choices);choices.append(kind,memo);
    const clusterForm=$('shard-cluster-form'),size=$('cluster-size').closest('label'),count=$('cluster-count').closest('label');
-   for(const [label,input,title] of [[size,$('cluster-size'),'ゆめのかたまり'],[count,$('cluster-count'),'個数']]){for(const n of [...label.childNodes])if(n!==input)n.remove();input.setAttribute('aria-label',title);if(input.tagName==='INPUT')input.placeholder=title;}
+   for(const [label,input,title] of [[size,$('cluster-size'),'ゆめのかたまり'],[count,$('cluster-count'),'個数']]){for(const n of [...label.childNodes])if(n.nodeType===3)n.remove();input.setAttribute('aria-label',title);if(input.tagName==='INPUT')input.placeholder=title;}
    const clusterRow=el('div',undefined,'other-cluster-row');clusterRow.append(size,count,clusterForm.querySelector('button[type=submit]'));clusterForm.prepend(clusterRow);$('cluster-amount').closest('.cluster-result-row').hidden=true;clusterForm.querySelector('.cluster-result-label').hidden=true;
    const switchOther=()=>{const cluster=$('shard-other-kind').value==='cluster';other.hidden=cluster;$('cluster-panel').hidden=!cluster||!SummaryExtras.shardVisible('cluster');};
    $('shard-other-kind').addEventListener('change',switchOther);other.addEventListener('reset',()=>setTimeout(switchOther,0));switchOther();
@@ -155,5 +163,5 @@ const SkillActions=(()=>{
   form.onsubmit=e=>{e.preventDefault();try{const current=state.records.find(x=>x.id===r.id);if(!current)throw Error('記録が見つかりません。');const a=numeric(amount.value,'アメ'),s=numeric(shards.value,'ゆめのかけら'),p=a?r.context.team[Number(target.value)-1]:null;if(a&&!p||r.method==='mew'&&!C.mewAmounts(r.recordedSkillLevel).includes(a))throw Error('アメ個数と獲得先を確認してください。');const next={...current,datetime:date.value===C.localInput(r.datetime)?r.datetime:C.fromInput(date.value).toISOString(),amount:a,shardAmount:s,resourceFlags:{candy:!!a||r.resourceFlags.candy,shards:!!s||r.resourceFlags.shards},slot:p?Number(target.value):null,pokemonId:p?.id||null,pokemon:p?storedLabel(p):'スキルのみ',species:p?.species||null,nickname:p?.nickname||'',candy:p?candyMap[p.species]:null,updatedAt:new Date().toISOString()};if(next.method==='mew'&&!s){delete next.firedSkill;next.outcomeSkillId='';}else if(next.method==='mew'&&SK.id(next.registeredMainSkill)==='dream_shard_s'&&s){next.firedSkill=SK.value('dream_shard_s');next.outcomeSkillId='dream_shard_s';}if(commit({...state,records:state.records.map(x=>x.id===r.id?next:x)},'スキル記録を保存'))dialog.close();}catch(e){error.textContent=e.message;}};
   DateUI.update();dialog.showModal();
  }
- return {render,show,build,capabilities,copySources,history,edit};
+ return {render,show,build,capabilities,copySources,copiedMewAmounts,history,edit};
 })();
