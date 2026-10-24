@@ -113,7 +113,7 @@ const SleepUI=(()=>{
    const bonus=s?(s.candyMultiplier??1):null;box.append(el('p',[(s?.field||'フィールド未記録'),s?.sleepType==='とくちょうなし'?'すべて':(s?.sleepType||'睡眠タイプ未記録'),bonus===null?'倍率未記録':bonus===1?'－（1倍）':bonus+'倍'].join(' / '),'sleep-note'));
    const candySaved=s&&s.candyRecorded!==false;box.append(qel('strong','アメ '+(candySaved?C.sum(s.entries).toLocaleString('ja-JP')+'個':'未入力')));
    if(candySaved&&s.entries.length){const entries=el('ul',undefined,'sleep-history-pokemon');for(const e of s.entries){const line=el('li');line.append(el('span',C.speciesName(e.species)),el('span','★'+e.stars),qel('span',e.amount.toLocaleString('ja-JP')+'個'));entries.append(line);}box.append(entries);}
-   if(shard.shardsRecorded!==false)box.append(qel('strong','ゆめのかけら '+shard.amount.toLocaleString('ja-JP')+'個'));
+   if(shard.shardsRecorded!==false){const total=el('div');total.append(qel('strong','ゆめのかけら '+shard.amount.toLocaleString('ja-JP')+'個'));box.append(total);}
    box.append(qel('p','ゆめのかけら '+(shard.shardsRecorded===false?'未入力':(shard.baseAmount??shard.amount).toLocaleString('ja-JP')+'個')+(shard.shardsRecorded!==false&&shard.researchExp!==undefined?' ／ EXP '+shard.researchExp.toLocaleString('ja-JP'):''),'sleep-note'));list.append(box);
   }
   if(!list.children.length)list.append(el('p','保存済みの睡眠リサーチはありません。','sleep-note'));root.append(list);
