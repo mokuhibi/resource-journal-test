@@ -6,7 +6,12 @@ const SleepUI=(()=>{
  const rowFor=()=>SleepResearch.researchRows(state,date).find(r=>r.number===number);
  function loadDraft(){const d=SleepResearch.getDraft(state,date,number,uid());return {...d,...((!rowFor()||rowFor().kind==='session'&&rowFor().record.shardsRecorded===false)&&(d.researchExp==='0'||d.researchExp===0)?{researchExp:''}:{}),candyMultiplier:number===1?(d.candyMultiplier??SleepResearch.candyMultiplier(state,date)):1};}
  const effectiveMultiplier=()=>number===1?(draft?.candyMultiplier??SleepResearch.candyMultiplier(state,date)):1;
- function applyBonus(){const eventBonus=SleepPickups.bonus(date,draft.field,number),multiplier=number===1?(eventBonus>1?eventBonus:SleepResearch.candyMultiplier(state,date)):1;draft.candyMultiplier=multiplier;draft.entries=draft.entries.map(e=>SleepResearch.changeStars(e,e.stars,multiplier));}
+ function baseMultiplier(){
+  // イベントの自動倍率を通常日の引き継ぎ元にしない。保存済みデータ自体は変更しない。
+  const clean=s=>{if(!s||state.settings.sleepCandyMultipliers?.[s.date]!==undefined||SleepPickups.bonus(s.date,s.field,s.number)!==s.candyMultiplier||s.candyMultiplier<=1)return s;const {candyMultiplier,...rest}=s;return rest;};
+  return SleepResearch.candyMultiplier({...state,sleepDrafts:Object.fromEntries(Object.entries(state.sleepDrafts||{}).map(([k,s])=>[k,clean(s)])),sleepSessions:sessions().map(clean)},date);
+ }
+ function applyBonus(){const eventBonus=SleepPickups.bonus(date,draft.field,number),multiplier=number===1?(eventBonus>1?eventBonus:baseMultiplier()):1;draft.candyMultiplier=multiplier;draft.entries=draft.entries.map(e=>SleepResearch.changeStars(e,e.stars,multiplier));}
  function keep(){if(!draft)return true;try{const drafts={...(state.sleepDrafts||{}),[draftKey()]:clone(draft)},next={...state,sleepDrafts:drafts};if(blocked)throw Error('保存を停止しています');SleepResearch.validateDrafts(drafts,candyMap);localStorage.setItem(KEY,JSON.stringify(next));state=next;return true;}catch(e){notice('入力途中の保存ができません：'+e.message,true);return false;}}
  function choose(n){if(!keep())return;number=n;researchSource=null;draft=loadDraft();loaded=true;if(!rowFor())applyBonus();render();}
  function switchMode(next){if(mode!=='history'&&next!=='history'&&!keep())return;mode=inputMode=next;render();}
@@ -149,7 +154,7 @@ const SleepUI=(()=>{
   const header=PeriodPicker.dayHeader(dateInput),actions=el('div',undefined,'sleep-sticky-actions'),total=el('div',undefined,'sleep-sticky-total'),value=el('strong');value.id='sleep-candy-total';if(mode!=='candy')total.append(el('span','ゆめのかけら'));total.append(value);if(mode==='candy'){const count=el('span',draft.entries.length+'匹','sleep-entry-count');count.id='sleep-entry-count';total.append(count);total.setAttribute('aria-label','選択中のリサーチのアメ個数と匹数');}
   const save=el('button','保存','sleep-save');save.id='sleep-save';save.type='submit';save.setAttribute('form',mode==='candy'?'sleep-form':'sleep-shard-form');save.setAttribute('aria-label',number+'回目の'+(mode==='candy'?'アメ':'ゆめのかけら')+'を保存');const rounds=tabs([[1,'1回目'],[2,'2回目']],number,choose,'睡眠の回数');rounds.classList.add('sleep-rounds');actions.append(total,rounds,save);root.append(header);
   actions.hidden=mode==='pickup';header.append(tabs([['candy','アメ'],['shards','ゆめのかけら'],['pickup','ピックアップ']],mode,switchMode,'睡眠の記録項目'));header.append(actions);
-  if(mode==='pickup'){SleepPickups.render(root,render,date,draft.field);return;}
+  if(mode==='pickup'){const field=options('フィールド',fields,draft.field,v=>{draft.field=v;applyBonus();keep();render();});field.classList.add('pickup-field');header.append(field);SleepPickups.render(root,render,date,draft.field);return;}
   const form=el('form');form.id='sleep-form';form.hidden=mode!=='candy';
   const selectedHead=el('div',undefined,'sleep-research-heading'),entries=el('div');entries.id='sleep-entries';entries.setAttribute('aria-label','リサーチしたポケモン');selectedHead.hidden=mode!=='candy';header.append(selectedHead);form.append(entries);
   function renderEntries(){

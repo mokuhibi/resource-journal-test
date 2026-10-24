@@ -14,7 +14,7 @@ const AppPanels=(()=>{
 })();
 // このリリースから番号を付与。確認できない過去のバージョンは掲載しない。
 const AppRelease=(()=>{
- const history=[{version:'0.2.1',date:'2026-10-24',changes:['ミュウのスキルコピーによる追加アメとゆめのかけらの同時記録に対応']},{version:'0.2.0',date:'2026-10-24',changes:['記録の表示設定と行動別の集計設定を整理','ハロウィン2026のピックアップと睡眠アメ倍率に対応','文字入力のクリア操作と更新のお知らせを追加']},{version:'0.1.0',date:'2026-10-19',changes:['集計画像の個別・タブ単位・2タブ一括出力に対応','登録済みポケモンの用途別見出しと登録方法の順序を整理','固定数のゆめのかけらを記録ボタンに表示','バージョン表示と更新履歴を追加']}];
+ const history=[{version:'0.2.2',date:'2026-10-24',changes:['ピックアップのフィールド選択と登録フォーム・検索を修正','コピー効果の適用Lvと並べ替え・その他の記録UIを調整']},{version:'0.2.1',date:'2026-10-24',changes:['ミュウのスキルコピーによる追加アメとゆめのかけらの同時記録に対応']},{version:'0.2.0',date:'2026-10-24',changes:['記録の表示設定と行動別の集計設定を整理','ハロウィン2026のピックアップと睡眠アメ倍率に対応','文字入力のクリア操作と更新のお知らせを追加']},{version:'0.1.0',date:'2026-10-19',changes:['集計画像の個別・タブ単位・2タブ一括出力に対応','登録済みポケモンの用途別見出しと登録方法の順序を整理','固定数のゆめのかけらを記録ボタンに表示','バージョン表示と更新履歴を追加']}];
  function init(){
   const current=history[0],b=document.getElementById('app-version'),open=()=>AppPanels.open('更新履歴',body=>{for(const entry of history){const section=el('section',undefined,'release-entry'),h=el('h3','v'+entry.version),date=el('time',entry.date);date.dateTime=entry.date;const list=el('ul');for(const change of entry.changes)list.append(el('li',change));section.append(h,date,list);body.append(section);}});
   b.textContent='v'+current.version;b.onclick=open;

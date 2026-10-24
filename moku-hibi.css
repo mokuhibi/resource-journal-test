@@ -204,3 +204,6 @@ body .text-clear-field>.text-clear-button{background:transparent!important;borde
 .app>header .release-controls #app-version{position:static;min-width:46px;padding-inline:0}
 .app>header .release-controls #release-history-button{min-height:44px;padding:4px 2px}
 .app>header h1{max-width:calc(100% - 120px)}
+
+#shards .shard-record-filters button{min-height:44px;font-size:13px;border:1px solid var(--source-color);color:var(--source-color);background:var(--mh-surface)}
+#shards .shard-record-filters button[aria-pressed=true]{background:var(--source-color);color:#fff}

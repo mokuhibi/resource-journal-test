@@ -56,3 +56,15 @@
 #individual-import-dialog .individual-import-row[open]>summary{margin-bottom:8px}
 #individual-import-dialog .individual-import-row .check{display:flex;gap:8px;align-items:center}
 #individual-import-dialog .individual-import-row .check input{width:auto;min-height:24px;margin:0}
+
+/* 選択前の登録フォームと、登録済み検索・並べ替えの操作領域。 */
+#team .individual-top-grid .individual-field[hidden]{display:none}
+#team #register-top-grid .individual-field:has(#pokemon-search){grid-column:1/-1}
+#team #register-top-grid:has(.individual-field:not([hidden]) #nickname) .individual-field:has(#pokemon-search){grid-column:auto}
+#team #roster-panel>label{display:block;min-width:0}
+#team #roster-panel .text-clear-field{display:block;width:100%}
+#team #roster-search{display:block;min-height:44px;box-sizing:border-box;width:100%;margin:0}
+#team .registered-row.reorder-enabled{touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#team .registered-row.reorder-dragging{outline:2px solid var(--mh-accent);background:var(--mh-selected)}
+
+#team #register-top-grid .individual-field #pokemon-search-results{width:100%;box-sizing:border-box}

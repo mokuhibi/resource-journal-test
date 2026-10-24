@@ -212,3 +212,16 @@ body .tabs .tab-icon{width:12px;height:12px}
 @media(max-width:599px){#record #action-skills>.shard-lucky-row .shard-lucky-actions{grid-column:1/-1;grid-row:3}}
 
 #record #action-skills>.shard-skill-row .shard-amount-option{display:flex;justify-content:flex-end}
+
+#action-other .other-method-row{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:12px;margin:12px 0}
+#action-other .other-method-row label{margin:0;min-width:0}
+#action-other .other-method-row :is(input,select){width:100%;min-width:0;box-sizing:border-box}
+#action-other #shard-other-form{display:flex;justify-content:flex-end;gap:12px;align-items:end}
+#action-other #shard-other-form>label{flex:1;min-width:0}
+#action-other #shard-other-form[hidden],#action-other #cluster-panel[hidden]{display:none}
+#action-other #cluster-panel>h3{display:none}
+#action-other .other-cluster-row{display:grid;grid-template-columns:minmax(0,1fr) 72px auto;gap:8px;align-items:end}
+#action-other .other-cluster-row label{min-width:0;margin:0}
+#action-other .other-cluster-row select{width:100%;min-width:0}
+#action-other .other-cluster-row :is(input,button){box-sizing:border-box;max-width:100%;margin:0}
+#sleep-root .pickup-field{max-width:100%;min-height:44px}

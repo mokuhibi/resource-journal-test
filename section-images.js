@@ -14,7 +14,7 @@ const SectionImages=(()=>{
  ];
  const text=e=>(e?.innerText??e?.textContent??'').trim();
  const visible=e=>!e.hidden&&getComputedStyle(e).display!=='none';
- function table(e){return {type:'table',caption:text(e.querySelector('caption')),rows:[...e.rows].map(r=>({header:r.parentElement.tagName==='THEAD',strong:r.classList.contains('mew-all')||r.classList.contains('mew-totals'),sourceColor:r.className.startsWith('shard-method-')?getComputedStyle(r.cells[0]).color:undefined,cells:[...r.cells].map(c=>({text:text(c),color:getComputedStyle(c).color}))}))};}
+ function table(e){return {type:'table',caption:text(e.querySelector('caption')),rows:[...e.rows].filter(r=>!r.hidden).map(r=>({header:r.parentElement.tagName==='THEAD',strong:r.classList.contains('mew-all')||r.classList.contains('mew-totals'),sourceColor:r.className.startsWith('shard-method-')?getComputedStyle(r.cells[0]).color:undefined,cells:[...r.cells].map(c=>({text:text(c),color:getComputedStyle(c).color}))}))};}
  function legend(e){return {type:'legend',items:[...e.children].filter(visible).map(x=>{const dot=x.querySelector('i'),fallback=dot?.className?.startsWith('shard-source-')?document.querySelector('#shard-weekly-chart .'+dot.className):null;let color=getComputedStyle(dot||x).backgroundColor;if(color==='rgba(0, 0, 0, 0)'&&fallback)color=getComputedStyle(fallback).backgroundColor;return {text:text(x),color};})};}
  function week(e,shard){
   const cols=[...e.querySelectorAll(shard?'.weekly-column':'.capsule-day')];

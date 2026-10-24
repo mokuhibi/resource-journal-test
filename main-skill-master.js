@@ -987,7 +987,9 @@ const MainSkillMaster=(()=>{
  const forPokemon=p=>p?((p.mainSkillId&&find(p.mainSkillId)?p.mainSkillId:p.mainSkill||p.mainSkillId||defaultId(p.species))):'';
  const fields=key=>key?({mainSkillId:id(key),mainSkill:value(key)}):{};
  const mewEntries=()=>entries.filter(s=>s.mew);
+ // 現行アプリの対応スキル上限。発動側のLvと参照先の現在Lvを混同しない。
+ const copyCap=p=>p?.species==='ミュウ'?8:p?.species==='デリバード'?7:({skill_20:7,super_luck:7,dream_shard_s:8,aura_sphere:8,metronome:8})[id(forPokemon(p))]||null;
  const shardMode=p=>{const key=id(forPokemon(p));if(key==='super_luck')return 'lucky';if(p?.species==='ミュウ'&&key==='metronome')return 'fixed';if(!['dream_shard_s','aura_sphere'].includes(key))return null;return species[p.species]?.shardMode==='random'?'random':'fixed';};
- return {entries,species,find,id,name,value,defaultId,forPokemon,fields,mewEntries,shardMode};
+ return {entries,species,find,id,name,value,defaultId,forPokemon,fields,mewEntries,shardMode,copyCap};
 })();
 if(typeof module!=='undefined')module.exports=MainSkillMaster;

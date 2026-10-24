@@ -15,7 +15,7 @@ const SettingsUI=(()=>{
   // Insert in reverse to keep the requested order after research rank.
   const aggregate=card('集計する記録');row(aggregate,'アメ拾い','help','aggregateActions',oldAggregate.help);row(aggregate,'メインスキル','skills','aggregateActions');for(const [key,name] of [['mew','ミュウ'],['delibird','デリバード'],['shards','スキル：ゆめのかけらゲット系'],['copy','スキル：スキルコピー'],['metronome','スキル：ゆびをふる']])row(aggregate,name,key,'aggregateActions',oldAggregate[key],1);for(const [key,name] of [['research','睡眠リサーチ'],['nap','おひるね島'],['other','その他']])row(aggregate,name,key,'aggregateActions',oldAggregate[key]);
   const display=card('記録タブ：表示する項目');row(display,'アメ拾い','help','displayActions',[['showCandyHelp']]);row(display,'メインスキル','skills','displayActions');for(const [key,name,legacy] of [['mew','ミュウ','mew'],['delibird','デリバード','delibird'],['shards','スキル：ゆめのかけらゲット系','showShardSkill'],['copy','スキル：スキルコピー',''],['metronome','スキル：ゆびをふる','']])row(display,name,key,'displayActions',legacy?[[legacy]]:[['showOtherCandy'],['showShardSkill']],1);
-  const tabs=card('記録タブ：表示するサブタブ');tabs.append($('show-sleep-tab').closest('label'));const mode=$('sleep-mode').closest('label');mode.classList.add('setting-child');tabs.append(mode,$('sleep-mode-description'),$('show-nap-island').closest('label'));
+  display.append($('show-sleep-tab').closest('label'));const mode=$('sleep-mode').closest('label');mode.classList.add('setting-child');display.append(mode,$('sleep-mode-description'),$('show-nap-island').closest('label'));row(display,'その他','other','displayActions');
   sync();
  }
  function sync(){

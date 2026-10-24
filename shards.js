@@ -87,6 +87,7 @@ const ShardUI=(()=>{
    }
   }
  }
+ const recordSources=new Set(['skill','research','cluster','other']);
  function renderSummary(){
   PeriodPicker.sync();
   const day=$('shard-date').value||C.gameDay(new Date()),period=RangePicker.get('shard-period'),rs=summaryRecords().filter(r=>C.inRange(r,period));
@@ -94,6 +95,10 @@ const ShardUI=(()=>{
   const title=SummaryExtras.periodCaption(period),root=$('shard-total');root.replaceChildren(el('small',title),qel('div',C.sum(rs)+'個','total'));
   const body=totalBreakdown(root,'ゆめのかけら');
   appendBreakdown(body,rs);
+  const controls=el('div',undefined,'candy-source-switches shard-record-filters');controls.setAttribute('aria-label','ゆめのかけらの記録の表示項目');
+  for(const [key,name] of SummaryExtras.shardSources){const b=button(name,()=>{if(recordSources.has(key))recordSources.delete(key);else recordSources.add(key);renderSummary();});b.dataset.source=key;b.setAttribute('aria-pressed',String(recordSources.has(key)));b.style.setProperty('--source-color','var(--shard-'+(key==='cluster'?'other':key)+'-color)');controls.append(b);}
+  body.parentElement.before(controls);
+  let source='';for(const row of body.children){const cls=[...row.classList].find(x=>x.startsWith('shard-method-'));if(cls)source=cls.replace('shard-method-','');row.hidden=!recordSources.has(source);}
   const all=summaryRecords();for(const scope of ['week','month']){const chart=$(scope==='week'?'shard-weekly-chart':'shard-calendar');let controls=$('shard-'+scope+'-filters');if(!controls){controls=el('div');controls.id='shard-'+scope+'-filters';(scope==='month'?$('shard-month'):chart).before(controls);}SummaryExtras.filterControls(controls,scope,all.filter(r=>C.inRange(r,C.range(scope,day))),'shard');}
   WeeklyChart.render($('shard-weekly-chart'),all,day);
   SummaryExtras.monthly('shard',summaryRecords(),day);
@@ -112,13 +117,13 @@ const ShardUI=(()=>{
  function init(){
   $('research-rank-form').onsubmit=e=>{e.preventDefault();try{const raw=$('research-rank-setting').value.trim(),rank=raw===''?null:Number(raw);if(rank!==null&&!DreamClusters.validRank(rank))throw Error('リサーチランクは1〜70で入力してください。');commit({...state,settings:{...state.settings,researchRank:rank}},'リサーチランクを保存しました。');}catch(err){notice(err.message,true);}};
   for(const id of ['cluster-size','cluster-count'])$(id).oninput=updateCluster;
-  $('shard-cluster-form').onsubmit=e=>{e.preventDefault();try{const clusterSize=$('cluster-size').value,usedCount=number('cluster-count',1,100000),researchRank=sharedRank(),amount=DreamClusters.amount(clusterSize,usedCount,researchRank);save({method:'cluster',clusterSize,usedCount,researchRank,amount});}catch(err){notice(err.message,true);}};
+  $('shard-cluster-form').onsubmit=e=>{e.preventDefault();try{const clusterSize=$('cluster-size').value,usedCount=number('cluster-count',1,100000),researchRank=sharedRank(),amount=DreamClusters.amount(clusterSize,usedCount,researchRank);save({method:'cluster',clusterSize,usedCount,researchRank,amount,memo:$('shard-other-memo').value.trim()});}catch(err){notice(err.message,true);}};
   $('shard-research-date').value=C.addDays(C.gameDay(new Date()),-1);$('shard-research-date').oninput=()=>{researchDateTouched=true;loadResearch(true);};
   $('shard-date').value=C.gameDay(new Date());for(const id of ['shard-period','shard-date'])$(id).onchange=renderSummary;
   $('shard-today').onclick=()=>{$('shard-date').value=C.gameDay(new Date());renderSummary();};
   $('shard-research-form').onsubmit=e=>{e.preventDefault();try{const targetDate=$('shard-research-date').value;if(!C.dateOnly(targetDate))throw Error('対象日を入力してください。');if(!researchEditingId&&!sharedRank())throw Error('設定でリサーチランクを設定してください。');const r={method:'research',targetDate,baseAmount:number('shard-research-base'),researchExp:number('shard-research-exp'),researchLevel:number('shard-research-level',1,70)};r.researchRank=r.researchLevel;r.amount=C.shardTotal(r);const existing=records().find(x=>x.id===researchEditingId);const ok=existing?commit({...state,shardRecords:records().map(x=>x.id===existing.id?{...x,...r,updatedAt:new Date().toISOString()}:x)},'睡眠リサーチを訂正しました。'):save(r);if(ok)loadResearch(true);}catch(err){notice(err.message,true);}};
   if(typeof SleepShards!=='undefined')SleepShards.init();
-  $('shard-other-form').onsubmit=e=>{e.preventDefault();try{if(save({method:'other',otherKind:$('shard-other-kind').value,amount:number('shard-other-amount'),memo:$('shard-other-memo').value.trim()}))$('shard-other-form').reset();}catch(err){notice(err.message,true);}};
+  $('shard-other-form').onsubmit=e=>{e.preventDefault();try{if($('shard-other-kind').value==='cluster')throw Error('ゆめのかたまりの記録欄を使用してください。');if(save({method:'other',otherKind:$('shard-other-kind').value,amount:number('shard-other-amount'),memo:$('shard-other-memo').value.trim()})){$('shard-other-form').reset();$('shard-other-memo').value='';}}catch(err){notice(err.message,true);}};
  }
  return {saveRecord:save,recordName,methodName,summaryRecords,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
 })();

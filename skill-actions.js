@@ -8,7 +8,7 @@ const SkillActions=(()=>{
  const copies=p=>['メタモン','バリヤード','マネネ'].includes(p.species);
  const metronome=p=>p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome';
  function copySources(p,team=currentTeam()){
-  return team.filter(q=>q&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'&&SK.find(SK.forPokemon(q))?.mew||q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
+  return team.filter(q=>q&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'||q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
  }
  function capabilities(p,team=currentTeam()){
   if(metronome(p))return {candy:true,shards:true};
@@ -16,6 +16,7 @@ const SkillActions=(()=>{
   // 2026-10-24提供のゲーム画面でミュウの追加アメを確認。コピー時の未確認Lvは実数入力。
   return {candy:sources.some(q=>['ミュウ','デリバード'].includes(q.species))||keys.includes('metronome'),shards:keys.some(k=>['dream_shard_s','aura_sphere','super_luck','metronome'].includes(k))};
  }
+ const copyLevel=(actor,source)=>Math.min(C.recordProfile(actor).skillLevel,SK.copyCap(source));
  function effect(source){
   const key=SK.id(SK.forPokemon(source));
   return source.species==='ミュウ'?'mew-copy':source.species==='デリバード'?'candy':key==='metronome'?'metronome':key==='super_luck'?'lucky':SK.shardMode(source);
@@ -35,11 +36,11 @@ const SkillActions=(()=>{
   if(kind==='mew-copy'&&!candy)throw Error('ミュウをコピーした時の実際のアメ個数と獲得先を入力してください。');
   if(mew&&!C.mewAmounts(actor.profile.skillLevel).includes(candy))throw Error('ミュウのスキルLvに対応するアメ個数を選んでください。');
   if(source&&kind==='candy'&&(candy&&candy!==4||shards))throw Error('プレゼントの獲得数を確認してください。');
-  if(source&&['fixed','lucky'].includes(kind)&&!C.shardAmounts(kind,Math.min(actor.profile.skillLevel,kind==='lucky'?7:8)).includes(shards))throw Error('発動個体のスキルLvに対応する獲得数を選んでください。');
+  if(source&&['fixed','lucky'].includes(kind)&&!C.shardAmounts(kind,copyLevel(actor,source)).includes(shards))throw Error('発動個体のスキルLvに対応する獲得数を選んでください。');
   const event=mew&&typeof state!=='undefined'?C.eventFor(state.events,C.gameDay(date),'mew'):{name:'通常',multiplier:1,boost:0};
   const target=candy?team[Number(data.target)-1]:null;if(candy&&!target)throw Error('アメの獲得先を選んでください。');
-  const outcome=source&&SK.id(SK.forPokemon(source))!=='metronome'?SK.id(SK.forPokemon(source)):String(data.outcome||'');if(outcome&&!SK.find(outcome))throw Error('発動結果を確認してください。');
-  const r={id,activationId:id,activationVersion:1,datetime:date.toISOString(),method:mew?'mew':'skill',amount:candy,shardAmount:shards,resourceFlags:{candy:Boolean(candy||only&&cap.candy),shards:Boolean(shards||only&&cap.shards)},outcomeSkillId:outcome,registeredMainSkill:SK.value(SK.forPokemon(p)),mainSkillId:SK.id(SK.forPokemon(p)),recordedSkillLevel:actor.profile.skillLevel,slot:target?Number(data.target):null,pokemonId:target?.id||null,pokemon:target?storedLabel(target):'スキルのみ',species:target?.species||null,nickname:target?.nickname||'',candy:target?candyMap[target.species]:null,context:{rulesVersion:3,team:clone(team),actor,actorId:p.id,actorSlot:slot,event,effectiveLevel:Math.min(C.skillCap(p.species),actor.profile.skillLevel+event.boost)}};
+  const outcome=source&&SK.find(SK.forPokemon(source))&&SK.id(SK.forPokemon(source))!=='metronome'?SK.id(SK.forPokemon(source)):String(data.outcome||'');if(outcome&&!SK.find(outcome))throw Error('発動結果を確認してください。');
+  const r={id,activationId:id,activationVersion:1,datetime:date.toISOString(),method:mew?'mew':'skill',amount:candy,shardAmount:shards,resourceFlags:{candy:Boolean(candy||only&&cap.candy),shards:Boolean(shards||only&&cap.shards)},outcomeSkillId:outcome,registeredMainSkill:SK.value(SK.forPokemon(p)),mainSkillId:SK.id(SK.forPokemon(p)),recordedSkillLevel:actor.profile.skillLevel,slot:target?Number(data.target):null,pokemonId:target?.id||null,pokemon:target?storedLabel(target):'スキルのみ',species:target?.species||null,nickname:target?.nickname||'',candy:target?candyMap[target.species]:null,context:{rulesVersion:3,team:clone(team),actor,actorId:p.id,actorSlot:slot,event,effectiveLevel:source?copyLevel(actor,source):Math.min(C.skillCap(p.species),actor.profile.skillLevel+event.boost)}};
   if(source){r.sourcePokemonId=source.id;r.sourcePokemon=clone(source);r.sourceSkillId=SK.id(SK.forPokemon(source));}
   if(mew&&shards&&SK.id(SK.forPokemon(p))==='dream_shard_s'){r.firedSkill=SK.value('dream_shard_s');r.outcomeSkillId='dream_shard_s';}
   return r;
@@ -67,7 +68,7 @@ const SkillActions=(()=>{
     if(!visible(p))return;
     const form=el('form',undefined,'shard-skill-form copied-shard-form');
     if(kind==='random'){form.append(field('ゆめのかけら',draft.shards,v=>draft.shards=v));const submit=el('button','記録');submit.type='submit';form.append(submit);form.onsubmit=e=>{e.preventDefault();save(p,{...data,shards:draft.shards});};}
-    else {form.classList.add('shard-lucky-actions');for(const amount of C.shardAmounts(kind,Math.min(C.recordProfile(p).skillLevel,kind==='lucky'?7:8)))form.append(button(amount?amount.toLocaleString()+'個':'スキルのみ',()=>save(p,{...data,shards:amount,only:amount===0})));}
+    else {form.classList.add('shard-lucky-actions');for(const amount of C.shardAmounts(kind,copyLevel(p,source)))form.append(button(amount?amount.toLocaleString()+'個':'スキルのみ',()=>save(p,{...data,shards:amount,only:amount===0})));}
     card.append(form);return;
    }
   }
@@ -104,11 +105,21 @@ const SkillActions=(()=>{
   const root=$('action-other');root.classList.add('shards');
   if(!root.querySelector('summary')){const heading=el('summary','その他','record-subheading');root.prepend(heading);}
   root.append(other.parentElement,$('cluster-panel'));
+  if(!$('shard-other-kind').querySelector('[value=cluster]')){
+   $('shard-other-kind').add(new Option('ゆめのかたまり','cluster'));
+   const memo=other.querySelector('.shard-other-memo-field'),kind=$('shard-other-kind').closest('label'),choices=el('div',undefined,'other-method-row');other.before(choices);choices.append(kind,memo);
+   const clusterForm=$('shard-cluster-form'),size=$('cluster-size').closest('label'),count=$('cluster-count').closest('label');
+   for(const [label,input,title] of [[size,$('cluster-size'),'ゆめのかたまり'],[count,$('cluster-count'),'個数']]){for(const n of [...label.childNodes])if(n!==input)n.remove();input.setAttribute('aria-label',title);if(input.tagName==='INPUT')input.placeholder=title;}
+   const clusterRow=el('div',undefined,'other-cluster-row');clusterRow.append(size,count,clusterForm.querySelector('button[type=submit]'));clusterForm.prepend(clusterRow);$('cluster-amount').closest('.cluster-result-row').hidden=true;clusterForm.querySelector('.cluster-result-label').hidden=true;
+   const switchOther=()=>{const cluster=$('shard-other-kind').value==='cluster';other.hidden=cluster;$('cluster-panel').hidden=!cluster||!SummaryExtras.shardVisible('cluster');};
+   $('shard-other-kind').addEventListener('change',switchOther);other.addEventListener('reset',()=>setTimeout(switchOther,0));switchOther();
+  }
+  const clusterSelected=$('shard-other-kind').value==='cluster';other.hidden=clusterSelected;$('cluster-panel').hidden=!clusterSelected||!SummaryExtras.shardVisible('cluster');
  }
  function show(){
   if(!$('record-main-view'))return;
   if($('help-section'))$('help-section').hidden=!recordVisible('help');
-  for(const k of ['skills','other'])if($('action-'+k))$('action-'+k).hidden=false;
+  for(const k of ['skills','other'])if($('action-'+k))$('action-'+k).hidden=k==='other'&&!C.actionAllowed(state.settings,'other','displayActions');
   for(const id of ['record-candy-heading','record-shard-heading','shard-records','research-panel'])if($(id))$(id).hidden=true;
   for(const method of ['mew','delibird','other'])if($(method+'-section'))$(method+'-section').hidden=true;
  }

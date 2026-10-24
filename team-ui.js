@@ -1,5 +1,6 @@
 // 編成内の表示状態だけを管理。保存する個体・編成・履歴の形式は変えません。
 const TeamUI=(()=>{
+ let drag=null,suppressClick=false;
  let view='team',editing=false;let columns=3;try{columns=localStorage.getItem('resource-journal-roster-columns')==='4'?4:3;}catch{}
  // 表示専用。個体IDや保存された名前・スキルは変更しない。
  function name(p){
@@ -33,10 +34,25 @@ const TeamUI=(()=>{
     const i=normal.findIndex(x=>x.id===p.id),up=button('↑',()=>movePokemon(p.id,-1)),down=button('↓',()=>movePokemon(p.id,1));
     up.setAttribute('aria-label',label(p)+'を上へ');down.setAttribute('aria-label',label(p)+'を下へ');up.disabled=i===0;down.disabled=i===normal.length-1;actions.append(up,down);
    }
-   line.setAttribute('role','button');line.tabIndex=0;line.setAttribute('aria-label',label(p)+'を編集');line.onclick=e=>{if(!e.target.closest('button'))openIndividualEditor(p);};line.onkeydown=e=>{if(e.target===line&&['Enter',' '].includes(e.key)){e.preventDefault();openIndividualEditor(p);}};line.append(info,actions);group.append(line);
+   line.setAttribute('role','button');line.tabIndex=0;line.setAttribute('aria-label',label(p)+'を編集');line.onclick=e=>{if(sorting||suppressClick){suppressClick=false;return;}if(!e.target.closest('button'))openIndividualEditor(p);};line.onkeydown=e=>{if(e.target===line&&['Enter',' '].includes(e.key)){e.preventDefault();openIndividualEditor(p);}};line.dataset.pokemonId=p.id;line.append(info,actions);group.append(line);bindReorder(line,p);
   }
   }
   if(!visible.length)root.append(el('p',q?'一致する登録ポケモンがありません。':'表示できる登録ポケモンがありません。'));
+ }
+ function reorder(id,beforeId){
+  const xs=[...state.pokemon],from=xs.findIndex(p=>p.id===id),to=xs.findIndex(p=>p.id===beforeId);if(from<0||to<0||from===to)return false;
+  const [item]=xs.splice(from,1);xs.splice(to,0,item);
+  // 固定の用途別グループは維持し、その中の表示順だけ保存する。
+  return commit({...state,pokemon:xs.map((p,i)=>({...p,registrationOrder:i}))},null);
+ }
+ function bindReorder(line,p){
+  if(!sorting){suppressClick=false;return;}line.classList.add('reorder-enabled');
+  let timer=null,start=null,active=false;
+  const clear=()=>{clearTimeout(timer);timer=null;line.classList.remove('reorder-dragging');drag=null;};
+  line.onpointerdown=e=>{if(e.button!==0||e.target.closest('button'))return;start={x:e.clientX,y:e.clientY};timer=setTimeout(()=>{active=true;suppressClick=true;drag={id:p.id,target:p.id};line.classList.add('reorder-dragging');line.setPointerCapture(e.pointerId);},400);};
+  line.onpointermove=e=>{if(!start)return;if(!active){if(Math.hypot(e.clientX-start.x,e.clientY-start.y)>8)clear();return;}e.preventDefault();const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.registered-row');if(target&&target.parentElement===line.parentElement)drag.target=target.dataset.pokemonId;};
+  line.onpointerup=()=>{const move=active&&drag?{...drag}:null;active=false;start=null;clear();if(move&&move.id!==move.target)reorder(move.id,move.target);};
+  line.onpointercancel=()=>{active=false;start=null;clear();};line.oncontextmenu=e=>e.preventDefault();
  }
  function init(){
   const tabs=[...document.querySelectorAll('[data-team-view]')];
@@ -50,5 +66,5 @@ const TeamUI=(()=>{
   };
   sync();registration();
  }
- return {init,show,edit,sync,registration,renderRoster,name};
+ return {init,show,edit,sync,registration,renderRoster,name,reorder};
 })();
