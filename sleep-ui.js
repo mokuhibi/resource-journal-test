@@ -49,7 +49,7 @@ const SleepUI=(()=>{
    const host=$(hostId),content=el('div');content.id=hostId+'-main-view';
    for(const child of [...host.children])if(!child.classList.contains('editorial-page-title'))content.append(child);
    const items=hostId==='record'?[['main','記録'],['sleep','睡眠リサーチ'],['nap','おひるね島']]:[['main',title],['sleep','睡眠リサーチ']];
-   const choices=tabs(items,'main',key=>{if(hostId==='record'&&key==='nap'){if(recordView&&mode!=='history'&&!keep())return;napView=true;recordView=false;showTab('record');}else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.recordTab(choices.children[i],key));host.append(choices,content);
+   const choices=tabs(items,'main',key=>{if(hostId==='record'&&key==='nap'){if(recordView&&mode!=='history'&&!keep())return;napView=true;recordView=false;showTab('record');}else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.recordTab(choices.children[i],key));if(hostId==='history'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.add(choices.children[i],key==='main'?'history':'moon'));host.append(choices,content);
    if(hostId==='record'){const pane=el('div');pane.id='record-nap-view';pane.hidden=true;const section=$('nap-island-section');if(section)pane.append(section);host.append(pane);}
   }
   $('sleep').querySelector('.editorial-page-title').hidden=true;navigationReady=true;syncNavigation();
@@ -85,7 +85,7 @@ const SleepUI=(()=>{
   if(researchSource!==null&&key!==researchSource){const source=cached||saved;if(source)draft={...draft,id:cached?.id||(row?.kind==='session'?saved.id:row?.sleepSession?.id)||draft.id,baseAmount:source.baseAmount,researchExp:source.researchExp,researchRank:cached?cached.researchRank:rank};}
   researchSource=key;
  }
- function tabs(items,current,change,label){const root=el('div',undefined,'period-quick-buttons sleep-switch');root.setAttribute('role','tablist');root.setAttribute('aria-label',label);for(const [key,title] of items){const b=button(title,()=>change(key));b.setAttribute('role','tab');b.setAttribute('aria-selected',String(current===key));b.setAttribute('aria-pressed',String(current===key));root.append(b);}return root;}
+ function tabs(items,current,change,label){const root=el('div',undefined,'period-quick-buttons sleep-switch');root.setAttribute('role','tablist');root.setAttribute('aria-label',label);for(const [key,title] of items){const b=button(title,()=>change(key));b.setAttribute('role','tab');b.setAttribute('aria-selected',String(current===key));b.setAttribute('aria-pressed',String(current===key));if(typeof TabIcons!=='undefined'&&!['day','week','month','all'].includes(key))TabIcons.add(b,({candy:'candy',shards:'diamond'})[key]);root.append(b);}return root;}
  function home(host){if(recordView&&mode!=='history'&&!keep())return false;if(host==='record'){mode=inputMode='candy';}selectView(host,false);return true;}
  function reset(){date='';draft=null;loaded=false;number=1;researchSource=null;mode=inputMode='candy';recordView=napView=historyView=false;query='';showOtherTypes=false;historyKind='all';historyDay='';pickupOnly=false;calendarMonth='';calendarOpen=true;}
  function renderHistory(root){
@@ -154,8 +154,7 @@ const SleepUI=(()=>{
   root.replaceChildren();const dateInput=el('input');Object.assign(dateInput,{type:'date',value:date});dateInput.setAttribute('aria-label','リサーチ日');dateInput.onchange=()=>{if(!SleepResearch.validDate(dateInput.value))return;if(!keep())return;date=dateInput.value;loaded=false;draft=null;researchSource=null;render();};
   const header=PeriodPicker.dayHeader(dateInput),actions=el('div',undefined,'sleep-sticky-actions'),total=el('div',undefined,'sleep-sticky-total'),value=el('strong');value.id='sleep-candy-total';if(mode!=='candy')total.append(el('span','ゆめのかけら'));total.append(value);if(mode==='candy'){const count=el('span',draft.entries.length+'匹','sleep-entry-count');count.id='sleep-entry-count';total.append(count);total.setAttribute('aria-label','選択中のリサーチのアメ個数と匹数');}
   const save=el('button','保存','sleep-save');save.id='sleep-save';save.type='submit';save.setAttribute('form',mode==='candy'?'sleep-form':'sleep-shard-form');save.setAttribute('aria-label',number+'回目の'+(mode==='candy'?'アメ':'ゆめのかけら')+'を保存');const rounds=tabs([[1,'1回目'],[2,'2回目']],number,choose,'睡眠の回数');rounds.classList.add('sleep-rounds');actions.append(total,rounds,save);root.append(header);
-  actions.hidden=mode==='pickup';header.append(tabs([['candy','アメ'],['shards','ゆめのかけら'],['pickup','ピックアップ']],mode,switchMode,'睡眠の記録項目'));header.append(actions);
-  if(mode==='pickup'){const field=options('フィールド',fields,draft.field,v=>{draft.field=v;applyBonus();keep();render();});field.classList.add('pickup-field');header.append(field);SleepPickups.render(root,render,date,draft.field);return;}
+  header.append(tabs([['candy','アメ'],['shards','ゆめのかけら']],mode,switchMode,'睡眠の記録項目'));header.append(actions);
   const form=el('form');form.id='sleep-form';form.hidden=mode!=='candy';
   const selectedHead=el('div',undefined,'sleep-research-heading'),entries=el('div');entries.id='sleep-entries';entries.setAttribute('aria-label','リサーチしたポケモン');selectedHead.hidden=mode!=='candy';header.append(selectedHead);form.append(entries);
   function renderEntries(){

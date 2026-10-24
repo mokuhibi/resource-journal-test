@@ -37,15 +37,22 @@ const CandyCore = (() => {
  function eventFor(events,day,method){const e=events.find(e=>e.start<=day&&day<=e.end&&(e.target==='both'||e.target===method));return e?{id:e.id,name:e.name,multiplier:e.multiplier,boost:e.boost}:{id:null,name:'通常',multiplier:1,boost:0};}
  // リサーチEXPの加算条件は記録時のレベルで決まります。
  const shardTotal=r=>r.method==='research'?r.baseAmount+(r.researchLevel===70?r.researchExp:0):r.amount;
+ // New automatic rewards carry their calculation snapshot; old fixed rewards remain unchanged.
+ function savedShardAmounts(r,type){
+  const values=shardAmounts(type,r.skillLevel),bonus=r.shardBonus;if(!bonus?.bonuses?.length)return values;
+  if(!Array.isArray(bonus.bonuses)||!dateOnly(bonus.date)||typeof bonus.field!=='string'||!values.includes(bonus.baseAmount)||!Number.isFinite(bonus.multiplier)||bonus.multiplier<=1||bonus.multiplier>10)throw Error('記録時かけら補正');
+  for(const b of bonus.bonuses)if(!b||!dateOnly(b.start)||!dateOnly(b.end)||bonus.date<b.start||bonus.date>b.end||!Array.isArray(b.fields)||!(b.fields.includes('*')||b.fields.includes(bonus.field))||b.scope!=='skill'||!Number.isFinite(b.multiplier)||b.multiplier<=1||b.multiplier>10||!['ceil','floor','round'].includes(b.rounding)||b.pokemon!==undefined&&(!Array.isArray(b.pokemon)||!b.pokemon.includes(r.species)))throw Error('記録時かけら補正の条件');
+  if(bonus.multiplier!==Math.max(...bonus.bonuses.map(b=>b.multiplier)))throw Error('記録時かけら倍率');const applied=bonus.bonuses.filter(b=>b.multiplier===bonus.multiplier),rounding=applied[0].rounding;if(applied.some(b=>b.rounding!==rounding))throw Error('記録時かけら端数処理');const amount=Math[rounding](bonus.baseAmount*bonus.multiplier);if(bonus.amount!==amount)throw Error('記録時かけら計算');return [amount];
+ }
  function validateShards(records){
   if(!Array.isArray(records))throw Error('ゆめのかけら履歴');const ids=new Set();
   const count=n=>Number.isSafeInteger(n)&&n>=0&&n<=1000000000;
   for(const r of records){
    if(!r||typeof r.id!=='string'||ids.has(r.id)||typeof r.datetime!=='string'||!Number.isFinite(Date.parse(r.datetime))||!['skill','lucky','research','cluster','other'].includes(r.method)||!Number.isSafeInteger(r.amount)||r.amount<0)throw Error('ゆめのかけら履歴');ids.add(r.id);
    if(['skill','lucky'].includes(r.method)&&(!count(r.amount)||(r.method==='skill'&&r.amount===0)||typeof r.pokemonId!=='string'||typeof r.pokemon!=='string'||typeof r.species!=='string'||!Number.isInteger(r.slot)||r.slot<1||r.slot>5))throw Error('ゆめのかけらスキル履歴');
-   if(r.method==='lucky'&&((shardType(r.species)!=='lucky'&&SK.id(r.skillId||r.skillName)!=='super_luck')||(!r.amountCorrected&&!shardAmounts('lucky',r.skillLevel).includes(r.amount))))throw Error('きょううん履歴');
+   if(r.method==='lucky'&&((shardType(r.species)!=='lucky'&&SK.id(r.skillId||r.skillName)!=='super_luck')||(!r.amountCorrected&&!savedShardAmounts(r,'lucky').includes(r.amount))))throw Error('きょううん履歴');
    if(r.skillLevel!==undefined&&(!Number.isInteger(r.skillLevel)||r.skillLevel<1||r.skillLevel>8))throw Error('記録時スキルレベル');
-   if(r.skillType==='fixed'&&((shardType(r.species)!=='fixed'&&SK.id(r.skillId||r.skillName)!=='dream_shard_s')||(!r.amountCorrected&&!shardAmounts('fixed',r.skillLevel).includes(r.amount))))throw Error('固定値スキル履歴');
+   if(r.skillType==='fixed'&&((shardType(r.species)!=='fixed'&&SK.id(r.skillId||r.skillName)!=='dream_shard_s')||(!r.amountCorrected&&!savedShardAmounts(r,'fixed').includes(r.amount))))throw Error('固定値スキル履歴');
    if(r.targetDate!==undefined&&(!dateOnly(r.targetDate)||r.targetDate!==gameDay(r.datetime)))throw Error('リサーチ対象日');
    if(r.method==='research'&&(!count(r.baseAmount)||!count(r.researchExp)||!Number.isInteger(r.researchLevel)||r.researchLevel<1||r.researchLevel>70||r.amount!==shardTotal(r)))throw Error('リサーチ履歴');
    if(r.researchRank!==undefined&&(!Number.isInteger(r.researchRank)||r.researchRank<1||r.researchRank>70))throw Error('記録時リサーチランク');

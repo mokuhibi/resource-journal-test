@@ -1,7 +1,7 @@
 // 編成内の表示状態だけを管理。保存する個体・編成・履歴の形式は変えません。
 const TeamUI=(()=>{
  let drag=null,suppressClick=false;
- let view='team',editing=false;let columns=3;try{columns=localStorage.getItem('resource-journal-roster-columns')==='4'?4:3;}catch{}
+ let view='team',editing=false,editOrigin='roster';let columns=3;try{columns=localStorage.getItem('resource-journal-roster-columns')==='4'?4:3;}catch{}
  // 表示専用。個体IDや保存された名前・スキルは変更しない。
  function name(p){
   const root=el('span',undefined,'team-individual-name');
@@ -17,7 +17,8 @@ const TeamUI=(()=>{
   for(const b of document.querySelectorAll('[data-team-view]')){b.setAttribute('aria-selected',String(b.dataset.teamView===view));b.tabIndex=b.dataset.teamView===view?0:-1;}
  }
  function show(name){view=name;editing=false;sync();window.scrollTo({top:0});}
- function edit(){view='roster';editing=true;sync();window.scrollTo({top:0});$('profile-back').focus({preventScroll:true});}
+ function edit(origin='roster'){editOrigin=['team','roster'].includes(origin)?origin:'roster';view=editOrigin;editing=true;sync();window.scrollTo({top:0});$('profile-back').focus({preventScroll:true});}
+ function finishEdit(){show(editOrigin);}
  function registration(){$('registration-fields').hidden=!selected;}
  function renderRoster(){
   const root=$('registered-pokemon-list'),q=normalize($('roster-search').value);root.replaceChildren();root.style.setProperty('--roster-columns',columns);
@@ -56,15 +57,15 @@ const TeamUI=(()=>{
  }
  function init(){
   const tabs=[...document.querySelectorAll('[data-team-view]')];
-  tabs.forEach((b,i)=>{b.onclick=()=>show(b.dataset.teamView);b.onkeydown=e=>{let next;if(e.key==='ArrowRight')next=(i+1)%tabs.length;else if(e.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=tabs.length-1;else return;e.preventDefault();show(tabs[next].dataset.teamView);tabs[next].focus({preventScroll:true});};});
+  tabs.forEach((b,i)=>{if(typeof TabIcons!=='undefined')TabIcons.add(b,({team:'users',roster:'list',register:'user-round-plus'})[b.dataset.teamView]);b.onclick=()=>show(b.dataset.teamView);b.onkeydown=e=>{let next;if(e.key==='ArrowRight')next=(i+1)%tabs.length;else if(e.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=tabs.length-1;else return;e.preventDefault();show(tabs[next].dataset.teamView);tabs[next].focus({preventScroll:true});};});
   $('roster-search').oninput=renderRoster;
   const select=el('select');select.id='roster-columns';select.setAttribute('aria-label','登録一覧の列数');select.add(new Option('3列','3'));select.add(new Option('4列','4'));select.value=String(columns);$('roster-other-toggle').after(select);select.onchange=()=>{columns=Number(select.value);try{localStorage.setItem('resource-journal-roster-columns',String(columns));}catch{}renderRoster();};
-  $('profile-back').onclick=()=>show('roster');
+  const toolbar=el('div',undefined,'profile-editor-actions'),cancel=$('profile-back'),save=$('profile-form').querySelector('button[type=submit]');cancel.textContent='キャンセル';save.textContent='保存';save.classList.add('primary');toolbar.append(cancel,$('profile-remove'),save);$('profile-form').prepend(toolbar);cancel.onclick=finishEdit;
   $('profile-remove').onclick=()=>{
    const p=state.pokemon.find(p=>p.id===$('profile-select').value);if(!p)return;
-   if(confirm(label(p)+'を登録解除しますか？')&&commit({...state,pokemon:state.pokemon.filter(x=>x.id!==p.id),team:state.team.map(id=>id===p.id?null:id)},'登録解除しました。'))show('roster');
+   if(confirm(label(p)+'を登録解除しますか？')&&commit({...state,pokemon:state.pokemon.filter(x=>x.id!==p.id),team:state.team.map(id=>id===p.id?null:id)},'登録解除しました。'))finishEdit();
   };
   sync();registration();
  }
- return {init,show,edit,sync,registration,renderRoster,name,reorder};
+ return {init,show,edit,finishEdit,sync,registration,renderRoster,name,reorder};
 })();

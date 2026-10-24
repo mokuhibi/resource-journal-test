@@ -206,8 +206,6 @@ body .text-clear-field>.text-clear-button{background:transparent!important;borde
 .app>header .release-controls #release-history-button{min-height:44px;padding:4px 2px}
 .app>header h1{max-width:calc(100% - 120px)}
 
-#shards .shard-record-filters button{min-height:44px;font-size:13px;border:1px solid var(--source-color);color:var(--source-color);background:var(--mh-surface)}
-#shards .shard-record-filters button[aria-pressed=true]{background:var(--source-color);color:#fff}
 
 /* 空欄の案内と入力済み数値の配置を分離。画面ごとの重複指定を増やさない。 */
 body :is(input[placeholder],textarea[placeholder]){padding-inline:var(--mh-space-sm);box-sizing:border-box}
@@ -227,3 +225,39 @@ textarea[placeholder]:placeholder-shown{align-content:center}
 .backup-reminder button{min-height:44px;padding:8px 12px}
 #backup-data-settings .setting-row select{width:auto;min-width:100px;max-width:50%;height:44px}
 #backup-last-at{font-size:13px;text-align:right;overflow-wrap:anywhere}
+
+/* Screen tabs, period controls, and graph filters have different roles. */
+:is(#record,#sleep,#history,#team,#settings) :is(.app-subtabs,.team-switch,.sleep-switch:not(.sleep-history-periods)){display:flex;align-items:center;gap:4px;border:0;border-bottom:1px solid var(--mh-border);border-radius:0;background:none;padding:0;margin:0 0 16px;box-shadow:none}
+:is(#record,#sleep,#history,#team,#settings) :is(.app-subtabs,.team-switch,.sleep-switch:not(.sleep-history-periods))>button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:0 1 auto;min-width:0;min-height:44px;margin:0;padding:8px 9px;border:0;border-radius:0;background:none;color:var(--mh-muted);font-size:13px;line-height:1.5;white-space:nowrap;box-shadow:none}
+:is(#record,#sleep,#history,#team,#settings) :is(.app-subtabs,.team-switch,.sleep-switch:not(.sleep-history-periods))>button:is([aria-selected=true],[aria-pressed=true]){font-weight:600;color:var(--mh-accent);background:none}
+:is(#record,#sleep,#history,#team,#settings) :is(.app-subtabs,.team-switch,.sleep-switch:not(.sleep-history-periods))>button::after{content:none}
+:is(#record,#sleep,#history,#team,#settings) :is(.app-subtabs,.team-switch,.sleep-switch:not(.sleep-history-periods))>button:is([aria-selected=true],[aria-pressed=true])::after{content:'';position:absolute;bottom:-1px;left:9px;right:9px;height:2px;background:var(--mh-accent)}
+:is(#record,#sleep,#history,#team,#settings) :is(.app-subtabs,.team-switch,.sleep-switch) .tab-icon{position:static;width:16px;height:16px;opacity:1;flex:none}
+:is(#summary,#shards,#history,#sleep,#sleep-editor) :is(.period-picker .period-quick-buttons,.sleep-history-periods){display:flex;align-items:center;gap:0;border:0;background:none;border-radius:var(--mh-radius);padding:0;margin:8px 0;box-shadow:none}
+:is(#summary,#shards,#history,#sleep,#sleep-editor) :is(.period-picker .period-quick-buttons,.sleep-history-periods)>button{min-height:44px;margin:0;padding:8px 10px;border:1px solid var(--mh-border);border-radius:0;background:var(--mh-surface);color:var(--mh-muted);font-size:13px}
+:is(#summary,#shards,#history,#sleep,#sleep-editor) :is(.period-picker .period-quick-buttons,.sleep-history-periods)>button+button{border-left:0}
+:is(#summary,#shards,#history,#sleep,#sleep-editor) :is(.period-picker .period-quick-buttons,.sleep-history-periods)>button:first-child{border-radius:var(--mh-radius) 0 0 var(--mh-radius)}
+:is(#summary,#shards,#history,#sleep,#sleep-editor) :is(.period-picker .period-quick-buttons,.sleep-history-periods)>button[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);font-weight:600}
+:is(#summary,#shards,#history,#sleep,#sleep-editor) :is(.period-picker .period-quick-buttons,.sleep-history-periods)>button::after{content:none!important}
+:is(#summary,#shards,#history,#sleep,#sleep-editor) :is(.period-picker .period-quick-buttons,.sleep-history-periods)>button:last-child{margin-left:auto;border:0;border-radius:var(--mh-radius);background:none}
+#team #team-slots .team-slot-button{grid-column:1;grid-row:2;min-width:0}
+#team #team-slots .team-slot-edit{grid-column:2;grid-row:2;align-self:center}
+.profile-editor-actions{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+.profile-editor-actions>button{min-height:44px;margin:0;padding-inline:10px;white-space:nowrap}
+.profile-editor-actions .primary{margin-left:auto;background:var(--mh-accent);color:#fff}
+#events-settings-panel .event-calendar-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+#events-settings-panel .event-calendar-head strong{flex:1;text-align:center}
+#events-settings-panel .event-calendar-head button{min-width:40px;min-height:44px;padding:6px}
+#events-settings-panel .event-calendar-weekdays,#events-settings-panel .event-calendar-dates,#events-settings-panel .event-calendar-bands{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;text-align:center}
+#events-settings-panel .event-calendar-week{padding-bottom:6px;border-top:1px solid var(--mh-border)}
+#events-settings-panel .event-calendar-dates>button{min-width:0;width:100%;height:40px;min-height:40px;padding:4px;border:0;background:none;border-radius:4px;font-size:13px;margin:0}
+#events-settings-panel .event-calendar-dates>button[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);font-weight:700}
+#events-settings-panel .event-calendar-dates>button[aria-current=date]{text-decoration:underline;text-underline-offset:4px}
+#events-settings-panel .event-calendar-dates .event-outside-month{color:var(--mh-muted);opacity:.6}
+#events-settings-panel .event-calendar-bands{row-gap:4px;min-height:4px}
+#events-settings-panel .event-calendar-bands .event-band{min-width:0;min-height:28px;height:28px;line-height:20px;padding:4px 5px;margin:0;border:0;border-radius:3px;background:var(--mh-selected);background:color-mix(in srgb,var(--event-color) 18%,var(--mh-surface));border-left:3px solid var(--event-color);color:var(--mh-text);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+#events-settings-panel .event-selected-date{margin-block:16px}
+#events-settings-panel .pickup-heading{flex-wrap:wrap}
+#events-settings-panel .pickup-form{max-width:100%}
+
+.event-bonus-fields{display:grid;grid-template-columns:minmax(0,1fr) 76px;gap:8px;align-items:center}.event-bonus-fields input{width:100%;min-width:0}.event-bonus-editor fieldset{min-width:0}.record-event-field{width:auto;max-width:100%;margin:0 0 12px}

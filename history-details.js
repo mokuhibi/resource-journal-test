@@ -29,7 +29,9 @@ const HistoryDetails=(()=>{
    if(r.firedSkill||r.outcomeSkillId)item(skill,'発動したスキル',SK.name(r.firedSkill||r.outcomeSkillId));
    if(r.sourcePokemon){item(skill,'参照するポケモン',label(r.sourcePokemon));item(skill,'参照するスキル',mainSkillText(r.sourcePokemon,r.sourceSkillId));}
    else if(r.sourceSkillId)item(skill,'参照するスキル',SK.name(r.sourceSkillId));
-   if(c?.event){item(skill,'イベント',c.event.name);item(skill,'確率倍率',c.event.multiplier===undefined?undefined:c.event.multiplier+'倍');item(skill,'レベル補正',c.event.boost===undefined?undefined:'+'+c.event.boost);}
+   if(r.eventEffects?.bonuses.length){item(skill,'登録時スキルLv',r.eventEffects.baseLevel);item(skill,'補正後のスキルLv',r.eventEffects.effectiveLevel);item(skill,'イベント',r.eventEffects.bonuses.map(b=>b.name).join('・'));item(skill,'開催フィールド',r.eventEffects.field);item(skill,'レベル補正','+'+r.eventEffects.boost);}
+   const shardBonus=r.shardBonus||c?.shardBonus;if(shardBonus?.bonuses.length){item(skill,'かけらのイベント',shardBonus.bonuses.map(b=>b.name).join('・'));item(skill,'開催フィールド',shardBonus.field);item(skill,'かけら倍率',shardBonus.multiplier+'倍');item(skill,'補正前のかけら',shardBonus.baseAmount);}
+   if(c?.event){item(skill,'イベント',c.event.name);item(skill,'開催フィールド',c.event.field);item(skill,'確率倍率',c.event.multiplier===undefined?undefined:c.event.multiplier+'倍');item(skill,'レベル補正',c.event.boost===undefined?undefined:'+'+c.event.boost);}
    if(skill.children.length===1)skill.remove();
   }
   if(c?.team?.some(Boolean)){

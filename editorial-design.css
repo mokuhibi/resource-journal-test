@@ -209,8 +209,8 @@ body .tabs [aria-current=page]:before{content:'';position:absolute;top:0;left:ca
 #history .history-footer{border-color:#2021240D;margin-top:8px}
 #history #history-list .history-footer>.history-detail-button,#history #history-list .history-footer .history-actions button{border:0;background:none;color:var(--editorial-ink);font-weight:500;font-size:12px;min-height:44px}
 /* 設定：グループ単位の余白。各行はラベルとスイッチだけ。 */
-#settings>.card{border-top:1px solid var(--editorial-line);padding:24px 0;margin:0}
-#settings>.record-display-settings{border-top:0;padding-top:0}
+#settings-settings-panel>.card{border-top:1px solid var(--editorial-line);padding:24px 0;margin:0}
+#settings-settings-panel>.record-display-settings{border-top:0;padding-top:0}
 #settings .card>h3{border:0;margin:0 0 8px;padding:0;font-size:17px;color:var(--editorial-ink)}
 #settings .settings-intro{color:var(--editorial-muted);font-size:12px;line-height:1.7;margin:0 0 16px}
 #settings .settings-group h4{font-size:13px;color:var(--editorial-candy);margin-bottom:4px}
