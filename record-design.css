@@ -230,3 +230,20 @@ body .tabs .tab-icon{width:12px;height:12px}
 #action-other .other-cluster-row :is(input,select,button){box-sizing:border-box;height:44px;min-height:44px;margin-block:0}
 #action-other .other-cluster-row label{display:flex;align-items:center}
 #action-other .other-cluster-row label :is(input,select){width:100%}
+
+/* The two Other forms keep separate inputs and share aligned rows. */
+#record #action-other .other-cluster-row{grid-template-columns:minmax(0,1fr) minmax(72px,1fr)}
+#record #action-other .cluster-result-row{margin-top:8px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+#record #action-other .cluster-result-row :is(input,button),#record #action-other .other-method-row :is(input,select,button){height:44px;min-height:44px;margin:0;box-sizing:border-box}
+#record #action-other #cluster-amount{width:100%;min-width:0;font-size:16px}
+#record #action-other #cluster-panel>h3{display:block}
+#record #action-other .shard-other-record>h3{font-size:16px;font-weight:600;margin:0 0 12px}
+#record #action-other .other-method-row{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:center}
+#record #action-other .other-method-row:last-child{grid-template-columns:minmax(0,1fr) auto}
+#record #action-other #shard-other-form{display:block}
+#record #action-other #shard-other-form[hidden]{display:none}
+#record #action-other .other-method-row .text-clear-field{width:100%;min-width:0}
+#team #team-slots>.team-slot-row,#team #team-slots>.team-slot-row.leader-slot{grid-template-columns:minmax(0,1fr) auto}
+#team .team-slot-button{grid-column:1 / -1;grid-row:2}
+#team .team-slot-edit{grid-column:2;grid-row:1}
+#team .team-slot-edit{min-height:44px;padding:8px 10px}

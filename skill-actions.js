@@ -112,22 +112,27 @@ const SkillActions=(()=>{
   const root=$('action-other');root.classList.add('shards');
   if(!root.querySelector('summary')){const heading=el('summary','その他','record-subheading');root.prepend(heading);}
   root.append(other.parentElement,$('cluster-panel'));
-  if(!$('shard-other-kind').querySelector('[value=cluster]')){
-   $('shard-other-kind').add(new Option('ゆめのかたまり','cluster'));
-   for(const option of $('cluster-size').options){const value=option.value;option.value=value;option.textContent='かたまり '+value;}
-   const memo=other.querySelector('.shard-other-memo-field'),kind=$('shard-other-kind').closest('label'),choices=el('div',undefined,'other-method-row');other.before(choices);choices.append(kind,memo);
+  if(!root.dataset.otherLayout){
+   root.dataset.otherLayout='split';
    const clusterForm=$('shard-cluster-form'),size=$('cluster-size').closest('label'),count=$('cluster-count').closest('label');
    for(const [label,input,title] of [[size,$('cluster-size'),'ゆめのかたまり'],[count,$('cluster-count'),'個数']]){for(const n of [...label.childNodes])if(n.nodeType===3)n.remove();input.setAttribute('aria-label',title);if(input.tagName==='INPUT')input.placeholder=title;}
-   const clusterRow=el('div',undefined,'other-cluster-row');clusterRow.append(size,count,clusterForm.querySelector('button[type=submit]'));clusterForm.prepend(clusterRow);$('cluster-amount').closest('.cluster-result-row').hidden=true;clusterForm.querySelector('.cluster-result-label').hidden=true;
-   const switchOther=()=>{const cluster=$('shard-other-kind').value==='cluster';other.hidden=cluster;$('cluster-panel').hidden=!cluster||!SummaryExtras.shardVisible('cluster');};
-   $('shard-other-kind').addEventListener('change',switchOther);other.addEventListener('reset',()=>setTimeout(switchOther,0));switchOther();
+   const clusterRow=el('div',undefined,'other-cluster-row');clusterRow.append(size,count);clusterForm.querySelector('.filters').replaceWith(clusterRow);clusterForm.querySelector('.cluster-result-label').hidden=true;
+   const result=$('cluster-amount').closest('.cluster-result-row');result.hidden=false;result.querySelector('button').textContent='保存';
+   const methodRow=el('div',undefined,'other-method-row'),saveRow=el('div',undefined,'other-method-row');
+   methodRow.append($('shard-other-kind').closest('label'),$('shard-other-amount').closest('label'));const save=other.querySelector('button[type=submit]');save.textContent='保存';saveRow.append($('shard-other-memo').closest('label'),save);other.append(methodRow,saveRow);
+   root.prepend($('cluster-panel'));root.prepend(root.querySelector('summary'));other.parentElement.prepend(el('h3','その他','record-subheading'));$('cluster-panel').querySelector('h3').textContent='ゆめのかたまり';
   }
-  const clusterSelected=$('shard-other-kind').value==='cluster';other.hidden=clusterSelected;$('cluster-panel').hidden=!clusterSelected||!SummaryExtras.shardVisible('cluster');
+  root.append($('cluster-panel'),other.parentElement);
+  const select=$('shard-other-kind');
+  for(const option of select.options)if(option.value){const enabled=SummaryExtras.otherVisible(option.value);option.hidden=!enabled;option.disabled=!enabled;}
+  if(select.selectedOptions[0]?.disabled)select.value='';
+  $('cluster-panel').hidden=!SummaryExtras.shardVisible('cluster');other.hidden=!SummaryExtras.shardVisible('other');other.parentElement.hidden=other.hidden;
+
  }
  function show(){
   if(!$('record-main-view'))return;
   if($('help-section'))$('help-section').hidden=!recordVisible('help');
-  for(const k of ['skills','other'])if($('action-'+k))$('action-'+k).hidden=k==='other'&&!C.actionAllowed(state.settings,'other','displayActions');
+  for(const k of ['skills','other'])if($('action-'+k))$('action-'+k).hidden=k==='other'&&(!C.actionAllowed(state.settings,'other','displayActions')||$('cluster-panel').hidden&&$('shard-other-form').hidden);
   for(const id of ['record-candy-heading','record-shard-heading','shard-records','research-panel'])if($(id))$(id).hidden=true;
   for(const method of ['mew','delibird','other'])if($(method+'-section'))$(method+'-section').hidden=true;
  }

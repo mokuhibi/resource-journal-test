@@ -220,3 +220,10 @@ body .text-clear-field>.has-text-clear{margin-block:0}
 body :is(input[placeholder],textarea[placeholder]):placeholder-shown:not(.has-text-clear):not(.sleep-search input){padding-right:var(--mh-space-sm)!important}
 
 textarea[placeholder]:placeholder-shown{align-content:center}
+
+.backup-reminder{margin:0 0 20px;padding:12px;background:var(--mh-selected);border-radius:var(--mh-radius);color:var(--mh-text)}
+.backup-reminder p{margin:0 0 8px;font-size:13px;line-height:1.6}
+.backup-reminder .backup-actions{display:flex;gap:8px;flex-wrap:wrap}
+.backup-reminder button{min-height:44px;padding:8px 12px}
+#backup-data-settings .setting-row select{width:auto;min-width:100px;max-width:50%;height:44px}
+#backup-last-at{font-size:13px;text-align:right;overflow-wrap:anywhere}

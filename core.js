@@ -72,6 +72,12 @@ const CandyCore = (() => {
  function actionAllowed(settings,key,group='aggregateActions'){
   return settings[group]?.[key]!==false&&(!skillActions.includes(key)||settings[group]?.skills!==false);
  }
+ const otherKeys=['cluster','mission','achievement','gift'];
+ function otherRecordAllowed(settings,r,group='aggregateActions'){
+  if(actionCategory(r)!=='other')return true;
+  const key=r.method==='cluster'?'cluster':r.method==='other'?r.otherKind:null;
+  return !otherKeys.includes(key)||actionAllowed(settings,'other',group)&&settings[group]?.[key]!==false;
+ }
  // 旧兼用設定は入力表示として残し、集計設定は初回移行時にだけ確定する。
  function aggregationSettings(settings={}){
   const old={help:'showCandyHelp',mew:'mew',delibird:'delibird',skill:'showOtherCandy',research:'showCandyResearch'};
@@ -125,6 +131,6 @@ const CandyCore = (() => {
   return {...raw,version:2,shardRecords,pokemon:raw.pokemon.map((p,i)=>({...p,registrationOrder:Number.isFinite(p.registrationOrder)?p.registrationOrder:i,profile:p.profile?{...p.profile,skillLevel:Math.min(skillCap(p.species),p.profile.skillLevel)}:null})),team:raw.team,records:raw.records.map(r=>({...r,context:r.context||null})),events,settings:aggregationSettings(raw.settings||{mew:true,delibird:true})};
  }
  const sum=rs=>rs.reduce((n,r)=>n+r.amount,0);
- return {actionCategory,actionAllowed,aggregationSettings,isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords,activationShardRecords};
+ return {otherKeys,otherRecordAllowed,actionCategory,actionAllowed,aggregationSettings,isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords,activationShardRecords};
 })();
 if(typeof module!=='undefined')module.exports=CandyCore;

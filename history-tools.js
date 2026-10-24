@@ -84,7 +84,7 @@ const SkillUI=(()=>{
  }
  function registration(species){options($('register-main-skill'),species,SK.defaultId(species));ProfileForm.reset(species);}
  function editProfile(p){$('profile-main-skill-label').hidden=false;options($('profile-main-skill'),p.species,SK.forPokemon(p));refreshDetails(p);$('profile-main-skill').onchange=()=>refreshDetails(p);}
- function refreshDetails(p){const selected={...p,...SK.fields($('profile-main-skill').value)},show=true;$('profile-details').hidden=!show;for(const input of $('profile-details').querySelectorAll('input,select'))input.disabled=!show;$('profile-nature').disabled=!show||p.species==='ミュウ';$('profile-skill').max=SK.shardMode(selected)==='lucky'?7:C.skillCap(p.species);}
+ function refreshDetails(p){const selected={...p,...SK.fields($('profile-main-skill').value)},show=true;$('profile-details').hidden=!show;for(const input of $('profile-details').querySelectorAll('input,select'))input.disabled=!show;$('profile-nature').disabled=!show||p.species==='ミュウ';ProfileForm.skillLevels('profile-skill',selected);}
  function savedFields(p,key){if(p.mainSkill&&SK.id(SK.forPokemon(p))===SK.id(key))return {mainSkill:p.mainSkill,mainSkillId:SK.id(key)};return SK.fields(key);}
  function recordSkill(r){const actor=actorOf(r.context);return SK.id(r.firedSkill||r.skillId||r.skillName||r.mainSkillId||r.registeredMainSkill||SK.forPokemon(actor));}
  function candyCounts(parent,records){const groups=new Map();for(const r of records){const key=recordSkill(r);if(key)groups.set(key,(groups.get(key)||0)+1);}for(const [key,count] of groups)row(parent,mainSkillText({species:records[0]?.method==='mew'?'ミュウ':''},key),count+'回');}
