@@ -352,6 +352,7 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 :is(#summary,#shards) .summary-section-head>h3{min-width:0;margin:0;flex:1;flex-wrap:wrap}
 :is(#summary,#shards) :is(.section-image-button,#create-candy-image,#create-mew-image){flex:0 0 60px;box-sizing:border-box;width:60px;min-width:60px;height:var(--mh-control-height);min-height:var(--mh-control-height);background:var(--mh-surface);color:var(--mh-text);border:1px solid var(--mh-border);border-radius:var(--mh-radius);font-family:var(--mh-font);font-size:14px;font-weight:500;line-height:1.5;padding:8px 12px;margin:0}
 :is(#summary,#shards) .export-overview-heading{order:1;margin:0 0 12px}
+:is(#summary,#shards) .overview-header>.candy-source-switches{order:1;margin:0 0 16px}
 
 /* 画像範囲・更新履歴は同じ閲覧パネルを共用する。 */
 .app>header{position:relative}

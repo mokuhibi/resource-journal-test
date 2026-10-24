@@ -18,7 +18,7 @@ const SleepUI=(()=>{
  function input(value,change,attrs={}){const l=el('label'),i=el('input');Object.assign(i,{type:'number',inputMode:'numeric',min:'0',max:'1000000000',step:'1',value,...attrs});i.oninput=()=>{change(i.value);keep();updateTotal();};l.append(i);return l;}
  function options(label,values,value,change){const s=el('select');s.setAttribute('aria-label',label);const placeholder=new Option(label,'');placeholder.disabled=true;placeholder.hidden=true;s.add(placeholder);for(const name of values)s.add(new Option(name,name));if(value&&!values.includes(value)){const legacy=new Option(value==='とくちょうなし'?'旧設定：すべて':value,value);legacy.hidden=true;legacy.disabled=true;s.add(legacy);}s.value=value;s.dataset.empty=String(!value);s.onchange=()=>{s.dataset.empty=String(!s.value);change(s.value);keep();updateTotal();};return s;}
  function pokemonName(species){
-  const root=el('strong',undefined,'sleep-pokemon-name'),name=C.speciesName(species),match=name.match(/^(.*?)([（(])(.*?)([）)])$/);root.dataset.species=name;
+  const root=el('strong',undefined,'sleep-pokemon-name'),name=SleepResearch.candidateName(C.speciesName(species)),match=name.match(/^(.*?)([（(])(.*?)([）)])$/);root.dataset.species=name;
   const dex=typeof nationalDex!=='undefined'?nationalDex[species]:null;if(Number.isInteger(dex)&&dex>0)root.append(el('small',String(dex).padStart(4,'0'),'sleep-dex'));
   root.append(el('span',match?match[1]:name));if(match)root.append(el('small',match[2]+match[3]+match[4],'sleep-form-name'));return root;
  }
@@ -113,7 +113,8 @@ const SleepUI=(()=>{
    const bonus=s?(s.candyMultiplier??1):null;box.append(el('p',[(s?.field||'フィールド未記録'),s?.sleepType==='とくちょうなし'?'すべて':(s?.sleepType||'睡眠タイプ未記録'),bonus===null?'倍率未記録':bonus===1?'－（1倍）':bonus+'倍'].join(' / '),'sleep-note'));
    const candySaved=s&&s.candyRecorded!==false;box.append(qel('strong','アメ '+(candySaved?C.sum(s.entries).toLocaleString('ja-JP')+'個':'未入力')));
    if(candySaved&&s.entries.length){const entries=el('ul',undefined,'sleep-history-pokemon');for(const e of s.entries){const line=el('li');line.append(el('span',C.speciesName(e.species)),el('span','★'+e.stars),qel('span',e.amount.toLocaleString('ja-JP')+'個'));entries.append(line);}box.append(entries);}
-   box.append(qel('p','ゆめのかけら '+(shard.shardsRecorded===false?'未入力':shard.amount.toLocaleString('ja-JP')+'個')+(shard.shardsRecorded!==false&&shard.researchExp!==undefined?' ／ EXP '+shard.researchExp.toLocaleString('ja-JP'):''),'sleep-note'));list.append(box);
+   if(shard.shardsRecorded!==false)box.append(qel('strong','ゆめのかけら '+shard.amount.toLocaleString('ja-JP')+'個'));
+   box.append(qel('p','ゆめのかけら '+(shard.shardsRecorded===false?'未入力':(shard.baseAmount??shard.amount).toLocaleString('ja-JP')+'個')+(shard.shardsRecorded!==false&&shard.researchExp!==undefined?' ／ EXP '+shard.researchExp.toLocaleString('ja-JP'):''),'sleep-note'));list.append(box);
   }
   if(!list.children.length)list.append(el('p','保存済みの睡眠リサーチはありません。','sleep-note'));root.append(list);
  }
@@ -174,7 +175,7 @@ const SleepUI=(()=>{
   function keepSearchFocusOn(b){let focused=false;const add=b.onclick;b.onpointerdown=e=>{focused=typeof document!=='undefined'&&document.activeElement===q;preserveSearchFocus(e);};b.onpointercancel=()=>{focused=false;};b.onclick=()=>{const refocus=focused||typeof document!=='undefined'&&document.activeElement===q;focused=false;add();if(refocus)q.focus({preventScroll:true});};}
   function addEntry(species,stars){if(SleepResearch.rewardStatus(species,stars)==='absent')return;if(draft.entries.length>=100){notice('1回に追加できるのは100匹までです。',true);return;}const basic=SleepResearch.estimate(species,stars),amount=basic===null?null:Math.ceil(basic*effectiveMultiplier());draft.candyMultiplier=effectiveMultiplier();draft.entries.push({id:uid(),species,candy:candyMap[species],stars,amount:amount??'',calculatedAmount:amount});keep();renderEntries();updateTotal();}
   function renderCandidates(){
-   clear.hidden=!q.value;results.replaceChildren();filterInfo.replaceChildren();const text=normalize(q.value),target=pickupOnly&&!text?new Set(SleepPickups.current(date,draft.field)):null;const pool=names.filter(n=>normalize(n).includes(text)&&(!target||target.has(n))).map(species=>({species,status:text||target?'all':SleepEncounters.status(species,draft.field,showOtherTypes||draft.sleepType==='特徴なし'?'':draft.sleepType)}));
+   clear.hidden=!q.value;results.replaceChildren();filterInfo.replaceChildren();const text=normalize(q.value),target=pickupOnly&&!text?new Set(SleepPickups.current(date,draft.field)):null;const pool=SleepResearch.candidateGroups(names.filter(n=>normalize(n).includes(text)&&(!target||target.has(n)))).map(variants=>{const options=variants.map(species=>({species,status:text||target?'all':SleepEncounters.status(species,draft.field,showOtherTypes||draft.sleepType==='特徴なし'?'':draft.sleepType)}));return options.find(x=>['all','confirmed'].includes(x.status))||options[0];});
    if(draft.sleepType&&draft.sleepType!=='とくちょうなし'){const toggle=button('他タイプ',()=>{showOtherTypes=!showOtherTypes;renderCandidates();});toggle.setAttribute('aria-label','他の睡眠タイプを表示');toggle.setAttribute('title','他の睡眠タイプを表示');toggle.setAttribute('aria-pressed',String(showOtherTypes));filterInfo.append(toggle);}
    const pickup=button('ピックアップ',()=>{pickupOnly=!pickupOnly;if(pickupOnly)q.value=query='';renderCandidates();});pickup.setAttribute('aria-pressed',String(pickupOnly));filterInfo.append(pickup);
    for(const {species,status:appearance} of pool){if(appearance==='different_type'||appearance==='unknown')continue;

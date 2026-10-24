@@ -153,6 +153,9 @@
   return {...next,...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
  }
  function initialDate(state,today){const d=new Date(today+'T12:00:00Z');if(state.settings?.sleepMode!=='split')d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10);}
- const api={initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,starOverrides,displayStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
+ // Collapse only sleep-screen candidates; saved species keys and encounters remain intact.
+ const candidateName=species=>species.replace(/^(バケッチャ|パンプジン)[（(](?:ちゅうだま|こだま|おおだま|ギガだま)(?:しゅ)?[）)]$/,'$1');
+ function candidateGroups(names){const groups=new Map();for(const species of names){const key=candidateName(species);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(species);}return [...groups.values()];}
+ const api={candidateName,candidateGroups,initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,starOverrides,displayStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SleepResearch=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

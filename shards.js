@@ -87,7 +87,7 @@ const ShardUI=(()=>{
    }
   }
  }
- const recordSources=new Set(['skill','research','cluster','other']);
+ const recordSources=new Set(['skill','research','other']);
  function renderSummary(){
   PeriodPicker.sync();
   const day=$('shard-date').value||C.gameDay(new Date()),period=RangePicker.get('shard-period'),rs=summaryRecords().filter(r=>C.inRange(r,period));
@@ -96,9 +96,9 @@ const ShardUI=(()=>{
   const body=totalBreakdown(root,'ゆめのかけら');
   appendBreakdown(body,rs);
   const controls=el('div',undefined,'candy-source-switches shard-record-filters');controls.setAttribute('aria-label','ゆめのかけらの記録の表示項目');
-  for(const [key,name] of SummaryExtras.shardSources){const b=button(name,()=>{if(recordSources.has(key))recordSources.delete(key);else recordSources.add(key);renderSummary();});b.dataset.source=key;b.setAttribute('aria-pressed',String(recordSources.has(key)));b.style.setProperty('--source-color','var(--shard-'+(key==='cluster'?'other':key)+'-color)');controls.append(b);}
-  body.parentElement.before(controls);
-  let source='';for(const row of body.children){const cls=[...row.classList].find(x=>x.startsWith('shard-method-'));if(cls)source=cls.replace('shard-method-','');row.hidden=!recordSources.has(source);}
+  for(const [key,name] of SummaryExtras.orderedSources('shard').filter(([key])=>key!=='cluster')){if(!(key==='other'?['other','cluster'].some(k=>SummaryExtras.aggregateVisible('shard',k)):SummaryExtras.aggregateVisible('shard',key)))continue;const b=button(name,()=>{if(recordSources.has(key))recordSources.delete(key);else recordSources.add(key);renderSummary();});b.dataset.source=key;b.setAttribute('aria-pressed',String(recordSources.has(key)));b.style.setProperty('--source-color','var(--shard-'+(key==='cluster'?'other':key)+'-color)');controls.append(b);}
+  controls.id='shard-record-filters';const previous=$('shard-record-filters');if(previous)previous.replaceWith(controls);else root.before(controls);
+  let source='';for(const row of body.children){const cls=[...row.classList].find(x=>x.startsWith('shard-method-'));if(cls)source=cls.replace('shard-method-','');row.hidden=!recordSources.has(source==='cluster'?'other':source);}
   const all=summaryRecords();for(const scope of ['week','month']){const chart=$(scope==='week'?'shard-weekly-chart':'shard-calendar');let controls=$('shard-'+scope+'-filters');if(!controls){controls=el('div');controls.id='shard-'+scope+'-filters';(scope==='month'?$('shard-month'):chart).before(controls);}SummaryExtras.filterControls(controls,scope,all.filter(r=>C.inRange(r,C.range(scope,day))),'shard');}
   WeeklyChart.render($('shard-weekly-chart'),all,day);
   SummaryExtras.monthly('shard',summaryRecords(),day);

@@ -25,6 +25,10 @@ const SleepPickups=(()=>{
  }
  function saveEvent(item){const events=[...(state.settings.sleepPickupEvents||[]).filter(e=>e.id!==item.id),item];validate(events,candyMap);return commit({...state,settings:{...state.settings,sleepPickupEvents:events}},'イベントを保存しました。');}
  function removeEvent(id){return commit({...state,settings:{...state.settings,sleepPickupEvents:(state.settings.sleepPickupEvents||[]).filter(e=>e.id!==id)}},'イベントを削除しました。');}
+ function tierLines(tiers){return ['large','medium','small'].filter(key=>tiers[key]).map(key=>{
+  const xs=[...tiers[key]].sort((a,b)=>(nationalDex[a]??Infinity)-(nationalDex[b]??Infinity)||a.localeCompare(b,'ja'));
+  return ({large:'大',medium:'中',small:'小'})[key]+'ピックアップ：'+[...new Set(xs.map(n=>C.speciesName(n).replace(/[（(](ちゅうだま|こだま|おおだま|ギガだま)(しゅ)?[）)]/,'')))].join('・');
+ });}
  function render(root,refresh,day,field){
   const head=el('div',undefined,'pickup-heading');head.append(el('h3','ピックアップ'),button('イベントを追加',()=>{editor={id:uid(),name:'',start:'',end:'',fields:['*'],pokemon:[]};refresh();}));root.append(head);
   if(status)root.append(el('p',status,'sleep-note'));
@@ -36,9 +40,9 @@ const SleepPickups=(()=>{
    const update=()=>{selected.replaceChildren();for(const n of editor.pokemon)selected.append(button(C.speciesName(n)+' ×',()=>{editor.pokemon=editor.pokemon.filter(x=>x!==n);update();}));results.replaceChildren();const text=normalize(search.value);if(text)for(const n of names.filter(n=>normalize(C.speciesName(n)).includes(text)&&!editor.pokemon.includes(n)))results.append(button(C.speciesName(n),()=>{editor.pokemon.push(n);update();}));};search.oninput=update;update();
    const label=el('label','対象ポケモン');label.append(search);form.append(label,selected,results,error);const save=el('button','イベントを保存');save.type='submit';form.append(save,button('キャンセル',()=>{editor=null;refresh();}));form.onsubmit=e=>{e.preventDefault();try{const value={...editor,name:editor.name.trim(),fields:[...editor.fields],pokemon:[...editor.pokemon]};if(saveEvent(value)){editor=null;refresh();}}catch(err){error.textContent=err.message;}};root.append(form);
   }
-  const events=list().filter(e=>!e.standard||!day||matching([e],day,field).length);for(const event of events){const row=el('section',undefined,'pickup-event'),head=el('div',undefined,'pickup-heading');head.append(el('strong',event.name),el('small',event.standard?'標準':'端末登録'));if(!event.standard)head.append(button('編集',()=>{editor=JSON.parse(JSON.stringify(({id:event.id,name:event.name,start:event.start,end:event.end,fields:event.fields,pokemon:event.pokemon})));refresh();}),button('削除',()=>{if(confirm('このイベントを削除しますか？')){if(removeEvent(event.id)){if(editor?.id===event.id)editor=null;refresh();}}},'danger'));row.append(head,el('p',C.displayDate(event.start)+' 〜 '+C.displayDate(event.end),'sleep-note'),el('p',event.fields.includes('*')?'すべてのフィールド':event.fields.join('・'),'sleep-note'),...((event.tiers?Object.entries(event.tiers).map(([key,xs])=>({large:'大',medium:'中',small:'小'})[key]+'ピックアップ：'+[...new Set(xs.map(n=>C.speciesName(n).replace(/[（(](ちゅうだま|こだま|おおだま|ギガだま)(しゅ)?[）)]/,'')))].join('・')):[event.pokemon.map(C.speciesName).join('・')]).map(text=>el('p',text,'sleep-note'))));root.append(row);}
+  const events=list().filter(e=>!e.standard||!day||matching([e],day,field).length);for(const event of events){const row=el('section',undefined,'pickup-event'),head=el('div',undefined,'pickup-heading');head.append(el('strong',event.name),el('small',event.standard?'標準':'端末登録'));if(!event.standard)head.append(button('編集',()=>{editor=JSON.parse(JSON.stringify(({id:event.id,name:event.name,start:event.start,end:event.end,fields:event.fields,pokemon:event.pokemon})));refresh();}),button('削除',()=>{if(confirm('このイベントを削除しますか？')){if(removeEvent(event.id)){if(editor?.id===event.id)editor=null;refresh();}}},'danger'));row.append(head,el('p',C.displayDate(event.start)+' 〜 '+C.displayDate(event.end),'sleep-note'),el('p',event.fields.includes('*')?'すべてのフィールド':event.fields.join('・'),'sleep-note'),...((event.tiers?tierLines(event.tiers):[event.pokemon.map(C.speciesName).join('・')]).map(text=>el('p',text,'sleep-note'))));root.append(row);}
   if(!events.length)root.append(el('p','登録済みのイベントはありません。','sleep-note'));
  }
- return {fields,validate,documentData,targets,matching,multiplier,bonus,current,list,load,render,saveEvent,removeEvent};
+ return {tierLines,fields,validate,documentData,targets,matching,multiplier,bonus,current,list,load,render,saveEvent,removeEvent};
 })();
 if(typeof module!=='undefined')module.exports=SleepPickups;

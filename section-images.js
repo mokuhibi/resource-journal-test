@@ -12,7 +12,7 @@ const SectionImages=(()=>{
   ['shard-week','週間のゆめのかけら','#shard-weekly-chart','shard'],
   ['shard-month','月間のゆめのかけら','#shard-calendar','shard']
  ];
- const text=e=>(e?.innerText??e?.textContent??'').trim();
+ const text=e=>(e?.innerText??e?.textContent??'').trim().replace(/([\d,])\s+(個|匹|回)(?=\s|$)/g,'$1$2');
  const visible=e=>!e.hidden&&getComputedStyle(e).display!=='none';
  function table(e){return {type:'table',caption:text(e.querySelector('caption')),rows:[...e.rows].filter(r=>!r.hidden).map(r=>({header:r.parentElement.tagName==='THEAD',strong:r.classList.contains('mew-all')||r.classList.contains('mew-totals'),sourceColor:r.className.startsWith('shard-method-')?getComputedStyle(r.cells[0]).color:undefined,cells:[...r.cells].map(c=>({text:text(c),color:getComputedStyle(c).color}))}))};}
  function legend(e){return {type:'legend',items:[...e.children].filter(visible).map(x=>{const dot=x.querySelector('i'),fallback=dot?.className?.startsWith('shard-source-')?document.querySelector('#shard-weekly-chart .'+dot.className):null;let color=getComputedStyle(dot||x).backgroundColor;if(color==='rgba(0, 0, 0, 0)'&&fallback)color=getComputedStyle(fallback).backgroundColor;return {text:text(x),color};})};}
@@ -74,7 +74,7 @@ const SectionImages=(()=>{
   const W=600,M=28,inner=W-M*2,limit=1800,ink='#202124',muted='#777C80',line='#ECEDEE',font='-apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif';
   const probe=document.createElement('canvas').getContext('2d');if(!probe)throw Error('この環境では画像を生成できません。');
   const setFont=(c,size,bold=false)=>c.font=`${bold?600:400} ${size}px ${font}`;
-  function wrap(value,width,size){setFont(probe,size);const lines=[];for(const paragraph of String(value).split('\n')){let row='';for(const ch of paragraph){if(row&&probe.measureText(row+ch).width>width){lines.push(row);row='';}row+=ch;}lines.push(row);}return lines;}
+  function wrap(value,width,size){setFont(probe,size);const lines=[];for(const paragraph of String(value).split('\n')){let row='';for(const ch of paragraph.match(/[\d,]+(?:個|匹|回)|[\s\S]/g)||[]){if(row&&probe.measureText(row+ch).width>width){lines.push(row);row='';}row+=ch;}lines.push(row);}return lines;}
   const tasks=[];
   for(const b of model.blocks){
    if(b.type==='section'){const lines=wrap(b.text,inner,23),periodLines=wrap(b.period,inner,16);tasks.push({...b,lines,periodLines,height:lines.length*31+periodLines.length*24+26});}
@@ -138,7 +138,7 @@ const SectionImages=(()=>{
  function open(key){exportScope(key,'single');}
 
  function init(){for(const [key,title,selector,kind,oldId] of definitions){const root=document.querySelector(selector);let head,b=oldId?document.getElementById(oldId):null;
-   if(key.endsWith('-breakdown')){head=el('div',undefined,'summary-section-head export-overview-heading');head.append(el('h3',title));root.before(head);if(key==='candy-breakdown')root.before($('candy-breakdown-filters'));}
+   if(key.endsWith('-breakdown')){head=el('div',undefined,'summary-section-head export-overview-heading');head.append(el('h3',title));root.before(head);const controls=$(key==='candy-breakdown'?'candy-breakdown-filters':'shard-record-filters');if(controls)head.after(controls);}
    else{const h=root.closest('.card').querySelector('h3');head=h.parentElement.classList.contains('summary-section-head')?h.parentElement:null;if(!head){head=el('div',undefined,'summary-section-head');h.before(head);head.append(h);}}
    if(!b){b=el('button','画像');b.type='button';b.id='export-'+key;head.append(b);}b.classList.add('section-image-button');b.dataset.sectionImage=key;b.setAttribute('aria-label',(kind==='candy'?'アメ':'ゆめのかけら')+'：'+title+'の画像を作成');b.onclick=()=>open(key);
   }}
