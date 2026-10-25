@@ -76,8 +76,9 @@ const CandyCore = (() => {
   return 'other';
  }
  const skillActions=['mew','delibird','shards','copy','metronome'];
+ function actionParent(key){return skillActions.includes(key)?'skills':key==='nap'||otherKeys.includes(key)?'other':null;}
  function actionAllowed(settings,key,group='aggregateActions'){
-  return settings[group]?.[key]!==false&&(!skillActions.includes(key)||settings[group]?.skills!==false);
+  const parent=actionParent(key);return settings[group]?.[key]!==false&&(!parent||settings[group]?.[parent]!==false);
  }
  const otherKeys=['cluster','mission','achievement','gift'];
  function otherRecordAllowed(settings,r,group='aggregateActions'){
@@ -138,6 +139,6 @@ const CandyCore = (() => {
   return {...raw,version:2,shardRecords,pokemon:raw.pokemon.map((p,i)=>({...p,registrationOrder:Number.isFinite(p.registrationOrder)?p.registrationOrder:i,profile:p.profile?{...p.profile,skillLevel:Math.min(skillCap(p.species),p.profile.skillLevel)}:null})),team:raw.team,records:raw.records.map(r=>({...r,context:r.context||null})),events,settings:aggregationSettings(raw.settings||{mew:true,delibird:true})};
  }
  const sum=rs=>rs.reduce((n,r)=>n+r.amount,0);
- return {otherKeys,otherRecordAllowed,actionCategory,actionAllowed,aggregationSettings,isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords,activationShardRecords};
+ return {otherKeys,actionParent,otherRecordAllowed,actionCategory,actionAllowed,aggregationSettings,isNapRecord,recordProfile,gameDay,localInput,fromInput,dateOnly,addDays,range,inRange,mewAmounts,profileDefault,profileValid,skillCap,eventFor,migrate,sum,shardTotal,validateShards,speciesName,shardType,shardAmounts,weeklyTotals,mewSkills,weekday,displayDate,mewShardRecords,activationShardRecords};
 })();
 if(typeof module!=='undefined')module.exports=CandyCore;
