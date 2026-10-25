@@ -21,7 +21,7 @@ const TeamUI=(()=>{
  function finishEdit(){show(editOrigin);}
  function registration(){$('registration-fields').hidden=!selected;}
  function renderRoster(){
-  const root=$('registered-pokemon-list'),q=normalize($('roster-search').value);root.replaceChildren();root.style.setProperty('--roster-columns',columns);
+  const root=$('registered-pokemon-list'),q=normalize($('roster-search').value);root.replaceChildren();root.style.setProperty('--roster-columns',columns);root.dataset.columns=String(columns);
   const normal=state.pokemon.filter(p=>!special(p));
   const category=p=>['メタモン','マネネ','バリヤード'].includes(p.species)?'スキルコピー':p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome'?'ゆびをふる':special(p)?'アメ':relatedPokemon(p)?'ゆめのかけら':'その他のポケモン';
   const target=p=>category(p)!=='その他のポケモン';

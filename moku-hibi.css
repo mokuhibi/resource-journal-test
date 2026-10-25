@@ -303,3 +303,6 @@ body :is(#app-panel,#history-field-view) .field-history-days>button:not([role=ta
 #record #record-field{width:100%;flex:1}
 #nap-island-details{margin-top:16px}#nap-island-details>summary{min-height:44px;padding:10px 0;font-size:15px;font-weight:600}
 #history-field-view{min-width:0}.field-history-change{flex-wrap:wrap}.field-history-change>span{flex:1;min-width:0}
+
+/* Month overflow dates keep field bands while de-emphasizing the date text. */
+body :is(#app-panel,#history-field-view) .field-history-days>button.field-history-outside-month{color:var(--mh-muted)}

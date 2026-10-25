@@ -15,16 +15,18 @@ const FieldHistoryUI=(()=>{
   choice.onchange=()=>{if(choice.value)saveAt(date,choice.value);else sync();};
  }
 
- function showHistory(root){body=root;if(!selected){selected=C.gameDay(new Date());start=FieldHistory.week(selected);}render();}
+ function showHistory(root){body=root;if(!selected){selected=C.gameDay(new Date());start=selected.slice(0,7)+'-01';}render();}
  function open(){SleepUI.selectFieldHistory();}
+ function monthOffset(date,offset){const d=new Date(date+'T12:00:00Z');d.setUTCMonth(d.getUTCMonth()+offset);return d.toISOString().slice(0,10);}
  function render(){
-  if(!body)return;body.replaceChildren();const nav=el('div',undefined,'field-history-nav');nav.append(button('＜',()=>{start=FieldHistory.add(start,-28);render();}),button('今日',()=>{selected=C.gameDay(new Date());start=FieldHistory.week(selected);editing=null;render();}),button('＞',()=>{start=FieldHistory.add(start,28);render();}));body.append(nav);
-  const calendar=el('div',undefined,'field-history-weeks');calendar.setAttribute('aria-label','週ごとのフィールド履歴');
-  for(let w=0;w<5;w++){const monday=FieldHistory.add(start,w*7),sunday=FieldHistory.add(monday,6),week=el('section'),heading=el('h3',Number(monday.slice(5,7))+'月'+Number(monday.slice(8))+'日〜'+Number(sunday.slice(5,7))+'月'+Number(sunday.slice(8))+'日'),row=el('div',undefined,'field-history-days');for(let i=0;i<7;i++){
-   const d=FieldHistory.add(monday,i),v=FieldHistory.dayView(state,d),b=button('',()=>{selected=d;editing=null;render();body.querySelector('.field-history-detail').scrollIntoView({block:'nearest'});});b.dataset.day=d;b.setAttribute('aria-pressed',String(selected===d));b.setAttribute('aria-label',C.displayDate(d)+' '+(v.colors.filter(Boolean).map(f=>FieldHistory.info(f).name).join('→')||'未登録'));
+  if(!body)return;body.replaceChildren();const nav=el('div',undefined,'field-history-nav');nav.append(button('＜',()=>{start=monthOffset(start,-1);render();}),button('今日',()=>{selected=C.gameDay(new Date());start=selected.slice(0,7)+'-01';editing=null;render();}),button('＞',()=>{start=monthOffset(start,1);render();}));body.append(nav);
+  const calendar=el('div',undefined,'field-history-weeks');calendar.setAttribute('aria-label','月ごとのフィールド履歴');
+  const month=el('section'),heading=el('h3',Number(start.slice(0,4))+'年'+Number(start.slice(5,7))+'月'),first=FieldHistory.week(start),end=monthOffset(start,1);month.append(heading);
+  for(let monday=first;monday<end;monday=FieldHistory.add(monday,7)){const row=el('div',undefined,'field-history-days');for(let i=0;i<7;i++){
+   const d=FieldHistory.add(monday,i),v=FieldHistory.dayView(state,d),b=button('',()=>{selected=d;editing=null;render();body.querySelector('.field-history-detail').scrollIntoView({block:'nearest'});});b.dataset.day=d;if(d.slice(0,7)!==start.slice(0,7))b.classList.add('field-history-outside-month');b.setAttribute('aria-pressed',String(selected===d));b.setAttribute('aria-label',C.displayDate(d)+' '+(v.colors.filter(Boolean).map(f=>FieldHistory.info(f).name).join('→')||'未登録'));
    const alpha=v.confirmed?44:15,colors=v.colors.length?v.colors:[''];b.style.background='linear-gradient(90deg,'+colors.flatMap((f,i)=>{const c=f?'color-mix(in srgb,'+FieldHistory.info(f).color+' '+alpha+'%,var(--mh-surface))':'var(--mh-surface)';return [c+' '+i/colors.length*100+'%',c+' '+(i+1)/colors.length*100+'%'];}).join(',')+')';
    b.append(el('small',d.slice(8)==='01'?Number(d.slice(5,7))+'月':['月','火','水','木','金','土','日'][i]),el('strong',String(Number(d.slice(8)))));if(v.colors.some(f=>FieldHistory.info(f).ex))b.append(el('small','EX'));row.append(b);
-  }week.append(heading,row);calendar.append(week);}body.append(calendar);details();DateUI.update();
+  }month.append(row);}calendar.append(month);body.append(calendar);details();DateUI.update();
  }
  function details(){
   const view=FieldHistory.dayView(state,selected),box=el('section',undefined,'field-history-detail');box.append(el('h3',C.displayDate(selected)),el('p',(view.confirmed?'確定':view.status==='sleep'?'睡眠リサーチから参照':'未登録')+(view.field?'：'+FieldHistory.info(view.field).name:'')));

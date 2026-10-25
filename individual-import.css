@@ -70,3 +70,6 @@
 #team #register-top-grid .individual-field #pokemon-search-results{width:100%;box-sizing:border-box}
 
 #individual-import-dialog .individual-import-actions{align-items:stretch}
+
+/* Reserve the same two-line name area only in the four-column roster. */
+#team #registered-pokemon-list[data-columns="4"] .team-individual-name strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;height:2.8em}
