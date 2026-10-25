@@ -306,3 +306,23 @@ body :is(#app-panel,#history-field-view) .field-history-days>button:not([role=ta
 
 /* Month overflow dates keep field bands while de-emphasizing the date text. */
 body :is(#app-panel,#history-field-view) .field-history-days>button.field-history-outside-month{color:var(--mh-muted)}
+
+/* Five-slot current/saved lineups, confined to the existing Team panel. */
+#team #team-panel #team-slots,#team-panel .saved-team-slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;align-items:stretch}
+#team #team-panel #team-slots>.team-slot-row{padding:0;gap:2px}
+#team-panel .current-team-head{align-items:center;gap:8px;margin-bottom:12px}
+#team-panel .current-team-head h2{margin:0;font-size:var(--mh-section-title-size)}
+#team-panel #save-current-team{flex:none;font-size:13px;padding:8px}
+#team-panel .team-slot-button{width:100%;min-height:90px;padding:6px 3px;border:1px solid var(--mh-border);border-radius:var(--mh-radius);background:var(--mh-surface);overflow-wrap:anywhere}
+#team-panel .team-individual-name>strong{font-size:13px;line-height:1.4;height:2.8em}
+#team-panel .team-individual-name>small{font-size:11px;line-height:1.4}
+#team-panel .team-slot-edit{margin:0;padding:6px 2px;min-height:44px;font-size:12px}
+#team-panel .saved-team{padding:12px 0;border-bottom:1px solid var(--mh-border)}
+#team-panel .saved-team-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+#team-panel .saved-team-head input{flex:1;min-width:0;width:auto;margin:0}
+#team-panel .saved-team-head button{flex:none;min-height:44px;margin:0}
+#team-panel .saved-slot-number{display:block;font-size:11px;color:var(--mh-muted);text-align:left}
+.team-save-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.team-save-choices button{min-width:0;overflow-wrap:anywhere}
+#team #team-panel #team-slots .team-slot-button{grid-column:1;grid-row:2;padding:6px 3px}
+#team #team-panel #team-slots .team-slot-edit{grid-column:1;grid-row:3;align-self:start}

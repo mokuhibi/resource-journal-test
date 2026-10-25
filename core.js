@@ -106,6 +106,10 @@ const CandyCore = (() => {
   if(raw.sleepSessions!==undefined||raw.sleepDrafts!==undefined||raw.settings?.sleepCandyMultipliers!==undefined){const sleep=typeof SleepResearch!=='undefined'?SleepResearch:require('./sleep-research.js');sleep.validateMultipliers(raw);sleep.validate(raw.sleepSessions||[],map,shardRecords);sleep.validateDrafts(raw.sleepDrafts,map);}
   const ids=new Set();
   for(const p of raw.pokemon){if(!p||(p.shardSkill!==undefined&&typeof p.shardSkill!=='boolean')||(p.mainSkill!==undefined&&(typeof p.mainSkill!=='string'||!p.mainSkill.trim()))||(p.mainSkillId!==undefined&&(typeof p.mainSkillId!=='string'||!p.mainSkillId.trim()))||typeof p.id!=='string'||ids.has(p.id)||!Object.hasOwn(map,p.species)||typeof p.nickname!=='string'||(p.profile!=null&&!profileValid(p.profile,p.species,true)))throw Error('個体情報');ids.add(p.id);}
+  if(raw.savedTeams!==undefined){
+   if(!Array.isArray(raw.savedTeams)||raw.savedTeams.length>8)throw Error('保存済みチーム');
+   for(const saved of raw.savedTeams){if(saved===null)continue;if(!saved||typeof saved.name!=='string'||!(saved.team===null||Array.isArray(saved.team)&&saved.team.length===5))throw Error('保存済みチーム');if(saved.team){const members=saved.team.filter(id=>id!==null);if(members.some(id=>typeof id!=='string'||!ids.has(id))||new Set(members).size!==members.length)throw Error('保存済みチームの個体');}}
+  }
   const occupied=raw.team.filter(x=>x!==null);if(occupied.some(id=>!ids.has(id))||new Set(occupied).size!==occupied.length)throw Error('編成');
   const rids=new Set();for(const r of raw.records){
    if(!r||typeof r.id!=='string'||rids.has(r.id)||!['help','mew','delibird','skill'].includes(r.method)||typeof r.datetime!=='string'||!Number.isFinite(Date.parse(r.datetime)))throw Error('履歴');rids.add(r.id);
