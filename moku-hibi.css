@@ -302,5 +302,4 @@ body :is(#app-panel,#history-field-view) .field-history-days>button:not([role=ta
 .record-setup-guide button{min-height:44px;margin:0}
 #record #record-field{width:100%;flex:1}
 #nap-island-details{margin-top:16px}#nap-island-details>summary{min-height:44px;padding:10px 0;font-size:15px;font-weight:600}
-#nap-island-details .nap-island-settings{margin-top:12px;border-top:1px solid var(--mh-border)}
 #history-field-view{min-width:0}.field-history-change{flex-wrap:wrap}.field-history-change>span{flex:1;min-width:0}
