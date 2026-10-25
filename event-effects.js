@@ -22,7 +22,7 @@ const EventEffects=(()=>{
   if(typeof FieldHistory==='undefined')return state.settings.recordFields?.[date]||'';
   const current=when||recordDate();if(!Number.isFinite(current.getTime())||C.gameDay(current)!==date)return '';const value=current;
   if(typeof FieldHistoryUI!=='undefined'&&typeof value!=='string')return FieldHistoryUI.field(value);
-  const resolved=FieldHistory.resolve(state,value);return resolved.confirmed?resolved.field:'';
+  const resolved=FieldHistory.resolve(state,value);return resolved.confirmed||resolved.status==='sleep'?resolved.field:'';
  }
  function renderField(){if(typeof FieldHistoryUI!=='undefined')FieldHistoryUI.sync();}
 
