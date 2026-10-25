@@ -1,0 +1,20 @@
+#app-panel.sleep-ocr-panel{width:680px}
+.sleep-ocr-note,.sleep-ocr-warning{font-size:13px;line-height:1.6}
+.sleep-ocr-tools{margin:8px 0}.sleep-ocr-tools button{min-height:44px;font-size:13px}
+.sleep-ocr-fields{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.sleep-ocr-fields :is(input,select){flex:1 1 110px;min-width:0;width:auto;min-height:44px;margin:0}
+.sleep-ocr-fields input[type=number]{flex-basis:90px}
+.sleep-ocr-fields button{min-height:44px}
+.sleep-ocr-group,.sleep-ocr-image{margin:16px 0;padding-top:12px;border-top:1px solid var(--mh-border)}
+.sleep-ocr-group h3,.sleep-ocr-image h3{font-size:15px;overflow-wrap:anywhere}
+.sleep-ocr-row{padding:12px 0;border-bottom:1px solid var(--mh-border);min-width:0}
+.sleep-ocr-row>input{margin:0;min-width:0}
+.sleep-ocr-row details{padding:0 0 8px}.sleep-ocr-row summary{min-height:44px;align-content:center;font-size:13px}
+.sleep-ocr-preview{overflow:hidden;width:100%;background:var(--mh-surface)}.sleep-ocr-preview img{display:block;width:100%;height:auto}
+.sleep-ocr-suggestions,.sleep-ocr-checks{display:flex;gap:8px;flex-wrap:wrap}
+.sleep-ocr-suggestions button{font-size:13px;min-height:44px;padding:6px}
+.sleep-ocr-panel label.check{display:flex;align-items:center;gap:8px;min-height:44px;margin:4px 0;font-size:13px}
+.sleep-ocr-panel label.check input{width:20px;height:20px;min-height:20px;margin:0;flex:none}
+.sleep-ocr-actions{display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;padding:12px 0 max(12px,env(safe-area-inset-bottom));background:var(--mh-surface);border-top:1px solid var(--mh-border)}
+.sleep-ocr-actions button{min-height:44px;font-size:14px}
+.ocr-excluded{opacity:.6}

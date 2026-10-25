@@ -185,7 +185,7 @@ const SleepUI=(()=>{
    }
    if(!results.children.length)results.append(el('p',target?'この日付・フィールドに該当するピックアップはありません。':'確認済みの候補はありません。条件を変更してください。','sleep-note'));
   }
-  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);form.append(searchRow,results);renderCandidates();
+  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);if(typeof SleepOCRUI!=='undefined'){const tools=el('div',undefined,'sleep-ocr-tools');tools.append(button('スクショから入力',()=>{if(keep())SleepOCRUI.open({date,number,field:draft.field});}));selectedHead.append(tools);}const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);form.append(searchRow,results);renderCandidates();
   form.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(commit(next,sleepResourceNotice(next,date,number,'candy'))){draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
   const shardForm=el('form');shardForm.id='sleep-shard-form';shardForm.hidden=mode!=='shards';
   const shardFields=SleepShards.fields('sleep-shard',draft,(key,v)=>{draft[key]=v;keep();updateTotal();});shardForm.append(shardFields);if(!draft.researchRank)shardForm.append(el('p','設定でリサーチランクを設定してください。','rank-hint'));
@@ -199,5 +199,6 @@ const SleepUI=(()=>{
   const r={id:'sleep:'+s.id,recordedAt:s.recordedAt,datetime:SleepResearch.datetime(s),amount:shardsOnly?s.amount:C.sum(s.entries),method:'research',sleepSession:s},card=el('div',undefined,'card research'+(shardsOnly?' shards':'')),actions=el('div',undefined,'history-actions');if(!C.inRange(r,period))continue;card.dataset.datetime=r.datetime;if(shardsOnly)card.dataset.shardSource='research';actions.append(button('訂正',()=>edit(s.id)),button('削除',()=>remove(s.id),'danger'));
   historyCard(card,r,'睡眠リサーチ',shardsOnly?'ゆめのかけら':'アメ',s.number+'回目'+(!shardsOnly&&s.shardsRecorded!==false?' · ゆめのかけら '+s.amount.toLocaleString('ja-JP')+'個':''),actions);finishHistoryCard(card);root.append(card);
  }}
- return {selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
+ function invalidateOCR(){draft=null;loaded=false;researchSource=null;}
+ return {invalidateOCR,selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
 })();
