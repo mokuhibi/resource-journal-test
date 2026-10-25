@@ -106,12 +106,19 @@ const SleepUI=(()=>{
   for(let d=1;d<=last;d++){const day=calendarMonth+'-'+String(d).padStart(2,'0'),b=button(String(d),()=>{historyDay=day;historyKind='day';render();});b.setAttribute('aria-label',C.displayDate(day)+(days.has(day)?'・記録あり':''));b.setAttribute('aria-pressed',String(historyKind==='day'&&historyDay===day));if(days.has(day))b.append(el('span','●','sleep-calendar-dot'));grid.append(b);}
   details.append(summary,bar,grid);root.append(details);
  }
+ function confirmRemoveHistory(day,key){
+  AppPanels.open('削除の確認',body=>{
+   const actions=el('div',undefined,'history-actions');actions.append(button('キャンセル',()=>AppPanels.close()),button('削除する',()=>{
+    try{const next=SleepResearch.removeResearch(state,day,key);if(commit(next,'睡眠リサーチを削除しました。')){draft=null;loaded=false;researchSource=null;render();AppPanels.close();}}catch(e){notice(e.message,true);}
+   },'danger'));body.append(el('p','この睡眠リサーチ履歴を削除しますか？'),actions);
+  });
+ }
  function renderSavedHistory(root){
   const dates=[...new Set([...sessions().map(s=>s.date),...(state.shardRecords||[]).filter(r=>r.method==='research').map(r=>r.targetDate||C.gameDay(r.datetime))])].sort().reverse(),list=el('div',undefined,'sleep-history');
   const range=C.range(historyKind,historyDay);
   for(const day of dates.filter(day=>!range||day>=range[0]&&day<range[1]))for(const row of SleepResearch.researchRows(state,day)){
    const s=row.kind==='session'?row.record:row.sleepSession,shard=row.record,box=el('section',undefined,'sleep-history-entry'),head=el('div',undefined,'sleep-session-head');
-   head.append(el('h3',C.displayDate(day)+' '+row.number+'回目'),button('開く',()=>openResearch(day,row.number,s?.candyRecorded!==false&&s?'candy':'shards')));box.append(head);
+   const actions=el('div',undefined,'history-actions');actions.append(button('開く',()=>openResearch(day,row.number,s?.candyRecorded!==false&&s?'candy':'shards')),button('削除',()=>confirmRemoveHistory(day,row.key),'danger'));head.append(el('h3',C.displayDate(day)+' '+row.number+'回目'),actions);box.append(head);
    const bonus=s?(s.candyMultiplier??1):null;box.append(el('p',[(s?.field||'フィールド未記録'),s?.sleepType==='とくちょうなし'?'すべて':(s?.sleepType||'睡眠タイプ未記録'),bonus===null?'倍率未記録':bonus===1?'－（1倍）':bonus+'倍'].join(' / '),'sleep-note'));
    const candySaved=s&&s.candyRecorded!==false;box.append(qel('strong','アメ '+(candySaved?C.sum(s.entries).toLocaleString('ja-JP')+'個':'未入力')));
    if(candySaved&&s.entries.length){const entries=el('ul',undefined,'sleep-history-pokemon');for(const e of s.entries){const line=el('li');line.append(el('span',C.speciesName(e.species)),el('span','★'+e.stars),qel('span',e.amount.toLocaleString('ja-JP')+'個'));entries.append(line);}box.append(entries);}

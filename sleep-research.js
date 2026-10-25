@@ -152,10 +152,16 @@
   if(drafts[draftKey])drafts[draftKey]={...drafts[draftKey],id:session.id,...values,researchRank:rank};
   return {...next,...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
  }
+ // Delete one unified history row, including only its linked legacy shard row and draft.
+ function removeResearch(state,date,key){
+  const row=researchRows(state,date).find(r=>r.key===key);if(!row)throw Error('削除する睡眠リサーチ履歴が見つかりません。');
+  const session=row.kind==='session'?row.record:row.sleepSession,legacyId=row.kind==='legacy'?row.record.id:session.legacyResearchId,drafts={...(state.sleepDrafts||{})};delete drafts[date+':'+row.number];
+  return {...state,...(state.sleepSessions?{sleepSessions:state.sleepSessions.filter(s=>s.id!==session?.id)}:{}),...(legacyId?{shardRecords:state.shardRecords.filter(r=>r.id!==legacyId)}:{}),...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
+ }
  function initialDate(state,today){const d=new Date(today+'T12:00:00Z');if(state.settings?.sleepMode!=='split')d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10);}
  // Collapse only sleep-screen candidates; saved species keys and encounters remain intact.
  const candidateName=species=>species.replace(/^(バケッチャ|パンプジン)[（(](?:ちゅうだま|こだま|おおだま|ギガだま)(?:しゅ)?[）)]$/,'$1');
  function candidateGroups(names){const groups=new Map();for(const species of names){const key=candidateName(species);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(species);}return [...groups.values()];}
- const api={candidateName,candidateGroups,initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,starOverrides,displayStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
+ const api={removeResearch,candidateName,candidateGroups,initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,starOverrides,displayStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SleepResearch=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
