@@ -36,7 +36,8 @@ const SleepUI=(()=>{
   let exists=false,equal=false;
   if(mode==='candy'){
    exists=Boolean(saved&&saved.candyRecorded!==false);
-   const view=(s,bonus)=>[s.field||'',s.sleepType||'',bonus,(s.entries||[]).map(e=>[e.id,e.species,e.stars,num(e.amount)])];
+   const sleepType=v=>!v||v==='特徴なし'?'とくちょうなし':v;
+   const view=(s,bonus)=>[s.field||'',sleepType(s.sleepType),bonus,(s.entries||[]).map(e=>[e.id,e.species,e.stars,num(e.amount)])];
    equal=exists&&JSON.stringify(view(draft,effectiveMultiplier()))===JSON.stringify(view(saved,saved.candyMultiplier??1));
   }else if(mode==='shards'){
    exists=Boolean(row&&(row.kind==='legacy'||r.shardsRecorded!==false));
@@ -194,7 +195,7 @@ const SleepUI=(()=>{
    }
    if(!results.children.length)results.append(el('p',target?'この日付・フィールドに該当するピックアップはありません。':'確認済みの候補はありません。条件を変更してください。','sleep-note'));
   }
-  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);if(typeof SleepOCRUI!=='undefined'){const tools=el('div',undefined,'sleep-ocr-tools');tools.append(button('スクショから入力',()=>{if(keep())SleepOCRUI.open({date,number,field:draft.field});}));form.append(tools);}const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);form.append(searchRow,results);renderCandidates();
+  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);if(typeof SleepOCRUI!=='undefined'){const screenshot=button('スクショ',()=>{if(keep())SleepOCRUI.open({date,number,field:draft.field});},'sleep-screenshot');screenshot.setAttribute('aria-label','スクショから入力');searchRow.append(screenshot);}form.append(searchRow,results);renderCandidates();
   form.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(commit(next,sleepResourceNotice(next,date,number,'candy'))){draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
   const shardForm=el('form');shardForm.id='sleep-shard-form';shardForm.hidden=mode!=='shards';
   const shardFields=SleepShards.fields('sleep-shard',draft,(key,v)=>{draft[key]=v;keep();updateTotal();});shardForm.append(shardFields);if(!draft.researchRank)shardForm.append(el('p','設定でリサーチランクを設定してください。','rank-hint'));

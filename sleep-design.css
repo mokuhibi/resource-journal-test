@@ -104,12 +104,12 @@ body:has(#sleep:not([hidden])) :is(#record,#history){margin-bottom:0}
 #sleep .sleep-research-heading{margin:4px 0 0}
 /* 選択数に応じた高さとし、多い場合だけ一覧内をスクロールする。 */
 #sleep #sleep-entries{height:auto;max-height:50vh;max-height:50dvh;overflow-anchor:none}
-#sleep .sleep-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;margin:12px 0 6px;padding-top:12px;border-top:1px solid var(--mh-border)}
+#sleep .sleep-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;margin:12px 0 6px;padding-top:12px;border-top:1px solid var(--mh-border)}
 #sleep .sleep-search-row .sleep-search{min-width:0;margin:0;padding:0;border:0}
 body #sleep .sleep-search-row input{margin:0;font-size:16px;min-height:44px;padding-inline:8px}
 #sleep .sleep-search-row .sleep-filter-info{margin:0;gap:4px;flex-wrap:nowrap}
-#sleep .sleep-search-row .sleep-filter-info button{min-height:44px;white-space:nowrap;font-size:12px!important;padding-inline:6px!important}
-@media(max-width:360px){#sleep .sleep-search-row input{padding-inline:5px}#sleep .sleep-search-row .sleep-filter-info button{padding-inline:4px!important}}
+#sleep .sleep-search-row :is(.sleep-filter-info button,.sleep-screenshot){min-height:44px;white-space:nowrap;font-size:12px!important;padding-inline:6px!important}
+@media(max-width:360px){#sleep .sleep-search-row input{padding-inline:5px}#sleep .sleep-search-row :is(.sleep-filter-info button,.sleep-screenshot){padding-inline:4px!important}}
 #sleep #sleep-form .sleep-search>input{margin:0;height:44px}
 
 /* 検索文字の消去は同じ入力枠内。標準の検索消去と二重に表示しない。 */
