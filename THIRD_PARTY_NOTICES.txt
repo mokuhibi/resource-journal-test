@@ -44,7 +44,7 @@ Lucide Icons 0.468.0
 https://github.com/lucide-icons/lucide
 Referenced commit: f12b0de177fbc2a6795e99be065887e72b237123
 Icons: notebook-pen, candy, diamond, history, users, settings, moon, mountain,
-list, calendar-days, user-round-plus, map
+list, calendar-days, user-round-plus, map, file-pen-line
 SVG の図形を同梱し、アプリ側のサイズ・配色・配置で表示しています。
 
 ISC License

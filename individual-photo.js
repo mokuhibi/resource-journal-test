@@ -1,0 +1,36 @@
+'use strict';
+// Browser OCR yields proposals only. Missing values never clear existing individual data.
+const IndividualPhoto=(()=>{
+ const norm=s=>String(s??'').normalize('NFKC').replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+96)).replace(/\s/g,'');
+ const level=text=>{const m=String(text).normalize('NFKC').match(/(?:Lv\.?|レベル)\s*(100|[1-9]\d?)(?!\d)/i);return m?Number(m[1]):undefined;};
+ function parseProfile(text,env){
+  const lines=text.normalize('NFKC').split(/\n/).map(s=>s.trim()).filter(Boolean),flat=norm(text),out={subskills:Array(5).fill(null)};
+  const species=env.species.filter(n=>flat.includes(norm(n))).sort((a,b)=>norm(b).length-norm(a).length);if(species.length)out.species=species[0];const skill=(env.skills||[]).filter(s=>[s.name,s.legacyName].some(n=>n&&flat.includes(norm(n)))).sort((a,b)=>b.name.length-a.name.length)[0];if(skill)out.mainSkillId=skill.id;
+  const nick=lines.find(s=>/^(?:ニックネーム|名前)\s*[:：]/.test(s));if(nick)out.nickname=nick.replace(/^[^:：]+[:：]\s*/,'');
+  for(let i=0;i<lines.length;i++){const s=lines[i];if(/メインスキル|スキルLv/i.test(s)){const n=level(s)??level(lines[i+1]||'');if(n!==undefined)out.skillLevel=n;}else if(out.species&&out.level===undefined&&!lines.slice(0,i+1).some(v=>/サブスキル|メインスキル/.test(v))&&!env.subskills.some(v=>norm(s+' '+(lines[i+1]||'')).includes(norm(v)))&&/^(?:ポケモン)?(?:Lv\.?|レベル)\s*\d/i.test(s)){const n=level(s);if(n!==undefined)out.level=n;}}
+  out.nature=env.natures.find(n=>flat.includes(norm(n)));if(out.nature===undefined)delete out.nature;
+  const levels=[10,25,50,70,80];for(let i=0;i<lines.length;i++){const m=lines[i].match(/(?:Lv\.?|レベル)\s*(10|25|50|70|80)(?!\d)/i);if(!m)continue;const around=lines[i]+' '+(lines[i+1]||'');const sub=env.subskills.find(s=>norm(around).includes(norm(s)));if(sub)out.subskills[levels.indexOf(Number(m[1]))]=sub;}
+  return out;
+ }
+ const candidates=(pokemon,patch)=>pokemon.filter(p=>patch.species&&p.species===patch.species||patch.nickname&&norm(p.nickname)===norm(patch.nickname));
+ function patchIndividual(old,patch,map,newId){
+  const p=old?{...old}:{id:newId(),species:'',nickname:'',profile:null,provisional:true};
+  if(patch.species!==undefined){if(!Object.hasOwn(map,patch.species))throw Error('ポケモンの種類を確認してください。');const changed=p.species!==patch.species;p.species=patch.species;if(changed&&p.species!=='ミュウ'&&patch.mainSkillId===undefined){const SK=typeof MainSkillMaster!=='undefined'?MainSkillMaster:require('./main-skill-master');const key=SK.defaultId(p.species);delete p.mainSkill;delete p.mainSkillId;if(key)Object.assign(p,SK.fields(key));}}
+  if(patch.nickname!==undefined)p.nickname=patch.nickname;if(patch.mainSkillId!==undefined){const SK=typeof MainSkillMaster!=='undefined'?MainSkillMaster:require('./main-skill-master');if(!SK.find(patch.mainSkillId)||p.species!=='ミュウ'&&SK.id(patch.mainSkillId)!==SK.defaultId(p.species)||p.species==='ミュウ'&&!SK.mewEntries().some(s=>s.id===SK.id(patch.mainSkillId)))throw Error('メインスキルを確認してください。');Object.assign(p,SK.fields(patch.mainSkillId));}
+  if(typeof p.nickname!=='string'||p.nickname.length>40)throw Error('ニックネームは40文字以内にしてください。');const info={...(p.importedIndividual||{})};for(const k of ['level','skillLevel','nature'])if(patch[k]!==undefined)info[k]=patch[k];
+  const subs=(p.profile?.subskills||info.subskills||Array(5).fill('')).map(v=>v??'');(patch.subskills||[]).forEach((s,i)=>{if(s!==null&&s!==undefined)subs[i]=s;});info.subskills=subs;
+  for(const k of ['level','skillLevel'])if(info[k]!==undefined&&(!Number.isInteger(info[k])||info[k]<1||info[k]>100))throw Error('レベルを確認してください。');
+  const SK=typeof MainSkillMaster!=='undefined'?MainSkillMaster:require('./main-skill-master');if(info.skillLevel!==undefined&&info.skillLevel>(SK.copyCap(p)??8))throw Error('スキルLv.の上限を確認してください。');
+  if(new Set(subs.filter(Boolean)).size!==subs.filter(Boolean).length)throw Error('サブスキルが重複しています。');
+  const profile={...(p.profile||Object.fromEntries(['level','skillLevel','nature'].filter(k=>info[k]!==undefined).map(k=>[k,info[k]]))),subskills:subs};for(const k of ['level','skillLevel','nature'])if(patch[k]!==undefined)profile[k]=patch[k];
+  const C=typeof CandyCore!=='undefined'?CandyCore:require('./core');if(p.species&&C.profileValid(profile,p.species)){p.profile=profile;p.provisional=false;}else if(p.profile)throw Error('更新後の個体情報を確認してください。');
+  p.importedIndividual=info;return p;
+ }
+ function applyProfiles(state,rows,map,newId){const pokemon=state.pokemon.slice(),used=new Set();for(const r of rows.filter(r=>r.confirmed&&r.target!=='skip')){const old=r.target==='new'?null:pokemon.find(p=>p.id===r.target);if(r.target!=='new'&&!old)throw Error('更新先が見つかりません。');if(old&&used.has(old.id))throw Error('同じ個体への複数の更新は、写真をまとめて確認してください。');const p=patchIndividual(old,r.patch,map,newId);if(!p.species)throw Error('新規個体の種類を確認してください。');if(!old&&!r.distinct&&p.nickname&&pokemon.some(q=>q.species===p.species&&q.nickname===p.nickname))throw Error('同じ種類・名前の個体があります。更新先か別個体か確認してください。');if(p.species==='ミュウ'&&pokemon.some(q=>q.id!==p.id&&q.species==='ミュウ'))throw Error('ミュウは登録済みです。');if(old){pokemon[pokemon.indexOf(old)]=p;used.add(p.id);}else{p.registrationOrder=Math.max(-1,...pokemon.map(q=>q.registrationOrder??-1))+1;pokemon.push(p);}}
+  return {...state,pokemon};
+ }
+ function applyTeam(state,rows,name,destination,newId){const pokemon=state.pokemon.slice(),team=[],ids=new Set();for(const r of rows){if(r.target==='empty'){team.push(null);continue;}let p;if(r.target==='later'){p={id:newId(),species:r.species||'',nickname:r.nickname||'',profile:null,provisional:true,importedIndividual:{...(r.level?{level:Number(r.level)}:{})},registrationOrder:Math.max(-1,...pokemon.map(q=>q.registrationOrder??-1))+1};if(r.level!==''&&r.level!==undefined&&(!Number.isInteger(Number(r.level))||Number(r.level)<1||Number(r.level)>100))throw Error('レベルを確認してください。');if(pokemon.some(q=>q.id===p.id))throw Error('個体IDが重複しました。');pokemon.push(p);}else{p=pokemon.find(p=>p.id===r.target);if(!p)throw Error('各枠の個体を選択してください。');if(r.update){p=patchIndividual(p,{nickname:r.nickname,...(r.level?{level:Number(r.level)}:{})},Object.fromEntries(pokemon.filter(p=>p.species).map(p=>[p.species,true])),newId);pokemon[pokemon.findIndex(q=>q.id===p.id)]=p;}}if(ids.has(p.id))throw Error('同じ個体を重複して編成できません。');ids.add(p.id);team.push(p.id);}if(team.length!==5)throw Error('5枠を確認してください。');if(destination==='current')return {...state,pokemon,team};const i=Number(destination);if(!Number.isInteger(i)||i<0||i>7)throw Error('保存先を選択してください。');const savedTeams=Array.from({length:8},(_,n)=>state.savedTeams?.[n]||null);savedTeams[i]={name,team};return {...state,pokemon,savedTeams};}
+ function merge(patches){const result={subskills:Array(5).fill(null)};for(const p of patches){for(const k of ['species','nickname','level','skillLevel','nature','mainSkillId'])if(p[k]!==undefined){if(result[k]!==undefined&&result[k]!==p[k])throw Error('写真の情報が一致しません。個別に確認してください。');result[k]=p[k];}(p.subskills||[]).forEach((v,i)=>{if(v===null||v===undefined)return;if(result.subskills[i]!==null&&result.subskills[i]!==v)throw Error('サブスキルが一致しません。');result.subskills[i]=v;});}return result;}
+ return {merge,norm,level,parseProfile,candidates,patchIndividual,applyProfiles,applyTeam};
+})();
+if(typeof module!=='undefined')module.exports=IndividualPhoto;

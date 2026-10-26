@@ -105,7 +105,7 @@ const CandyCore = (() => {
   if(raw.settings?.sleepPickupEvents!==undefined)(typeof SleepPickups!=='undefined'?SleepPickups:require('./sleep-pickups.js')).validate(raw.settings.sleepPickupEvents,map);
   if(raw.sleepSessions!==undefined||raw.sleepDrafts!==undefined||raw.settings?.sleepCandyMultipliers!==undefined){const sleep=typeof SleepResearch!=='undefined'?SleepResearch:require('./sleep-research.js');sleep.validateMultipliers(raw);sleep.validate(raw.sleepSessions||[],map,shardRecords);sleep.validateDrafts(raw.sleepDrafts,map);}
   const ids=new Set();
-  for(const p of raw.pokemon){if(!p||(p.shardSkill!==undefined&&typeof p.shardSkill!=='boolean')||(p.mainSkill!==undefined&&(typeof p.mainSkill!=='string'||!p.mainSkill.trim()))||(p.mainSkillId!==undefined&&(typeof p.mainSkillId!=='string'||!p.mainSkillId.trim()))||typeof p.id!=='string'||ids.has(p.id)||!Object.hasOwn(map,p.species)||typeof p.nickname!=='string'||(p.profile!=null&&!profileValid(p.profile,p.species,true)))throw Error('個体情報');ids.add(p.id);}
+  for(const p of raw.pokemon){if(!p||(p.shardSkill!==undefined&&typeof p.shardSkill!=='boolean')||(p.mainSkill!==undefined&&(typeof p.mainSkill!=='string'||!p.mainSkill.trim()))||(p.mainSkillId!==undefined&&(typeof p.mainSkillId!=='string'||!p.mainSkillId.trim()))||typeof p.id!=='string'||ids.has(p.id)||(p.provisional!==undefined&&typeof p.provisional!=='boolean')||!(Object.hasOwn(map,p.species)||p.provisional===true&&p.species==='')||typeof p.nickname!=='string'||(p.profile!=null&&!profileValid(p.profile,p.species,true)))throw Error('個体情報');ids.add(p.id);}
   if(raw.savedTeams!==undefined){
    if(!Array.isArray(raw.savedTeams)||raw.savedTeams.length>8)throw Error('保存済みチーム');
    for(const saved of raw.savedTeams){if(saved===null)continue;if(!saved||typeof saved.name!=='string'||!(saved.team===null||Array.isArray(saved.team)&&saved.team.length===5))throw Error('保存済みチーム');if(saved.team){const members=saved.team.filter(id=>id!==null);if(members.some(id=>typeof id!=='string'||!ids.has(id))||new Set(members).size!==members.length)throw Error('保存済みチームの個体');}}
@@ -126,7 +126,7 @@ const CandyCore = (() => {
    if(unified&&r.amount===0&&r.shardAmount===0&&SK.id(SK.forPokemon(r.context.actor))!=='metronome'&&!(r.sourcePokemonId&&['skill_20','super_luck','metronome'].includes(r.sourceSkillId)))throw Error('0個の統合スキル記録');
    if(r.method==='skill'&&!isNapRecord(r)&&!r.context)throw Error('スキル記録時の編成');
    if(r.context!=null){const c=r.context;if(!Array.isArray(c.team)||c.team.length!==5)throw Error('記録時編成');
-    for(const p of c.team)if(p!==null&&(!p||typeof p.id!=='string'||typeof p.nickname!=='string'||!Object.hasOwn(map,p.species)||(p.profile!=null&&!profileValid(p.profile,p.species,true))))throw Error('記録時個体');
+    for(const p of c.team)if(p!==null&&(!p||typeof p.id!=='string'||typeof p.nickname!=='string'||!(Object.hasOwn(map,p.species)||p.provisional===true&&p.species==='')||(p.profile!=null&&!profileValid(p.profile,p.species,true))))throw Error('記録時個体');
     if(r.method==='skill'){if(!c.actor||c.actor.id!==c.actorId||!Number.isInteger(c.actorSlot)||c.actorSlot<1||c.actorSlot>5||c.team[c.actorSlot-1]?.id!==c.actorId)throw Error('スキル使用個体');}
     if(r.method!=='help'&&r.method!=='skill'){
      const actor=c.actor || c.team[c.actorSlot-1];

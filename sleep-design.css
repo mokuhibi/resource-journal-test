@@ -170,3 +170,14 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 :is(#sleep,#sleep-editor) .sleep-save:not(:disabled){border-color:transparent}
 
 #sleep .sleep-entry-name{min-width:0;text-align:left;overflow-wrap:anywhere}#sleep .sleep-entry-name>strong{font-weight:400}
+
+/* Confirmed research is read-only until its own Edit action is chosen. */
+#sleep .sleep-readonly .sleep-search-row,#sleep .sleep-readonly .sleep-candidates{display:none}
+#sleep .sleep-readonly .sleep-entry button:disabled,#sleep .sleep-readonly .sleep-fields select:disabled,#sleep .sleep-readonly .sleep-entry input:disabled{opacity:1;color:var(--mh-text)}
+#sleep .sleep-sticky-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+#sleep .sleep-sticky-total{flex:0 0 auto;min-width:86px;font-variant-numeric:tabular-nums}
+#sleep .sleep-sticky-total #sleep-candy-total{min-width:3.8ch}
+#sleep .sleep-sticky-total #sleep-entry-count{min-width:3ch}
+#sleep .sleep-sticky-actions .sleep-rounds{flex:1 0 auto}
+#sleep .sleep-sticky-actions .sleep-rounds button{padding-inline:6px;min-width:48px}
+#sleep #sleep-save,#sleep #sleep-cancel{flex:0 0 auto;min-height:44px;padding:6px 8px;font-size:13px;margin:0}

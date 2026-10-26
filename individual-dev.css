@@ -1,0 +1,66 @@
+/* Ver.1.1.0 DEV: confined to team and its choice dialogs. */
+#team #roster-panel .individual-roster-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+#team #roster-panel .roster-views{display:flex;gap:4px;flex-wrap:wrap;margin:12px 0}
+#team .roster-views button{font-size:13px;min-height:44px;padding:6px 8px}
+#team .roster-views button[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent)}
+#team .provisional-badge{display:inline-block;font-size:11px;color:var(--mh-accent)}
+#team #team-panel #team-slots>.team-slot-row{position:relative;display:block;border:0!important}
+#team #team-panel #team-slots .team-slot-row>.team-slot-button{padding-top:32px;height:100%;min-height:120px}
+#team #team-panel #team-slots .team-slot-row>span{position:absolute;top:4px;left:5px;pointer-events:none}
+#team #team-panel #team-slots .team-slot-edit{position:absolute;top:0;right:0;width:32px;height:32px;min-height:32px;padding:8px;margin:0;display:grid;place-items:center;background:transparent;border:0}
+#team #team-panel #team-slots+h2{margin-top:28px}
+#team #team-panel .current-team-head{flex-wrap:wrap}
+#team #team-panel .current-team-head button{min-height:44px;font-size:13px;padding:6px 8px}
+#team #team-panel #saved-teams{margin-top:12px;padding-top:8px;border-top:1px solid var(--mh-border)}
+#team #team-panel .saved-team-slots>.team-slot-button{grid-column:auto;grid-row:auto}
+#team .individual-editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+#team .individual-editor-head h2{margin:0;font-size:20px}
+#team .individual-editor-head .profile-editor-actions{display:flex;gap:4px;align-items:center;margin:0;padding:0;flex:0 0 auto}
+#team .individual-editor-head .profile-editor-actions button{width:auto;min-height:44px;height:44px;margin:0;padding:6px 8px;font-size:13px}
+#team .individual-top-grid .individual-stats-row{grid-column:1/-1;display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:8px;align-items:center;min-width:0}
+#team .individual-stats-row>label{min-width:0;margin:0}
+#team .individual-stats-row .check{display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:13px}
+#team .individual-stats-row .check input{width:20px;min-height:20px;height:20px;margin:0}
+#team .individual-top-grid .individual-field:has(#profile-skill,#register-skill){max-width:110px}
+#team .individual-top-grid input,#team .individual-top-grid select,#team .individual-pick{margin:0;min-height:44px;max-width:100%;box-sizing:border-box}
+#team .individual-pick{text-align:left;width:100%;padding:8px;overflow-wrap:anywhere;font-size:14px}
+#team .individual-subskills label{min-width:0;font-size:13px}
+#team .individual-top-grid .individual-field:has([data-fixed=true]){pointer-events:none}
+#app-panel.individual-choice{width:760px;max-width:calc(100vw - 16px);padding:0;box-sizing:border-box}
+#app-panel.individual-choice .app-panel-head{display:flex;gap:6px;align-items:center;padding:8px}
+#app-panel.individual-choice .app-panel-head h2{margin-right:auto;font-size:18px;white-space:nowrap}
+#app-panel.individual-choice .app-panel-head button{min-height:44px;padding:6px 8px;font-size:13px;white-space:nowrap}
+#app-panel.individual-choice .app-panel-body{overflow:hidden;min-height:0;padding:8px}
+#app-panel.individual-choice .individual-choice-grid{display:grid;grid-template-columns:minmax(45px,.6fr) minmax(85px,1.1fr) minmax(85px,1.4fr);gap:6px;height:min(58dvh,460px);min-height:275px}
+#app-panel.individual-choice .individual-choice-grid>div:not(.individual-options){display:grid;grid-template-rows:repeat(5,minmax(0,1fr));gap:4px;min-width:0}
+#app-panel.individual-choice .individual-choice-grid.nature-choice>div:not(.individual-options){grid-template-rows:repeat(6,minmax(0,1fr))}
+#app-panel.individual-choice .individual-choice-grid button{margin:0;min-width:0;min-height:44px;width:100%;padding:6px 4px;font-size:13px;overflow-wrap:anywhere;line-height:1.5}
+#app-panel.individual-choice .individual-choice-grid button[aria-pressed=true],#app-panel.individual-choice .individual-choice-grid .nature-match{outline:2px solid var(--mh-accent);outline-offset:-2px}
+.individual-options{overflow-y:auto;overscroll-behavior:contain;min-height:0;min-width:0;display:flex;flex-direction:column;gap:4px;position:relative}
+.individual-options button{flex:none}
+#app-panel.individual-choice .individual-options h3{margin:8px 0;font-size:13px;overflow-wrap:anywhere}
+#app-panel.individual-choice .individual-choice-grid .subskill-gold{background:#f5e5a5;color:var(--mh-text)}
+#app-panel.individual-choice .individual-choice-grid .subskill-blue{background:#d7e8f5;color:var(--mh-text)}
+#app-panel.individual-choice .individual-choice-grid .subskill-white{background:var(--mh-surface);color:var(--mh-text)}
+.photo-proposal{padding:12px 0;border-top:1px solid var(--mh-border);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.photo-proposal :is(h3,p,details,.check){grid-column:1/-1;margin:0;overflow-wrap:anywhere}
+.photo-proposal :is(input,select){min-width:0;max-width:100%;margin:0}
+.photo-proposal pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
+.photo-proposal .check{display:flex;align-items:center;gap:8px;font-size:13px}
+.photo-proposal .check input{width:20px;height:20px;min-height:20px;flex:none}
+
+#team .individual-stats-row .individual-number-field input{padding-left:28px;text-align:right}
+#team .individual-editor-head #profile-remove{margin:0;transform:none;align-self:center}
+
+#app-panel.individual-choice .nature-choice{grid-template-columns:minmax(60px,.8fr) minmax(60px,.8fr) minmax(85px,1.4fr)}
+
+#team .team-slot-edit .tab-icon{width:16px;height:16px;margin:0}
+#team .team-slot-edit .tab-label{display:none}
+#app-panel.individual-choice .individual-choice-captions{display:grid;grid-template-columns:60px 60px minmax(0,1fr);gap:6px;padding-bottom:6px;text-align:center;font-size:13px}
+#app-panel.individual-choice .individual-choice-shell .individual-choice-grid{height:min(calc(58dvh - 30px),430px);min-height:284px}
+#app-panel.individual-choice .individual-choice-shell .nature-choice{grid-template-columns:60px 60px minmax(85px,1fr)}
+#app-panel.individual-choice .nature-up{color:#b45353}
+#app-panel.individual-choice .nature-down{color:#2878b1}
+body button.save-dirty:not(:disabled){background:#171717!important;color:#fff!important;border-color:#171717!important}
+body button.save-idle:not(:disabled){background:#f5f6f6!important;color:var(--mh-muted)!important;border-color:transparent!important}
+@media(prefers-color-scheme:dark){body button.save-dirty:not(:disabled){background:#111!important;color:#fff!important;border-color:#aaa!important}}

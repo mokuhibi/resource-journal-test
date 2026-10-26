@@ -1,13 +1,13 @@
 // 編成内の表示状態だけを管理。保存する個体・編成・履歴の形式は変えません。
 const TeamUI=(()=>{
  let drag=null,suppressClick=false;
- let view='team',editing=false,editOrigin='roster';let columns=3;try{columns=localStorage.getItem('resource-journal-roster-columns')==='4'?4:3;}catch{}
+ let view='team',editing=false,editOrigin='roster';let columns=4,rosterView='skills';
  // 表示専用。個体IDや保存された名前・スキルは変更しない。
  function name(p){
   const root=el('span',undefined,'team-individual-name');
   const nickname=p?.nickname?.trim();
-  const primary=el('strong');primary.textContent=p?(nickname||C.speciesName(p.species)):'未設定';root.append(primary);
-  if(p&&nickname)root.append(el('small',C.speciesName(p.species)));
+  const primary=el('strong');primary.textContent=p?(nickname||C.speciesName(p.species)||'未確認'):'未設定';root.append(primary);
+  if(p&&nickname)root.append(el('small',C.speciesName(p.species)||'未確認'));
   if(p)root.title=label(p);
   return root;
  }
@@ -44,12 +44,13 @@ const TeamUI=(()=>{
   const normal=state.pokemon.filter(p=>!special(p));
   const category=p=>['メタモン','マネネ','バリヤード'].includes(p.species)?'スキルコピー':p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome'?'ゆびをふる':special(p)?'アメ':relatedPokemon(p)?'ゆめのかけら':'その他のポケモン';
   const target=p=>category(p)!=='その他のポケモン';
-  const visible=state.pokemon.filter(p=>speciesEnabled(p.species)&&(q||showOtherPokemon||target(p))&&(!q||normalize(p.species).includes(q)||normalize(C.speciesName(p.species)).includes(q)||normalize(p.nickname||'').includes(q)));
+  const visible=state.pokemon.filter(p=>(rosterView==='skills'?!p.provisional&&target(p):rosterView==='registered'?!p.provisional:rosterView==='provisional'?p.provisional:true)&&(!q||[p.species,C.speciesName(p.species),p.nickname].some(v=>normalize(v||'').includes(q))));
+  for(const b of document.querySelectorAll('[data-roster-view]')){b.setAttribute('aria-pressed',String(b.dataset.rosterView===rosterView));if(b.dataset.rosterView==='provisional'){const n=state.pokemon.filter(p=>p.provisional).length;b.textContent='仮登録'+(n?'（'+n+'）':'');}}
   const groups=['アメ','ゆめのかけら','スキルコピー','ゆびをふる','その他のポケモン'].map(title=>[title,visible.filter(p=>category(p)===title)]);
   for(const [title,members] of groups){if(!members.length)continue;root.append(el('h3',title,'roster-purpose-heading'));const group=el('div',undefined,'individual-roster-grid');root.append(group);
   for(const p of members){
    const line=el('div',undefined,'registered-row'),info=el('div',undefined,'registered-info'),actions=el('div',undefined,'row-actions');
-   info.append(el('small','No.'+String(nationalDex[p.species]).padStart(3,'0'),'individual-number'),name(p));
+   info.append(el('small',nationalDex[p.species]?'No.'+String(nationalDex[p.species]).padStart(3,'0'):'種類未確認','individual-number'),name(p));if(p.provisional)info.append(el('small','仮登録','provisional-badge'));
    if(sorting&&!special(p)){
     const i=normal.findIndex(x=>x.id===p.id),up=button('↑',()=>movePokemon(p.id,-1)),down=button('↓',()=>movePokemon(p.id,1));
     up.setAttribute('aria-label',label(p)+'を上へ');down.setAttribute('aria-label',label(p)+'を下へ');up.disabled=i===0;down.disabled=i===normal.length-1;actions.append(up,down);
@@ -78,7 +79,7 @@ const TeamUI=(()=>{
   const tabs=[...document.querySelectorAll('[data-team-view]')];
   tabs.forEach((b,i)=>{if(typeof TabIcons!=='undefined')TabIcons.add(b,({team:'users',roster:'list',register:'user-round-plus'})[b.dataset.teamView]);b.onclick=()=>show(b.dataset.teamView);b.onkeydown=e=>{let next;if(e.key==='ArrowRight')next=(i+1)%tabs.length;else if(e.key==='ArrowLeft')next=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=tabs.length-1;else return;e.preventDefault();show(tabs[next].dataset.teamView);tabs[next].focus({preventScroll:true});};});
   $('roster-search').oninput=renderRoster;
-  const select=el('select');select.id='roster-columns';select.setAttribute('aria-label','登録一覧の列数');select.add(new Option('3列','3'));select.add(new Option('4列','4'));select.value=String(columns);$('roster-other-toggle').after(select);select.onchange=()=>{columns=Number(select.value);try{localStorage.setItem('resource-journal-roster-columns',String(columns));}catch{}renderRoster();};
+  $('roster-other-toggle').remove();const views=el('div',undefined,'roster-views');for(const [key,title] of [['skills','記録スキル'],['registered','登録済み'],['provisional','仮登録'],['all','すべて']]){const b=button(title,()=>{rosterView=key;renderRoster();});b.dataset.rosterView=key;views.append(b);}$('registered-pokemon-list').before(views);$('roster-search').addEventListener('change',renderRoster);
   const toolbar=el('div',undefined,'profile-editor-actions'),cancel=$('profile-back'),save=$('profile-form').querySelector('button[type=submit]');cancel.textContent='キャンセル';save.textContent='保存';save.classList.add('primary');toolbar.append(cancel,$('profile-remove'),save);$('profile-form').prepend(toolbar);cancel.onclick=finishEdit;
   $('profile-remove').onclick=()=>{
    const p=state.pokemon.find(p=>p.id===$('profile-select').value);if(!p)return;
