@@ -42,6 +42,13 @@ const SleepOCR=(()=>{
  const research=()=>typeof SleepResearch!=='undefined'?SleepResearch:require('./sleep-research.js');
  function repeat(r,s){return (s.sleepSessions||[]).some(session=>session.entries.some(e=>e.ocrSource?.imageHash===r.imageHash&&e.ocrSource?.rowIndex===r.rowIndex));}
  function amountFor(r,multiplier){if(!['result','history'].includes(r.kind))throw Error('画面の種類を判別できません。写真を確認し、睡眠リサーチの手入力を使用してください。');if(r.kind==='result'||r.manualAmount===true){if(r.amount===''||!Number.isSafeInteger(Number(r.amount))||Number(r.amount)<0||Number(r.amount)>1000000000)throw Error('アメの個数を確認してください。');return {amount:Number(r.amount),calculatedAmount:null,manualAmount:true};}const base=research().estimate(r.species,Number(r.stars));if(base===null||!Number.isFinite(base))throw Error('報酬が未確認のため、アメの個数を手入力してください。');return research().changeStars({species:r.species,amount:'',manualAmount:false},Number(r.stars),multiplier);}
+ function draftEntries(rows,draft,map,newId){
+  const entries=[],issues=[],seen=new Set(draft.entries.filter(e=>e.ocrSource).map(e=>e.ocrSource.imageHash+':'+e.ocrSource.rowIndex)),overlap=new Set();
+  for(const image of [...new Set(rows.map(r=>r.image))])for(const prior of [...new Set(rows.filter(r=>r.image<image).map(r=>r.image))]){const left=rows.filter(r=>r.image===prior),right=rows.filter(r=>r.image===image);for(let n=Math.min(left.length,right.length);n>=2;n--){if(left.slice(-n).every((a,i)=>{const b=right[i];return a.species&&a.species===b.species&&a.stars===b.stars&&a.kind===b.kind&&(a.kind==='history'||a.amount!==''&&a.amount===b.amount)&&(!a.date||!b.date||a.date===b.date);})){right.slice(0,n).forEach(r=>overlap.add(r.id));break;}}}
+  for(const r of rows){const source=r.imageHash+':'+r.rowIndex,label='写真'+(r.image+1)+'・行'+(r.rowIndex+1);if(r.date&&r.date!==draft.date){issues.push(label+'：日付が異なります（'+r.date+'）。追加していません。');continue;}if(overlap.has(r.id)||seen.has(source)){issues.push(label+'：重複行を追加しませんでした。');continue;}
+   try{if(!Object.hasOwn(map,r.species)||!Number.isInteger(r.stars)||r.stars<1||r.stars>4)throw Error('ポケモン名・星を読み取れません。手入力してください。');const value=amountFor(r,draft.number===2?1:draft.candyMultiplier??1);if(draft.entries.length+entries.length>=100)throw Error('1回に追加できるのは100匹までです。');entries.push({id:newId(),species:r.species,candy:map[r.species],stars:r.stars,...value,ocrSource:{imageHash:r.imageHash,rowIndex:r.rowIndex,kind:r.kind,signature:r.signature}});seen.add(source);}catch(e){issues.push(label+'：'+e.message);}
+  }return {entries,issues};
+ }
  function build(s,rows,groups,map,newId,now){const selected=rows.filter(r=>r.confirmed&&!r.excluded);if(!selected.length)throw Error('確認済みの行を選んでください。');let next=s;const totals={};
   for(const key of [...new Set(selected.map(r=>r.date+':'+r.number))]){const members=selected.filter(r=>r.date+':'+r.number===key),r=members[0],g=groups[key];if(!research().validDate(r.date)||![1,2].includes(r.number)||!g||!g.field||![1,1.5,2,3].includes(Number(g.multiplier)))throw Error('日付・睡眠回・フィールドを確認してください。');const existing=research().researchRows(next,r.date).find(x=>x.number===r.number),saved=existing?.kind==='session'?existing.record:existing?.sleepSession;
    if(existing&&!g.appendAccepted)throw Error('既存の睡眠リサーチへの追加を確認してください。');const draft=research().getDraft(next,r.date,r.number,newId());if(JSON.stringify(draft.entries)!==JSON.stringify(saved?.entries||[]))throw Error('入力途中のアメがあります。先に既存の入力を保存するか、OCRを閉じて確認してください。');if(saved&&saved.field!==g.field)throw Error('既存の睡眠リサーチのフィールドは変更できません。');const entries=[];
@@ -49,6 +56,6 @@ const SleepOCR=(()=>{
    next=research().saveCandy(next,{...draft,field:g.field,candyMultiplier:r.number===1?Number(g.multiplier):1,entries:[...draft.entries,...entries]},map,now);
   }return {state:next,count:selected.length,totals};
  }
- return {build,amountFor,repeat,norm,distance,matchName,readDate,layout,starCount,worker,recognize,duplicates,crop};
+ return {draftEntries,build,amountFor,repeat,norm,distance,matchName,readDate,layout,starCount,worker,recognize,duplicates,crop};
 })();
 if(typeof module!=='undefined')module.exports=SleepOCR;
