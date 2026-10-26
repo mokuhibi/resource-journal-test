@@ -32,7 +32,7 @@ const SummaryExtras=(()=>{
    toggle.type='button';toggle.dataset.source=key;item.dataset.source=key;toggle.style.setProperty?.('--source-color',shard?'var(--shard-'+(key==='cluster'?'other':key)+'-color)':({help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461',social:'#608896'})[key]);toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',name);
    toggle.onclick=()=>commit({...state,settings:{...state.settings,[group]:{...state.settings[group],[scope]:{...state.settings[group]?.[scope],[key]:!on}}}},null);
    item.append(toggle,el('small',on&&amount&&total?(amount/total*100).toFixed(1)+'%':'—','candy-source-percent'));if(['week','month'].includes(scope))item.append(qel('small',on?(shard?(amount?(Math.round(amount/1000)/10).toFixed(1)+'万':'0'):amount.toLocaleString('ja-JP')+'個'):'—','candy-source-amount'));root.append(item);
-  }
+  }root.style?.setProperty?.('--source-count',String(root.children.length||1));
  }
  function sourceTotals(root,kind,records,sourceVisible=()=>true){
   root.replaceChildren();root.className='source-totals';
