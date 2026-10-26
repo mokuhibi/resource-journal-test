@@ -22,6 +22,13 @@ const SleepUI=(()=>{
   const dex=typeof nationalDex!=='undefined'?nationalDex[species]:null;if(Number.isInteger(dex)&&dex>0)root.append(el('small',String(dex).padStart(4,'0'),'sleep-dex'));
   root.append(el('span',match?match[1]:name));if(match)root.append(el('small',match[2]+match[3]+match[4],'sleep-form-name'));return root;
  }
+ function entryRow(e,{onStar,onAmount,onRemove,onName}){
+  const row=el('div',undefined,'sleep-entry'),name=pokemonName(e.species),status=SleepResearch.rewardStatus(e.species,e.stars);name.title=C.speciesName(e.species)+'・'+e.candy+(status==='unknown'?'（報酬未確認）':'');
+    const legacy=Object.hasOwn(SleepResearch.starOverrides,e.species)&&!SleepResearch.displayStars(e.species).includes(e.stars);if(legacy){name.style.whiteSpace='normal';name.append(el('small',' ・保存値★'+e.stars,'sleep-form-name'));name.title+='・保存値★'+e.stars+'（現在の選択対象外）';}
+    const star=button(legacy?'変更':'★'+e.stars,onStar);star.classList.add('sleep-star-button');star.setAttribute('aria-pressed',String(!legacy));star.setAttribute('aria-label',e.species+(legacy?'の保存値★'+e.stars+'（現在の選択対象外）を変更':'の寝顔★'+e.stars+'を切り替える'));
+    const amount=input(e.amount,onAmount,{required:true,placeholder:status==='unknown'?'手入力':''});amount.className='sleep-entry-amount';amount.onclick=event=>{if(event.target===amount){event.preventDefault();amount.querySelector('input:not([hidden])')?.focus({preventScroll:true});}};const i=amount.querySelector('input');i.setAttribute('aria-label',e.species+'のアメ個数');i.title=e.candy+'の実獲得数（修正可）'+(status==='unknown'?'・報酬未確認':'');
+    const remove=button('×',onRemove,'sleep-entry-remove');remove.setAttribute('aria-label',e.species+'を削除');if(onName){const edit=button('',onName,'sleep-entry-name');edit.setAttribute('aria-label',e.species+'のポケモン名を修正');edit.append(name);row.append(edit);}else row.append(name);row.append(star,amount,remove);return row;
+ }
  function updateTotal(){const total=$('sleep-candy-total');if($('sleep-entry-count'))quantityText($('sleep-entry-count'),draft.entries.length+'匹');if(total)quantityText(total,(mode==='candy'?draft.entries.reduce((n,e)=>n+(Number(e.amount)||0),0):(Number(draft.baseAmount)||0)+(draft.researchRank===70?(Number(draft.researchExp)||0):0)).toLocaleString('ja-JP')+'個');updateSaveStatus();}
  function saveStatus(){
   const row=rowFor(),r=row?.record,saved=row?.kind==='session'?r:row?.sleepSession;
@@ -168,12 +175,7 @@ const SleepUI=(()=>{
   const selectedHead=el('div',undefined,'sleep-research-heading'),entries=el('div');entries.id='sleep-entries';entries.setAttribute('aria-label','リサーチしたポケモン');selectedHead.hidden=mode!=='candy';header.append(selectedHead);form.append(entries);
   function renderEntries(){
    const scroll=entries.scrollTop;entries.replaceChildren();if(!draft.entries.length)entries.append(el('p','まだ選択されていません。','sleep-note'));
-   for(const e of draft.entries){const row=el('div',undefined,'sleep-entry'),name=pokemonName(e.species),status=SleepResearch.rewardStatus(e.species,e.stars);name.title=C.speciesName(e.species)+'・'+e.candy+(status==='unknown'?'（報酬未確認）':'');
-    const legacy=Object.hasOwn(SleepResearch.starOverrides,e.species)&&!SleepResearch.displayStars(e.species).includes(e.stars);if(legacy){name.style.whiteSpace='normal';name.append(el('small',' ・保存値★'+e.stars,'sleep-form-name'));name.title+='・保存値★'+e.stars+'（現在の選択対象外）';}
-    const star=button(legacy?'変更':'★'+e.stars,()=>{Object.assign(e,SleepResearch.changeStars(e,SleepResearch.nextStars(e.species,e.stars),effectiveMultiplier()));keep();renderEntries();updateTotal();});star.classList.add('sleep-star-button');star.setAttribute('aria-pressed',String(!legacy));star.setAttribute('aria-label',e.species+(legacy?'の保存値★'+e.stars+'（現在の選択対象外）を変更':'の寝顔★'+e.stars+'を切り替える'));
-    const amount=input(e.amount,v=>{e.amount=v;e.manualAmount=true;},{required:true,placeholder:status==='unknown'?'手入力':''});amount.className='sleep-entry-amount';amount.onclick=event=>{if(event.target===amount){event.preventDefault();amount.querySelector('input:not([hidden])')?.focus({preventScroll:true});}};const i=amount.querySelector('input');i.setAttribute('aria-label',e.species+'のアメ個数');i.title=e.candy+'の実獲得数（修正可）'+(status==='unknown'?'・報酬未確認':'');
-    const remove=button('×',()=>{draft.entries=draft.entries.filter(x=>x.id!==e.id);keep();renderEntries();updateTotal();},'sleep-entry-remove');remove.setAttribute('aria-label',e.species+'を削除');row.append(name,star,amount,remove);entries.append(row);
-   }
+   for(const e of draft.entries)entries.append(entryRow(e,{onStar:()=>{Object.assign(e,SleepResearch.changeStars(e,SleepResearch.nextStars(e.species,e.stars),effectiveMultiplier()));keep();renderEntries();updateTotal();},onAmount:v=>{e.amount=v;e.manualAmount=true;},onRemove:()=>{draft.entries=draft.entries.filter(x=>x.id!==e.id);keep();renderEntries();updateTotal();}}));
    entries.scrollTop=scroll;
   }
   renderEntries();
@@ -192,7 +194,7 @@ const SleepUI=(()=>{
    }
    if(!results.children.length)results.append(el('p',target?'この日付・フィールドに該当するピックアップはありません。':'確認済みの候補はありません。条件を変更してください。','sleep-note'));
   }
-  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);if(typeof SleepOCRUI!=='undefined'){const tools=el('div',undefined,'sleep-ocr-tools');tools.append(button('スクショから入力',()=>{if(keep())SleepOCRUI.open({date,number,field:draft.field});}));selectedHead.append(tools);}const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);form.append(searchRow,results);renderCandidates();
+  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);if(typeof SleepOCRUI!=='undefined'){const tools=el('div',undefined,'sleep-ocr-tools');tools.append(button('写真から入力',()=>{if(keep())SleepOCRUI.open({date,number,field:draft.field});}));selectedHead.append(tools);}const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);form.append(searchRow,results);renderCandidates();
   form.onsubmit=e=>{e.preventDefault();try{if(!keep())return;const next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(commit(next,sleepResourceNotice(next,date,number,'candy'))){draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
   const shardForm=el('form');shardForm.id='sleep-shard-form';shardForm.hidden=mode!=='shards';
   const shardFields=SleepShards.fields('sleep-shard',draft,(key,v)=>{draft[key]=v;keep();updateTotal();});shardForm.append(shardFields);if(!draft.researchRank)shardForm.append(el('p','設定でリサーチランクを設定してください。','rank-hint'));
@@ -207,5 +209,5 @@ const SleepUI=(()=>{
   historyCard(card,r,'睡眠リサーチ',shardsOnly?'ゆめのかけら':'アメ',s.number+'回目'+(!shardsOnly&&s.shardsRecorded!==false?' · ゆめのかけら '+s.amount.toLocaleString('ja-JP')+'個':''),actions);finishHistoryCard(card);root.append(card);
  }}
  function invalidateOCR(){draft=null;loaded=false;researchSource=null;}
- return {invalidateOCR,selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
+ return {entryRow,invalidateOCR,selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
 })();
