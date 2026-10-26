@@ -16,7 +16,9 @@ const TabIcons=(()=>{
  paths['user-round-plus']="<path d=\"M2 21a8 8 0 0 1 13.292-6\" />\n  <circle cx=\"10\" cy=\"8\" r=\"5\" />\n  <path d=\"M19 16v6\" />\n  <path d=\"M22 19h-6\" />";
  paths['map']="<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\" />\n  <path d=\"M15 5.764v15\" />\n  <path d=\"M9 3.236v15\" />";
  paths['file-pen-line']='<path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2"/><path d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/><path d="M8 18h1"/>';
- const main={record:'notebook-pen',summary:'candy',shards:'diamond',history:'history',team:'users',settings:'settings'},record={main:'notebook-pen',sleep:'moon',nap:'mountain'};
+ paths["mail"]="<rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\" />\n  <path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\" />";
+ paths["image-plus"]="<path d=\"M16 5h6\" />\n  <path d=\"M19 2v6\" />\n  <path d=\"M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5\" />\n  <path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\" />\n  <circle cx=\"9\" cy=\"9\" r=\"2\" />";
+ const main={record:'notebook-pen',summary:'candy',shards:'diamond',history:'history',team:'users',settings:'settings'},record={main:'notebook-pen',sleep:'moon',social:'mail',nap:'mountain'};
  function add(button,name){
   if(!paths[name]||button.querySelector('.tab-icon'))return;
   const label=document.createElement('span');label.className='tab-label';while(button.firstChild)label.append(button.firstChild);

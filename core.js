@@ -66,7 +66,7 @@ const CandyCore = (() => {
  // 行動別設定は既存のリソース別設定とANDで判定し、旧設定・記録は移行しない。
  function actionCategory(r){
   if(r.source==='nap_island'||r.otherKind==='nap_island')return 'nap';
-  if(['help','research'].includes(r.method))return r.method;
+  if(['help','research','social'].includes(r.method))return r.method;
   const p=r.context?.actor||r.pokemonSnapshot,species=p?.species||(['skill','lucky'].includes(r.method)?r.species:'');
   if(r.method==='mew'||r.source==='mew'||species==='ミュウ')return 'mew';
   if(r.method==='delibird'||species==='デリバード')return 'delibird';
@@ -94,7 +94,8 @@ const CandyCore = (() => {
    const saved=settings[group];if(saved!==undefined&&(!saved||Array.isArray(saved)||typeof saved!=='object'))throw Error('集計設定');
    result[group]={...saved};for(const key of keys){if(saved?.[key]!==undefined&&typeof saved[key]!=='boolean')throw Error('集計設定');result[group][key]=saved?.[key]??(group==='aggregateCandy'?settings[old[key]]!==false:true);}
   }
-  if(settings.candyFilters!==undefined){if(!settings.candyFilters||Array.isArray(settings.candyFilters)||typeof settings.candyFilters!=='object')throw Error('集計フィルター');for(const scope of ['types','week','month','breakdown']){const flags=settings.candyFilters[scope];if(flags===undefined)continue;if(!flags||Array.isArray(flags)||typeof flags!=='object'||Object.keys(old).some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean'))throw Error('集計フィルター');}}
+  if(settings.aggregateCandy?.social!==undefined&&typeof settings.aggregateCandy.social!=='boolean')throw Error('ソーシャルリサーチの集計設定');
+  if(settings.candyFilters!==undefined){if(!settings.candyFilters||Array.isArray(settings.candyFilters)||typeof settings.candyFilters!=='object')throw Error('集計フィルター');for(const scope of ['types','week','month','breakdown']){const flags=settings.candyFilters[scope];if(flags===undefined)continue;if(!flags||Array.isArray(flags)||typeof flags!=='object'||[...Object.keys(old),'social'].some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean'))throw Error('集計フィルター');}}
   if(settings.shardFilters!==undefined){if(!settings.shardFilters||Array.isArray(settings.shardFilters)||typeof settings.shardFilters!=='object')throw Error('集計フィルター');for(const scope of ['week','month']){const flags=settings.shardFilters[scope];if(flags!==undefined&&(!flags||Array.isArray(flags)||typeof flags!=='object'||['research','skill','cluster','other'].some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean')))throw Error('集計フィルター');}}
   for(const group of ['displayActions','aggregateActions'])if(settings[group]!==undefined&&(!settings[group]||Array.isArray(settings[group])||typeof settings[group]!=='object'||Object.values(settings[group]).some(v=>typeof v!=='boolean')))throw Error('行動別設定');
   return result;
@@ -104,6 +105,7 @@ const CandyCore = (() => {
   const shardRecords=raw.shardRecords??[];validateShards(shardRecords);if(raw.fieldHistory!==undefined)(typeof FieldHistory!=='undefined'?FieldHistory:require('./field-history.js')).validate(raw.fieldHistory);
   if(raw.settings?.sleepPickupEvents!==undefined)(typeof SleepPickups!=='undefined'?SleepPickups:require('./sleep-pickups.js')).validate(raw.settings.sleepPickupEvents,map);
   if(raw.sleepSessions!==undefined||raw.sleepDrafts!==undefined||raw.settings?.sleepCandyMultipliers!==undefined){const sleep=typeof SleepResearch!=='undefined'?SleepResearch:require('./sleep-research.js');sleep.validateMultipliers(raw);sleep.validate(raw.sleepSessions||[],map,shardRecords);sleep.validateDrafts(raw.sleepDrafts,map);}
+  if(raw.socialResearch!==undefined)(typeof SocialResearch!=='undefined'?SocialResearch:require('./social-research.js')).validate(raw.socialResearch,map);
   const ids=new Set();
   for(const p of raw.pokemon){if(!p||(p.shardSkill!==undefined&&typeof p.shardSkill!=='boolean')||(p.mainSkill!==undefined&&(typeof p.mainSkill!=='string'||!p.mainSkill.trim()))||(p.mainSkillId!==undefined&&(typeof p.mainSkillId!=='string'||!p.mainSkillId.trim()))||typeof p.id!=='string'||ids.has(p.id)||(p.provisional!==undefined&&typeof p.provisional!=='boolean')||!(Object.hasOwn(map,p.species)||p.provisional===true&&p.species==='')||typeof p.nickname!=='string'||(p.profile!=null&&!profileValid(p.profile,p.species,true)))throw Error('個体情報');ids.add(p.id);}
   if(raw.savedTeams!==undefined){

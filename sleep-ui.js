@@ -1,6 +1,6 @@
 'use strict';
 const SleepUI=(()=>{
- let date='',draft=null,number=1,loaded=false,mode='candy',query='',showOtherTypes=false,historyKind='all',historyDay='',researchSource=null,inputMode='candy',recordView=false,historyView=false,fieldView=false,navigationReady=false,pickupOnly=false,calendarMonth='',calendarOpen=true,searchViewportCleanup=null;
+ let date='',draft=null,number=1,loaded=false,mode='candy',query='',showOtherTypes=false,historyKind='all',historyDay='',researchSource=null,inputMode='candy',recordView=false,socialView=false,historyView=false,fieldView=false,navigationReady=false,pickupOnly=false,calendarMonth='',calendarOpen=true,searchViewportCleanup=null;
  const fields=(typeof FieldHistory!=='undefined'?FieldHistory:require('./field-history.js')).fields;
  const editing=new Set(),sessions=()=>state.sleepSessions||[],draftKey=()=>date+':'+number,editKey=()=>draftKey()+':'+mode;
  function savedComponent(){const r=rowFor(),s=r?.kind==='session'?r.record:r?.sleepSession;return mode==='candy'?Boolean(s&&s.candyRecorded!==false):Boolean(r&&(r.kind==='legacy'||r.record.shardsRecorded!==false));}
@@ -60,8 +60,8 @@ const SleepUI=(()=>{
   for(const [hostId,title] of [['record','記録'],['history','履歴']]){
    const host=$(hostId),content=el('div');content.id=hostId+'-main-view';
    for(const child of [...host.children])if(!child.classList.contains('editorial-page-title'))content.append(child);
-   const items=hostId==='record'?[['main','記録'],['sleep','睡眠リサーチ']]:[['main',title],['sleep','睡眠リサーチ'],['field','フィールド']];
-   const choices=tabs(items,'main',key=>{if(hostId==='history'&&key==='field')selectFieldHistory();else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.recordTab(choices.children[i],key));if(hostId==='history'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.add(choices.children[i],key==='main'?'history':key==='field'?'map':'moon'));host.append(choices,content);
+   const items=hostId==='record'?[['main','記録'],['sleep','睡眠リサーチ'],...(typeof SocialUI!=='undefined'?[['social','ソーシャルリサーチ']]:[])]:[['main',title],['sleep','睡眠リサーチ'],['field','フィールド']];
+   const choices=tabs(items,'main',key=>{if(hostId==='record'&&key==='social'){selectSocial();return;}if(hostId==='history'&&key==='field')selectFieldHistory();else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>{TabIcons.recordTab(choices.children[i],key);if(key==='social'){choices.children[i].dataset.socialTab='true';const label=choices.children[i].querySelector('.tab-label');label.replaceChildren(el('span','ソーシャル'),el('span','リサーチ'));}});if(hostId==='history'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.add(choices.children[i],key==='main'?'history':key==='field'?'map':'moon'));host.append(choices,content);
    if(hostId==='history'){const pane=el('div');pane.id='history-field-view';pane.hidden=true;host.append(pane);}
   }
   $('sleep').querySelector('.editorial-page-title').hidden=true;navigationReady=true;syncNavigation();
@@ -70,8 +70,8 @@ const SleepUI=(()=>{
   if(!navigationReady)return;
   const enabled=SleepResearch.visible(state);if(!enabled&&activeTab!=='record')recordView=false;
   for(const [hostId,on] of [['record',recordView],['history',historyView]]){
-   $(hostId+'-main-view').hidden=on||(hostId==='history'&&fieldView);const buttons=$(hostId+'-view-switch').children;
-   for(const b of buttons){const selected=b===buttons[hostId==='history'&&fieldView?2:on?1:0];b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-pressed',String(selected));}
+   $(hostId+'-main-view').hidden=on||(hostId==='record'&&socialView)||(hostId==='history'&&fieldView);const buttons=$(hostId+'-view-switch').children;
+   for(const b of buttons){const selected=b===buttons[hostId==='history'&&fieldView||hostId==='record'&&socialView?2:on?1:0];b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-pressed',String(selected));}
    if(hostId==='record'){
     buttons[1].hidden=!enabled&&!(typeof SummaryExtras!=='undefined'&&SummaryExtras.shardVisible('research'))&&!recordView;
 
@@ -80,8 +80,10 @@ const SleepUI=(()=>{
   }
   $('history-field-view').hidden=!fieldView;if(fieldView&&activeTab==='history')FieldHistoryUI.showHistory($('history-field-view'));
   const host=activeTab==='history'&&historyView?'history':activeTab==='record'&&recordView?'record':null;
-  $('sleep').hidden=!host;if(host&&$(host).nextElementSibling!==$('sleep'))$(host).after($('sleep'));
+  $('sleep').hidden=!host;if(typeof SocialUI!=='undefined')SocialUI.sync(activeTab==='record'&&socialView);
+  if(host&&$(host).nextElementSibling!==$('sleep'))$(host).after($('sleep'));
  }
+ function selectSocial(){if(!keep())return;socialView=true;recordView=false;showTab('record');}
  function navigate(tab){
   if(draft&&$('sleep')?.hidden===false&&mode==='candy'&&(tab!=='record'||!recordView)&&!readOnly()&&!draft.entries.length){const fresh=SleepResearch.getDraft({...state,sleepDrafts:{}},date,number,draft.id);draft={...draft,field:fresh.field,sleepType:fresh.sleepType,candyMultiplier:fresh.candyMultiplier??SleepResearch.candyMultiplier({...state,sleepDrafts:{}},date)};if(keep()){editing.delete(editKey());date='';draft=null;loaded=false;number=1;researchSource=null;}}
   if(mode!=='history')inputMode=mode;
@@ -89,9 +91,9 @@ const SleepUI=(()=>{
  }
  function selectResearch(day,round){if(!SleepResearch.validDate(day)||![1,2].includes(round))return;date=day;number=round;draft=loadDraft();loaded=true;researchSource=null;}
  function selectFieldHistory(){historyView=false;fieldView=true;showTab('history');}
- function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date&&(readOnly()||draft?.entries.length))SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;}else{historyView=sleep;fieldView=false;}showTab(host);}
+ function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date&&(readOnly()||draft?.entries.length))SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;socialView=false;}else{historyView=sleep;fieldView=false;}showTab(host);}
  function openResearch(day,round,nextMode){
-  if(mode!=='history'&&!keep())return;date=day;number=round;mode=inputMode=nextMode;draft=loadDraft();loaded=true;researchSource=null;recordView=true;showTab('record');
+  if(mode!=='history'&&!keep())return;date=day;number=round;mode=inputMode=nextMode;draft=loadDraft();loaded=true;researchSource=null;recordView=true;socialView=false;showTab('record');
  }
  function edit(id){const item=sessions().find(s=>s.id===id);if(item){openResearch(item.date,item.number,'candy');beginEdit();}}
  function syncResearch(){
@@ -102,7 +104,7 @@ const SleepUI=(()=>{
  }
  function tabs(items,current,change,label){const root=el('div',undefined,'period-quick-buttons sleep-switch');root.setAttribute('role','tablist');root.setAttribute('aria-label',label);for(const [key,title] of items){const b=button(title,()=>change(key));b.setAttribute('role','tab');b.setAttribute('aria-selected',String(current===key));b.setAttribute('aria-pressed',String(current===key));if(typeof TabIcons!=='undefined'&&!['day','week','month','all'].includes(key))TabIcons.add(b,({candy:'candy',shards:'diamond'})[key]);root.append(b);}return root;}
  function home(host){if(recordView&&mode!=='history'&&!keep())return false;if(host==='record'){mode=inputMode='candy';}selectView(host,false);return true;}
- function reset(){editing.clear();date='';draft=null;loaded=false;number=1;researchSource=null;mode=inputMode='candy';recordView=historyView=fieldView=false;query='';showOtherTypes=false;historyKind='all';historyDay='';pickupOnly=false;calendarMonth='';calendarOpen=true;}
+ function reset(){editing.clear();date='';draft=null;loaded=false;number=1;researchSource=null;mode=inputMode='candy';recordView=socialView=historyView=fieldView=false;query='';showOtherTypes=false;historyKind='all';historyDay='';pickupOnly=false;calendarMonth='';calendarOpen=true;}
  function renderHistory(root){
   if(!historyDay)historyDay=date||C.gameDay(new Date());
   const input=el('input');Object.assign(input,{type:'date',value:historyDay,id:'sleep-history-date'});input.setAttribute('aria-label','睡眠履歴の基準日');input.onchange=()=>{if(C.dateOnly(input.value)){historyDay=input.value;calendarMonth=historyDay.slice(0,7);render();}};
@@ -200,7 +202,7 @@ const SleepUI=(()=>{
    }
    if(!results.children.length)results.append(el('p',target?'この日付・フィールドに該当するピックアップはありません。':'確認済みの候補はありません。条件を変更してください。','sleep-note'));
   }
-  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);if(typeof SleepOCRUI!=='undefined'){const screenshot=button('スクショ',()=>{if(keep())SleepOCRUI.open({date,number,field:draft.field});},'sleep-screenshot');screenshot.setAttribute('aria-label','スクショから入力');searchRow.append(screenshot);}form.append(searchRow,results);renderCandidates();
+  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);if(typeof SleepOCRUI!=='undefined'){const screenshot=button('',()=>{if(keep())SleepOCRUI.open({date,number,field:draft.field});},'sleep-screenshot');screenshot.setAttribute('aria-label','スクショ読み取り');TabIcons.add(screenshot,'image-plus');searchRow.append(screenshot);}form.append(searchRow,results);renderCandidates();
   form.onsubmit=e=>{e.preventDefault();if(readOnly())return;try{if(!keep())return;let next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(number===1)next={...next,settings:{...next.settings,sleepCandyMultipliers:{...next.settings.sleepCandyMultipliers,[date]:effectiveMultiplier()}}};if(commit(next,sleepResourceNotice(next,date,number,'candy'))){editing.delete(editKey());draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
   const shardForm=el('form');shardForm.id='sleep-shard-form';shardForm.hidden=mode!=='shards';
   const shardFields=SleepShards.fields('sleep-shard',draft,(key,v)=>{draft[key]=v;keep();updateTotal();});shardForm.append(shardFields);if(!draft.researchRank)shardForm.append(el('p','設定でリサーチランクを設定してください。','rank-hint'));
@@ -217,5 +219,5 @@ const SleepUI=(()=>{
  }}
  function appendOCR(rows,expected){if(date!==expected.date||number!==expected.number)throw Error('日付・回数が変更されました。選び直してください。');const result=SleepOCR.draftEntries(rows,draft,candyMap,uid),previous=draft;draft={...draft,entries:[...draft.entries,...result.entries]};if(!keep()){draft=previous;throw Error('入力途中の保存ができません。読み取りを再実行してください。');}render();return result;}
  function invalidateOCR(){draft=null;loaded=false;researchSource=null;}
- return {appendOCR,entryRow,invalidateOCR,selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
+ return {selectSocial,appendOCR,entryRow,invalidateOCR,selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
 })();

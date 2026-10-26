@@ -1,7 +1,7 @@
 'use strict';
 // 表示専用。既存の通常集計フィルター・ゲーム内日付・保存済み獲得数を使用する。
 const CandyGraphs=(()=>{
- const colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461'},selection={week:null,month:null};
+ const colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461',social:'#608896'},selection={week:null,month:null};
  const fmt=n=>n.toLocaleString('ja-JP');
  function legend(sources,records,kind='candy'){const root=el('div',undefined,'candy-chart-legend');for(const [key,name] of sources){const item=el('span'),dot=el('i',undefined,kind==='shard'?'shard-source-'+key:undefined);if(kind!=='shard')dot.style.background=colors[key];dot.setAttribute('aria-hidden','true');item.append(dot,el('span',name));if(records)item.append(qel('strong',fmt(C.sum(records.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):r.method)===key)))+'個'));root.append(item);}return root;}
  function details(root,records,date,sources,kind='candy'){

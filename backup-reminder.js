@@ -2,7 +2,7 @@
 // Reminder metadata is local to this device, outside the existing CSV/state format.
 const BackupReminder=(()=>{
  const defaults={enabled:true,days:30,records:100},day=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
- const count=data=>(data.records||[]).length+(data.shardRecords||[]).length+(data.sleepSessions||[]).filter(s=>!s.legacyResearchId).length;
+ const count=data=>(data.socialResearch||[]).length+(data.records||[]).length+(data.shardRecords||[]).length+(data.sleepSessions||[]).filter(s=>!s.legacyResearchId).length;
  function normalize(value,now=new Date()){
   const v=value&&typeof value==='object'?value:{},valid=s=>typeof s==='string'&&Number.isFinite(Date.parse(s));
   return {...defaults,...v,enabled:v.enabled!==false,days:[7,14,30,90].includes(v.days)?v.days:30,records:[0,50,100,200].includes(v.records)?v.records:100,firstUsedAt:valid(v.firstUsedAt)?v.firstUsedAt:now.toISOString(),lastBackupAt:valid(v.lastBackupAt)?v.lastBackupAt:null,baseline:Number.isSafeInteger(v.baseline)&&v.baseline>=0?v.baseline:0,dismissedAt:valid(v.dismissedAt)?v.dismissedAt:null};

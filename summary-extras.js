@@ -1,8 +1,8 @@
 // 表示用の集計は履歴から都度作り、localStorageには保存しません。
 const SummaryExtras=(()=>{
- const candySources=[['help','アメ拾い'],['mew','ミュウ'],['delibird','デリバード'],['skill','その他'],['research','睡眠リサーチ']];
+ const candySources=[['help','アメ拾い'],['mew','ミュウ'],['delibird','デリバード'],['skill','その他'],['research','睡眠リサーチ'],['social','ソーシャルリサーチ']];
  const shardSources=[['research','睡眠リサーチ'],['skill','スキル'],['cluster','ゆめのかたまり'],['other','その他']];
- const orderedSources=kind=>(kind==='shard'?['skill','research','cluster','other']:['help','mew','delibird','research','skill']).map(key=>(kind==='shard'?shardSources:candySources).find(([k])=>k===key));
+ const orderedSources=kind=>(kind==='shard'?['skill','research','cluster','other']:['help','mew','delibird','research','social','skill']).map(key=>(kind==='shard'?shardSources:candySources).find(([k])=>k===key));
  const settingKeys={skill:'showShardSkill',research:'showShardResearch',cluster:'showShardCluster',other:'showShardOther'};
  const shardKey=method=>method==='lucky'?'skill':method;
  const otherVisible=(key,settings=state.settings)=>C.actionAllowed(settings,'other','displayActions')&&settings.displayActions?.[key]!==false&&(settings.displayActions?.[key]===true||settings[key==='cluster'?'showShardCluster':'showShardOther']!==false);
@@ -28,8 +28,8 @@ const SummaryExtras=(()=>{
   const shard=kind==='shard',group=shard?'shardFilters':'candyFilters',filtered=shard?shardRecords(records,scope):candyRecords(records,scope),total=C.sum(filtered);
   for(const [key,title] of orderedSources(kind)){
    if(!aggregateVisible(kind,key))continue;
-   const name=shard?({skill:'スキル',research:'睡眠',cluster:'かたまり',other:'その他'})[key]:key==='research'?'睡眠':title,toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),on=state.settings[group]?.[scope]?.[key]!==false,amount=C.sum(filtered.filter(r=>(shard?shardKey(r.method):r.method)===key));
-   toggle.type='button';toggle.dataset.source=key;item.dataset.source=key;toggle.style.setProperty?.('--source-color',shard?'var(--shard-'+(key==='cluster'?'other':key)+'-color)':({help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461'})[key]);toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',name);
+   const name=shard?({skill:'スキル',research:'睡眠',cluster:'かたまり',other:'その他'})[key]:key==='research'?'睡眠':key==='social'?'ソーシャル':title,toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),on=state.settings[group]?.[scope]?.[key]!==false,amount=C.sum(filtered.filter(r=>(shard?shardKey(r.method):r.method)===key));
+   toggle.type='button';toggle.dataset.source=key;item.dataset.source=key;toggle.style.setProperty?.('--source-color',shard?'var(--shard-'+(key==='cluster'?'other':key)+'-color)':({help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461',social:'#608896'})[key]);toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',name);
    toggle.onclick=()=>commit({...state,settings:{...state.settings,[group]:{...state.settings[group],[scope]:{...state.settings[group]?.[scope],[key]:!on}}}},null);
    item.append(toggle,el('small',on&&amount&&total?(amount/total*100).toFixed(1)+'%':'—','candy-source-percent'));if(['week','month'].includes(scope))item.append(qel('small',on?(shard?(amount?(Math.round(amount/1000)/10).toFixed(1)+'万':'0'):amount.toLocaleString('ja-JP')+'個'):'—','candy-source-amount'));root.append(item);
   }
@@ -82,7 +82,7 @@ const SummaryExtras=(()=>{
   const input=records;records=candyRecords(records,'types');
   $('candy-source-totals').replaceChildren();$('candy-source-totals').hidden=true;
   const root=$('candy-list');root.replaceChildren();
-  const order=['help','mew','delibird','research','skill'],labels={research:'睡眠',skill:'その他'};
+  const order=['help','mew','delibird','research','social','skill'],labels={research:'睡眠',skill:'その他'};
   const switches=el('div');filterControls(switches,'types',input);root.append(switches);
   const groups=candyGroups(records);
   if(!groups.length){root.append(el('p',order.some(key=>candySourceVisible(key,'types'))?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。'));return;}
@@ -106,7 +106,7 @@ const SummaryExtras=(()=>{
  function imagePages(groups,period){
   const panels=candyColumns(groups),pages=[],canvas=document.createElement('canvas');canvas.width=1200;
   const c=canvas.getContext('2d');if(!c)throw Error('画像描画に対応していません。');
-  const ink='#202124',muted='#777C80',line='#ECEDEE',colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461'};
+  const ink='#202124',muted='#777C80',line='#ECEDEE',colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461',social:'#608896'};
   const font=(size,bold=false)=>{c.font=`${bold?600:400} ${size}px -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif`;};
   const wrap=(value,width,size)=>{font(size);const rows=[''];for(const ch of String(value)){const i=rows.length-1,trial=rows[i]+ch;if(rows[i]&&(c.measureText?c.measureText(trial).width:trial.length*size)>width)rows.push(ch);else rows[i]=trial;}return rows;};
   const text=(value,x,y,size=34,bold=false,right=false,color=ink)=>{font(size,bold);c.fillStyle=color;c.textAlign=right?'right':'left';c.fillText(String(value),x,y);};
@@ -144,11 +144,11 @@ const SummaryExtras=(()=>{
   }return pages;
  }
  function init(){
-  for(const [kind,sources] of [['candy',candySources],['shard',shardSources]])for(const [key] of sources){const input=$('aggregate-'+kind+'-'+key);input.onchange=()=>commit({...state,settings:{...state.settings,[kind==='candy'?'aggregateCandy':'aggregateShards']:{...C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'],[key]:input.checked}}},null);}
+  for(const [kind,sources] of [['candy',candySources],['shard',shardSources]])for(const [key] of sources){const input=$('aggregate-'+kind+'-'+key);if(!input)continue;input.onchange=()=>commit({...state,settings:{...state.settings,[kind==='candy'?'aggregateCandy':'aggregateShards']:{...C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'],[key]:input.checked}}},null);}
 
   for(const [key,id] of Object.entries(settingKeys))$('setting-'+id).onchange=()=>commit({...state,settings:{...state.settings,[id]:$('setting-'+id).checked}},null);
   $('create-candy-image').onclick=()=>{try{const period=RangePicker.get('period');ImagePreview.open('ポケモンのアメ一覧',imagePages(candyGroups(candyRecords(filteredRecords(),'types')),summaryTitle(period)));}catch(e){notice('画像を作成できませんでした：'+e.message);}};
  }
- function settings(){for(const [kind,sources] of [['candy',candySources],['shard',shardSources]])for(const [key] of sources)$('aggregate-'+kind+'-'+key).checked=aggregateVisible(kind,key);for(const [key,id] of Object.entries(settingKeys))$('setting-'+id).checked=shardVisible(key);}
+ function settings(){for(const [kind,sources] of [['candy',candySources],['shard',shardSources]])for(const [key] of sources){const input=$('aggregate-'+kind+'-'+key);if(input)input.checked=aggregateVisible(kind,key);}for(const [key,id] of Object.entries(settingKeys))$('setting-'+id).checked=shardVisible(key);}
  return {otherVisible,orderedSources,allowedRecord,shardSourceVisible,shardRecords,visibleShardSources,aggregateVisible,localVisible,candySourceVisible,filterControls,periodCaption,candyRecords,visibleCandySources,recordSummary,sourceTotals,candySources,shardSources,shardKey,shardVisible,candyGroups,candyList,monthly,imagePages,init,settings};
 })();
