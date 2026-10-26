@@ -83,7 +83,7 @@ const ShardUI=(()=>{
    const groups=new Map();for(const r of xs){if(!groups.has(r.pokemonId))groups.set(r.pokemonId,[]);groups.get(r.pokemonId).push(r);}
    for(const [id,items] of groups){
     const latest=[...items].sort((a,b)=>Date.parse(b.datetime)-Date.parse(a.datetime))[0],current=state.pokemon.find(p=>p.id===id),p=current||latest.pokemonSnapshot;
-    const name=(p?individual(p):label(historicalPokemon(latest)))+(current?'':'（登録解除済み）');
+    const name=(p?individual(p):label(historicalPokemon(latest)))+(current?'':'(登録解除済み)');
     totalBreakdownRow(body,name,items.length,C.sum(items),'shard-member');
    }
   }

@@ -14,7 +14,7 @@ const TeamPicker=(()=>{
    const id=p?.id||null,selected=members()[slot]===id,used=id!==null&&members().some((pid,i)=>i!==slot&&pid===id);
    const b=button('',()=>choose(id),'team-picker-row');b.disabled=used;b.setAttribute('aria-pressed',String(selected));
    b.append(p&&typeof TeamUI!=='undefined'?TeamUI.cardInfo(p):el('span',p?label(p):'未設定','team-picker-name'),el('span',selected?'✓':used?'編成中':'','team-picker-status'));if(p&&typeof TeamUI!=='undefined')TeamUI.typeBorder(b,p);if(p)b.dataset.pokemonId=p.id;
-   if(selected)b.setAttribute('aria-label',(p?label(p):'未設定')+'（選択中）');
+   if(selected)b.setAttribute('aria-label',(p?label(p):'未設定')+'(選択中)');
    (p?grid:root).append(b);
   };
   add(null);root.append(grid);

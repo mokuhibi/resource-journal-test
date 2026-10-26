@@ -10,7 +10,7 @@ const ProfileForm=(()=>{
   if(!C.profileValid(profile,species)||profile.skillLevel>Number($(prefix+'skill').max))throw Error('個体情報の値と、サブスキルの重複を確認してください。');
   return profile;
  }
- function refresh(species){const p={species,...SK.fields($('register-main-skill').value)},show=!!species;const root=$('register-details');root.hidden=false;for(const label of $('register-top-grid')?.children||[])label.hidden=false;for(const input of root.querySelectorAll('input,select'))input.disabled=!show;for(const id of ['nickname','register-level','register-skill','register-nature','register-shiny'])$(id).disabled=!show;$('register-nature').disabled=!show||species==='ミュウ';skillLevels('register-skill',p);if(typeof IndividualDev!=='undefined')IndividualDev.sync();}
+ function refresh(species){const p={species,...SK.fields($('register-main-skill').value)},show=!!species;const root=$('register-details');root.hidden=!show;for(const label of $('register-top-grid')?.children||[])label.hidden=!show&&!label.contains($('pokemon-search'));for(const input of root.querySelectorAll('input,select'))input.disabled=!show;for(const id of ['nickname','register-level','register-skill','register-nature','register-shiny'])$(id).disabled=!show;$('register-nature').disabled=!show||species==='ミュウ';skillLevels('register-skill',p);if(typeof IndividualDev!=='undefined')IndividualDev.sync();}
  function reset(species){for(const input of [...$('register-details').querySelectorAll('input,select'),...['register-level','register-skill','register-nature'].map($)]){if(input.type==='checkbox')input.checked=false;else input.value='';} $('register-nature').value=species==='ミュウ'?'きまぐれ':'';refresh(species);}
  function extra(prefix,p){
   const v=p?.importedIndividual||{};

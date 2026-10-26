@@ -978,9 +978,12 @@ const MainSkillMaster=(()=>{
 
  entries.push({id:"aura_sphere",name:"はどうだん(ゆめのかけらゲットS)",legacyName:"はどうだん(ゆめのかけらゲットS)",mew:false});
  species["ルカリオ"].skillId="aura_sphere";
+ // User-confirmed Mewtwo main skill; no new resource calculation is inferred.
+ entries.push({id:"psystrike_berry_zone",name:"サイコブレイク(きのみゾーン)",legacyName:"サイコブレイク(きのみゾーン)",mew:false});
+ species["ミュウツー"]={skillId:"psystrike_berry_zone"};
  const find=value=>entries.find(s=>s.id===value||s.legacyName===value||s.name===value||s.aliases?.includes(value));
  const id=value=>find(value)?.id||value||'';
- const name=value=>find(value)?.name||value||'未設定';
+ const name=value=>String(find(value)?.name||value||'未設定').replaceAll('（','(').replaceAll('）',')');
  const value=key=>find(key)?.legacyName||key||'';
  const defaultId=kind=>species[kind]?.skillId||'';
  // 保存済みの選択を優先。未保存の旧個体は表示時だけ基本スキルを補います。

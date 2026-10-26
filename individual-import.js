@@ -26,7 +26,7 @@ const IndividualImport=(()=>{
   if(rows.length<2)throw Error('見出し行と1件以上の個体が必要です。');
   if(rows.length>1001)throw Error('1回の取り込みは1,000件までです。');
   const keys=rows.shift().map(h=>Object.keys(headers).find(k=>headers[k].some(x=>normalize(x)===normalize(h)))||null);
-  if(!keys.includes('species'))throw Error('ポケモン列がありません。個体値計算機からCSVまたはTSVで書き出してください（バックアップの復元とは別の機能です）。');
+  if(!keys.includes('species'))throw Error('ポケモン列がありません。個体値計算機からCSVまたはTSVで書き出してください(バックアップの復元とは別の機能です)。');
   if(keys.filter(Boolean).some((k,i,a)=>a.indexOf(k)!==i))throw Error('同じ意味の列が重複しています。');
   return rows.map((values,i)=>{if(values.length!==keys.length)throw Error((i+2)+'行目の列数が見出しと異なります。');return {line:i+2,fields:Object.fromEntries(keys.flatMap((k,j)=>k?[[k,values[j]]]:[])),unknown:keys.map((k,j)=>k?null:j).filter(x=>x!==null).map(j=>j+1)};});
  }
@@ -50,7 +50,7 @@ const IndividualImport=(()=>{
    info.ingredients=Array(3).fill(null);for(let i=0;i<3;i++)if(f['ingredients'+(i+1)]){const raw=f['ingredients'+(i+1)],v=translated('ingredients',raw);if(!Object.values(M.ingredients).includes(v))warnings.push('食材'+(i+1)+'「'+raw+'」は未対応のため元の値を保持します。');else info.ingredients[i]=v;}
    if(f.mainSkill){const v=translated('skills',f.mainSkill),skill=env.skillFind(v,species);if(skill)Object.assign(patch,env.skillFields(skill.id));else warnings.push('メインスキル「'+f.mainSkill+'」は反映できません。');}
    if(f.shiny==='0'||f.shiny==='1')info.shiny=f.shiny==='1';else if(f.shiny)warnings.push('色違い「'+f.shiny+'」は反映できません。');
-   if(unknown.length)warnings.push('未対応の列：'+unknown.join('・')+'列目（取り込みません）。');
+   if(unknown.length)warnings.push('未対応の列：'+unknown.join('・')+'列目(取り込みません)。');
    if(info.level===undefined||info.skillLevel===undefined||!info.nature)warnings.push('レベル・スキルレベル・せいかくが揃わない場合、新規個体の詳細は未設定です。読み取れた値は補足に保持します。');
    const candidates=env.pokemon.filter(p=>p.species===species),key=JSON.stringify([species,patch.nickname||'']),repeated=seen.has(key);seen.add(key);
    const linked=custom?candidates.filter(p=>p.importedIndividual?.custom?.serialized===custom.serialized):[];

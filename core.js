@@ -18,12 +18,12 @@ const CandyCore = (() => {
  const inRange=(r,period)=>!period||(gameDay(r.datetime)>=period[0]&&gameDay(r.datetime)<period[1]);
  const mewAmounts=level=>level<=5?[1]:[1,level-4];
  // 保存用の種名は変更せず、旧サイズ名を表示時に読み替えます。
- const speciesName=name=>typeof name==='string'?name.replace(/((?:バケッチャ|パンプジン)\()(こだま|ちゅうだま|おおだま|ギガだま)(\))/g,'$1$2しゅ$3'):name;
+ const speciesName=name=>typeof name==='string'?name.replaceAll('（','(').replaceAll('）',')').replace(/((?:バケッチャ|パンプジン)\()(こだま|ちゅうだま|おおだま|ギガだま)(\))/g,'$1$2しゅ$3'):name;
  const shardType=species=>SK.species[species]?.shardMode||null;
  const shardAmounts=(type,level)=>{if(!Number.isInteger(level)||level<1||level>(type==='lucky'?7:8))return [];return type==='fixed'?[[240,340,480,670,920,1260,1800,2500][level-1]]:type==='lucky'?[0,[500,720,1030,1440,2000,2800,4000][level-1],[2500,3600,5150,7200,10000,14000,20000][level-1]]:[];};
  function weeklyTotals(records,day){const start=range('week',day)[0];const days=Array.from({length:7},(_,i)=>({date:addDays(start,i),amount:0}));for(const r of records){const d=gameDay(r.datetime),item=days.find(x=>x.date===d);if(item)item.amount+=r.amount;}return days;}
  const mewSkills=SK.mewEntries().map(s=>s.legacyName);
- const weekday=day=>dateOnly(day)?'（'+['日','月','火','水','木','金','土'][new Date(day).getUTCDay()]+'）':'';
+ const weekday=day=>dateOnly(day)?'('+['日','月','火','水','木','金','土'][new Date(day).getUTCDay()]+')':'';
  const displayDate=day=>dateOnly(day)?day.replaceAll('-','/')+weekday(day).replace('（','(').replace('）',')'):day;
  // ミュウの同一発動から、集計専用のかけら行を作ります。保存・履歴表示は元の1件だけです。
  const mewShardRecords=records=>records.filter(r=>r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s').map(r=>{const p=r.context?.actor||r.context?.team?.[r.context?.actorSlot-1];return {id:r.id,datetime:r.datetime,method:'skill',amount:r.shardAmount,pokemonId:p?.id||r.context?.actorId||'unknown-mew',pokemon:p?.nickname||'ミュウ',species:'ミュウ',slot:r.context?.actorSlot??null,pokemonSnapshot:p,skillName:r.firedSkill,skillLevel:r.context?.effectiveLevel,source:'mew'};});

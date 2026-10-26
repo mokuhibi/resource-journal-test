@@ -47,10 +47,10 @@ const SummaryExtras=(()=>{
   root.hidden=!root.children.length;
  }
  // 選択日付は操作部に一度だけ表示し、ここでは範囲の意味を説明する。
- function periodCaption(period){return period?Math.round((Date.parse(period[1])-Date.parse(period[0]))/86400000)+'日分の獲得数（04:00切替）':'保存済みのすべての記録';}
+ function periodCaption(period){return period?Math.round((Date.parse(period[1])-Date.parse(period[0]))/86400000)+'日分の獲得数(04:00切替)':'保存済みのすべての記録';}
  function recordSummary(){
   const date=recordDate();if(!Number.isFinite(date.getTime()))return;
-  const day=C.gameDay(date),period=C.range('day',day),root=$('today-total'),wasOpen=root.querySelector('details')?.open||false;const heading=el('small',day===C.gameDay(new Date())?'今日の獲得数':'選択日の獲得数');if(C.localInput(date).slice(0,10)!==day)heading.append(el('span','集計日：'+C.displayDate(day)+'（04:00切替）','record-day-note'));root.replaceChildren(heading);
+  const day=C.gameDay(date),period=C.range('day',day),root=$('today-total'),wasOpen=root.querySelector('details')?.open||false;const heading=el('small',day===C.gameDay(new Date())?'今日の獲得数':'選択日の獲得数');if(C.localInput(date).slice(0,10)!==day)heading.append(el('span','集計日：'+C.displayDate(day)+'(04:00切替)','record-day-note'));root.replaceChildren(heading);
   const candy=el('div',undefined,'daily-resource'),shard=el('div',undefined,'daily-resource');
   totals(candy,candyRecords(allCandyRecords()).filter(r=>C.inRange(r,period)),'アメ',true,key=>candySourceVisible(key));
   const records=ShardUI.summaryRecords().filter(r=>C.inRange(r,period)),total=C.sum(records);
@@ -88,7 +88,7 @@ const SummaryExtras=(()=>{
   if(!groups.length){root.append(el('p',order.some(key=>candySourceVisible(key,'types'))?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。'));return;}
   const sources=order.filter(key=>candySourceVisible(key,'types')&&groups.some(g=>g.sources[key]));
   const scroll=el('div',undefined,'candy-table-scroll'),table=el('table',undefined,'candy-totals-table');
-  scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','種類別アメの合計（横スクロール）');
+  scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','種類別アメの合計(横スクロール)');
   table.style.minWidth=(204+sources.length*88)+'px';
   table.setAttribute('aria-label','種類別アメの合計：回数・匹数とアメ個数');
   const head=el('thead'),header=el('tr');
