@@ -318,7 +318,7 @@ body #image-preview-dialog{width:calc(100% - 24px);max-width:780px;max-height:ca
 #shards #shard-calendar .day-total{font-size:12px;letter-spacing:-.4px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 
 /* 3タブの期間操作を同じDOM・同じ寸法で管理する。 */
-html{scrollbar-gutter:stable}
+
 :root{--page-title-gap:16px;--period-row-gap:8px;--period-control-height:44px;--period-content-gap:16px}
 body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editorial-page-title{margin-bottom:var(--page-title-gap)}
 :is(#summary,#shards,#history)>.period-picker,:is(#sleep,#sleep-editor) #sleep-root>.period-picker{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#fffffff5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 0;margin:0 0 var(--period-content-gap);border:0;border-radius:0;box-shadow:none;width:100%;min-width:0}

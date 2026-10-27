@@ -79,7 +79,7 @@ const SkillUI=(()=>{
   // 基本スキルが未確認の種類は、先頭のスキルを推測して設定しません。
   if(!key)select.add(new Option('未設定',''));
   // マスター外の旧データも失わず表示・再保存できるようにします。
-  if(key&&![...select.options].some(o=>o.value===key))select.add(new Option(mainSkillText({species},key)+'(保存済み)',key));
+  if(key&&![...select.options].some(o=>o.value===key))select.add(new Option(mainSkillText({species},key)+'（保存済み）',key));
   select.value=key;
  }
  function registration(species){options($('register-main-skill'),species,SK.defaultId(species));ProfileForm.reset(species);}

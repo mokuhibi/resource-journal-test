@@ -42,12 +42,6 @@
 #app-panel.individual-choice .individual-choice-grid .subskill-gold{background:#f5e5a5;color:var(--mh-text)}
 #app-panel.individual-choice .individual-choice-grid .subskill-blue{background:#d7e8f5;color:var(--mh-text)}
 #app-panel.individual-choice .individual-choice-grid .subskill-white{background:var(--mh-surface);color:var(--mh-text)}
-.photo-proposal{padding:12px 0;border-top:1px solid var(--mh-border);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.photo-proposal :is(h3,p,details,.check){grid-column:1/-1;margin:0;overflow-wrap:anywhere}
-.photo-proposal :is(input,select){min-width:0;max-width:100%;margin:0}
-.photo-proposal pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
-.photo-proposal .check{display:flex;align-items:center;gap:8px;font-size:13px}
-.photo-proposal .check input{width:20px;height:20px;min-height:20px;flex:none}
 
 #team .individual-stats-row .individual-number-field input{padding-left:28px;text-align:right}
 #team .individual-editor-head #profile-remove{margin:0;transform:none;align-self:center}

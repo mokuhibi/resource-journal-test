@@ -2,13 +2,13 @@
 // 入力の再配置だけを担当。睡眠・かたまり・その他の既存フォームは移動して再利用します。
 const SkillActions=(()=>{
  const drafts=new Map();
- const visible=p=>{if(p.provisional)return false;const settings=typeof state==='undefined'?{}:state.settings,key=p.species==='ミュウ'?'mew':p.species==='デリバード'?'delibird':copies(p)?'copy':metronome(p)?'metronome':'shards';return C.actionAllowed(settings,key,'displayActions')&&(!['copy','metronome'].includes(key)||settings.displayActions?.[key]!==undefined||settings.showOtherCandy!==false||settings.showShardSkill!==false);};
+ const visible=p=>{const settings=typeof state==='undefined'?{}:state.settings,key=p.species==='ミュウ'?'mew':p.species==='デリバード'?'delibird':copies(p)?'copy':metronome(p)?'metronome':'shards';return C.actionAllowed(settings,key,'displayActions')&&(!['copy','metronome'].includes(key)||settings.displayActions?.[key]!==undefined||settings.showOtherCandy!==false||settings.showShardSkill!==false);};
  const ownManual=p=>copies(p)||typeof state!=='undefined'&&state.settings.displayActions?.metronome===true;
 
  const copies=p=>['メタモン','バリヤード','マネネ'].includes(p.species);
  const metronome=p=>p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome';
  function copySources(p,team=currentTeam()){
-  return team.filter(q=>q&&!q.provisional&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'||q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
+  return team.filter(q=>q&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'||q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
  }
  function capabilities(p,team=currentTeam()){
   if(metronome(p))return {candy:true,shards:true};
@@ -90,14 +90,14 @@ const SkillActions=(()=>{
   if(cap.candy){
    const choices=el('div',undefined,'skill-choice-grid candy-choices');choices.setAttribute('aria-label','アメの獲得先');
    const input=field('アメの個数',draft.candy,v=>{draft.candy=v;valid();});input.disabled=!draft.target;
-   currentTeam().forEach((q,i)=>{const b=button(q?(candyMap[q.species]||'種類未確認'):'未設定',()=>{draft.target=draft.target===String(i+1)?'':String(i+1);input.disabled=!draft.target;for(const x of choices.children)x.setAttribute('aria-pressed',String(x===b&&!!draft.target));valid();});b.disabled=!q||!Object.hasOwn(candyMap,q.species);b.setAttribute('aria-pressed',String(draft.target===String(i+1)));choices.append(b);});form.append(choices,input);
+   currentTeam().forEach((q,i)=>{const b=button(q?candyMap[q.species]:'未設定',()=>{draft.target=draft.target===String(i+1)?'':String(i+1);input.disabled=!draft.target;for(const x of choices.children)x.setAttribute('aria-pressed',String(x===b&&!!draft.target));valid();});b.disabled=!q;b.setAttribute('aria-pressed',String(draft.target===String(i+1)));choices.append(b);});form.append(choices,input);
   }
   if(cap.shards)form.append(field('ゆめのかけら',draft.shards,v=>{draft.shards=v;valid();}));
   form.append(submit);valid();form.onsubmit=e=>{e.preventDefault();if(submit.disabled)return;const candy=cap.candy&&draft.target?draft.candy:'',shards=cap.shards?draft.shards:'';try{save(p,{sourceId:draft.sourceId,target:draft.target,candy,shards,only:!numeric(candy,'アメ')&&!numeric(shards,'ゆめのかけら')});}catch(error){notice(error.message,true);}};card.append(form);
  }
  function targets(card,p,recordTarget,zero,amounts=null){
   const grid=el('div',undefined,'record-slots activation-targets');
-  currentTeam().forEach((q,i)=>{const box=el('div',undefined,'help-card candy-target-row'),content=el('span',undefined,'record-row-content');content.append(el('strong',q?(candyMap[q.species]||'種類未確認'):'未設定'));box.append(el('small',recordPosition(i+1)),content);const actions=el('div',undefined,'mew-actions');for(const amount of (amounts||(zero?[4]:C.mewAmounts(eventSkill(p).effectiveLevel)))){const b=button(amount+'個',()=>recordTarget(i+1,amount));b.disabled=!q||!Object.hasOwn(candyMap,q.species);actions.append(b);}box.append(actions);grid.append(box);});
+  currentTeam().forEach((q,i)=>{const box=el('div',undefined,'help-card candy-target-row'),content=el('span',undefined,'record-row-content');content.append(el('strong',q?candyMap[q.species]:'未設定'));box.append(el('small',recordPosition(i+1)),content);const actions=el('div',undefined,'mew-actions');for(const amount of (amounts||(zero?[4]:C.mewAmounts(eventSkill(p).effectiveLevel)))){const b=button(amount+'個',()=>recordTarget(i+1,amount));b.disabled=!q;actions.append(b);}box.append(actions);grid.append(box);});
   if(zero){const box=el('div',undefined,'help-card candy-target-row skill-only-target'),actions=el('div',undefined,'mew-actions');actions.append(button('スキルのみ',()=>recordTarget(6,0)));box.append(actions);grid.append(box);}card.append(grid);
  }
  function setupGuide(root){

@@ -83,7 +83,7 @@ const ShardUI=(()=>{
    const groups=new Map();for(const r of xs){if(!groups.has(r.pokemonId))groups.set(r.pokemonId,[]);groups.get(r.pokemonId).push(r);}
    for(const [id,items] of groups){
     const latest=[...items].sort((a,b)=>Date.parse(b.datetime)-Date.parse(a.datetime))[0],current=state.pokemon.find(p=>p.id===id),p=current||latest.pokemonSnapshot;
-    const name=(p?individual(p):label(historicalPokemon(latest)))+(current?'':'(登録解除済み)');
+    const name=(p?individual(p):label(historicalPokemon(latest)))+(current?'':'（登録解除済み）');
     totalBreakdownRow(body,name,items.length,C.sum(items),'shard-member');
    }
   }
@@ -98,7 +98,7 @@ const ShardUI=(()=>{
   appendBreakdown(body,rs);
   const controls=el('div',undefined,'candy-source-switches shard-record-filters');controls.setAttribute('aria-label','ゆめのかけらの記録の表示項目');
   for(const [key,name] of SummaryExtras.orderedSources('shard').filter(([key])=>key!=='cluster')){if(!(key==='other'?['other','cluster'].some(k=>SummaryExtras.aggregateVisible('shard',k)):SummaryExtras.aggregateVisible('shard',key)))continue;const choice=el('div',undefined,'candy-source-choice'),b=button(key==='research'?'睡眠':name,()=>{if(recordSources.has(key))recordSources.delete(key);else recordSources.add(key);renderSummary();});b.dataset.source=key;b.setAttribute('aria-pressed',String(recordSources.has(key)));b.style.setProperty('--source-color','var(--shard-'+(key==='cluster'?'other':key)+'-color)');const amount=C.sum(rs.filter(r=>(r.method==='cluster'?'other':r.method==='lucky'?'skill':r.method)===key)),total=C.sum(rs);choice.append(b,el('small',recordSources.has(key)&&total?((amount/total)*100).toFixed(1)+'%':'—','candy-source-percent'));controls.append(choice);}
-  controls.style?.setProperty?.('--source-count',String(controls.children.length||1));controls.id='shard-record-filters';const previous=$('shard-record-filters');if(previous)previous.replaceWith(controls);else root.before(controls);
+  controls.id='shard-record-filters';const previous=$('shard-record-filters');if(previous)previous.replaceWith(controls);else root.before(controls);
   let source='';for(const row of body.children){const cls=[...row.classList].find(x=>x.startsWith('shard-method-'));if(cls)source=cls.replace('shard-method-','');row.hidden=!recordSources.has(source==='cluster'?'other':source);}
   const all=summaryRecords();for(const scope of ['week','month']){const chart=$(scope==='week'?'shard-weekly-chart':'shard-calendar');let controls=$('shard-'+scope+'-filters');if(!controls){controls=el('div');controls.id='shard-'+scope+'-filters';(scope==='month'?$('shard-month'):chart).before(controls);}SummaryExtras.filterControls(controls,scope,all.filter(r=>C.inRange(r,C.range(scope,day))),'shard');}
   WeeklyChart.render($('shard-weekly-chart'),all,day);

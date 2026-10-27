@@ -57,7 +57,7 @@
    text('ゲットした個数',36,ry+32,20,muted);
    for(const [j,row] of block.rates.entries()){
     const x=36+(j%2)*360,baseline=ry+62+Math.floor(j/2)*30;
-    text(row.name,x,baseline,20,muted);text(row.percent.toFixed(1)+'%',x+62,baseline,20,muted);text('('+number(row.count)+'回)',x+152,baseline,18,muted);
+    text(row.name,x,baseline,20,muted);text(row.percent.toFixed(1)+'%',x+62,baseline,20,muted);text('（'+number(row.count)+'回）',x+152,baseline,18,muted);
    }
    y=ry+60+Math.ceil(block.rates.length/2)*30;
   }
