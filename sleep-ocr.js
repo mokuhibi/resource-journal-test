@@ -54,13 +54,15 @@ const SleepOCR=(()=>{
   const style=([a,b])=>{if(!a.species||a.species!==b.species)return false;const name=a.species.replace(/\(.*$/,''),x=a.signature||'',y=b.signature||'';let common=0;while(common<Math.min(x.length,y.length)&&x[common]===y[common])common++;return common>=name.length+3;};
   const complete=([a,b])=>a.species&&a.species===b.species&&present(a.stars)&&a.stars===b.stars&&(a.kind==='history'||present(a.amount)&&a.amount===b.amount);
   const strong=pairs.filter(pair=>complete(pair)||style(pair)).length,positions=pairs.filter(([a,b])=>a.bounds&&b.bounds&&a.imageWidth&&b.imageWidth).map(([a,b])=>a.bounds.y/a.imageWidth-b.bounds.y/b.imageWidth),aligned=positions.length<2||Math.max(...positions)-Math.min(...positions)<.08;
+  const supported=n>=3&&tokens.size>=2&&strong>=2&&pairs.every(([a,b])=>(!a.species||!b.species||a.species===b.species)&&(a.species||b.species)&&(!present(a.stars)||!present(b.stars)||a.stars===b.stars)&&!conflictingStyle([a,b])),amountConflicts=pairs.filter(([a,b])=>a.kind==='result'&&present(a.amount)&&present(b.amount)&&a.amount!==b.amount).length;
+  const ordered=aligned&&supported&&amountConflicts===1&&pairs.every(([a,b])=>a.kind===b.kind&&(!a.date||!b.date||a.date===b.date));
   const certain=pairs.every(compatible)&&aligned&&(n===1?pairs[0][0].edgeFooter&&pairs[0][1].edgeHeader&&complete(pairs[0])&&style(pairs[0]):tokens.size>=2&&strong>=2&&pairs.every(([a,b])=>a.species||b.species));
-  return {pairs,certain};
+  return {pairs,certain,ordered};
  }
  function imageOrder(rows,images){
   if(images.length<2||images.some((v,i)=>v!==i))return images;
   const grouped=new Map(images.map(i=>[i,rows.filter(r=>r.image===i).sort((a,b)=>a.rowIndex-b.rowIndex)])),edges=new Map(images.map(i=>[i,new Set()])),indegree=new Map(images.map(i=>[i,0]));
-  for(const a of images)for(const b of images){if(a===b)continue;const left=grouped.get(a),right=grouped.get(b);for(let n=Math.min(left.length,right.length);n>0;n--)if(overlapAt(left,right,n).certain){edges.get(a).add(b);indegree.set(b,indegree.get(b)+1);break;}}
+  for(const a of images)for(const b of images){if(a===b)continue;const left=grouped.get(a),right=grouped.get(b);for(let n=Math.min(left.length,right.length);n>0;n--){const match=overlapAt(left,right,n);if(match.certain||match.ordered){edges.get(a).add(b);indegree.set(b,indegree.get(b)+1);break;}}}
   const ordered=[],remaining=new Set(images);while(remaining.size){const available=[...remaining].filter(i=>indegree.get(i)===0);if(available.length!==1)return images;const next=available[0];ordered.push(next);remaining.delete(next);for(const dest of edges.get(next))indegree.set(dest,indegree.get(dest)-1);}
   return ordered.every((id,i)=>i===0||edges.get(ordered[i-1]).has(id))?ordered:images;
  }
@@ -72,15 +74,16 @@ const SleepOCR=(()=>{
    if(!reordered&&images[image]!==images[image-1]+1)continue;
    const left=rows.filter(r=>r.image===images[image-1]).sort((a,b)=>a.rowIndex-b.rowIndex),right=rows.filter(r=>r.image===images[image]).sort((a,b)=>a.rowIndex-b.rowIndex);
    for(let n=Math.min(left.length,right.length);n>=1;n--){
-    const {pairs,certain}=overlapAt(left,right,n,effective);
+    const {pairs,certain,ordered}=overlapAt(left,right,n,effective);
     if(certain){for(const [a,b] of pairs){const id=rootId(a.id),merged={...(resolved.get(id)||a)};for(const key of ['species','stars','amount'])if(!present(merged[key])&&present(b[key]))merged[key]=b[key];resolved.set(id,merged);aliases.set(b.id,id);overlap.add(b.id);}break;}
+    if(ordered){for(const [a,b] of pairs){if(a.amount!==''&&b.amount!==''&&a.amount!==b.amount){ambiguous.add(b.id);continue;}const id=rootId(a.id),merged={...(resolved.get(id)||a)};for(const key of ['species','stars','amount'])if(!present(merged[key])&&present(b[key]))merged[key]=b[key];resolved.set(id,merged);aliases.set(b.id,id);overlap.add(b.id);}break;}
     for(const [a,b] of pairs)if(a.kind===b.kind&&!(a.date&&b.date&&a.date!==b.date)&&a.species&&a.species===b.species&&(!present(a.stars)||!present(b.stars)||a.stars===b.stars))ambiguous.add(b.id);
    }
   }
   const orderedRows=reordered?images.flatMap(i=>rows.filter(r=>r.image===i).sort((a,b)=>a.rowIndex-b.rowIndex)):rows;
   for(const original of orderedRows){const r=resolved.get(original.id)||original;const source=r.imageHash+':'+r.rowIndex,label='写真'+(r.image+1)+'・行'+(r.rowIndex+1);if(r.date&&r.date!==draft.date){issues.push(label+'：日付が異なります('+r.date+')。追加していません。');continue;}if(overlap.has(r.id)||seen.has(source)&&seen.get(source).species===r.species&&seen.get(source).stars===r.stars){issues.push(label+'：重複行を追加しませんでした。');continue;}
    if(ambiguous.has(r.id))issues.push(label+'：重複の可能性があります。元の写真と一覧を確認してください。');if(seen.has(source))issues.push(label+'：以前の読み取りと行の位置が異なります。追加した内容と元の写真を確認してください。');
-   try{if(!Object.hasOwn(map,r.species)||!Number.isInteger(r.stars)||r.stars<1||r.stars>4)throw Error('ポケモン名・星を読み取れません('+String(r.raw||'不明').replace(/\s+/g,' ').slice(0,60)+')。'+(r.suggestions?.length?'候補：'+r.suggestions.join('・')+'。':'')+'元の写真を確認し、手入力してください。');const value=amountFor(r,draft.number===2?1:draft.candyMultiplier??1);if(draft.entries.length+entries.length>=100)throw Error('1回に追加できるのは100匹までです。');entries.push({id:newId(),species:r.species,candy:map[r.species],stars:r.stars,...value,ocrSource:{imageHash:r.imageHash,rowIndex:r.rowIndex,kind:r.kind,signature:r.signature}});seen.set(source,entries.at(-1));}catch(e){issues.push(label+'：'+e.message);}
+   try{if(!Object.hasOwn(map,r.species)||!Number.isInteger(r.stars)||r.stars<1||r.stars>4)throw Error('ポケモン名・星を読み取れません('+String(r.raw||'不明').replace(/\s+/g,' ').slice(0,60)+')。'+(r.suggestions?.length?'候補：'+r.suggestions.join('・')+'。':'')+'元の写真を確認し、手入力してください。');const value=amountFor(r,draft.number===2?1:draft.candyMultiplier??1);if(draft.entries.length+entries.length>=100)throw Error('1回に追加できるのは100匹までです。');entries.push({id:newId(),species:r.species,candy:map[r.species],stars:r.stars,...value,ocrSource:{imageHash:r.imageHash,rowIndex:r.rowIndex,kind:r.kind,signature:r.signature,...(ambiguous.has(r.id)?{review:true}:{})}});seen.set(source,entries.at(-1));}catch(e){issues.push(label+'：'+e.message);}
   }return {entries,issues};
  }
  function build(s,rows,groups,map,newId,now){const selected=rows.filter(r=>r.confirmed&&!r.excluded);if(!selected.length)throw Error('確認済みの行を選んでください。');let next=s;const totals={};
