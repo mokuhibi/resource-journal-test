@@ -217,7 +217,7 @@ const SleepUI=(()=>{
   const r={id:'sleep:'+s.id,recordedAt:s.recordedAt,datetime:SleepResearch.datetime(s),amount:shardsOnly?s.amount:C.sum(s.entries),method:'research',sleepSession:s},card=el('div',undefined,'card research'+(shardsOnly?' shards':'')),actions=el('div',undefined,'history-actions');if(!C.inRange(r,period))continue;card.dataset.datetime=r.datetime;if(shardsOnly)card.dataset.shardSource='research';actions.append(button('訂正',()=>edit(s.id)),button('削除',()=>remove(s.id),'danger'));
   historyCard(card,r,'睡眠リサーチ',shardsOnly?'ゆめのかけら':'アメ',s.number+'回目'+(!shardsOnly&&s.shardsRecorded!==false?' · ゆめのかけら '+s.amount.toLocaleString('ja-JP')+'個':''),actions);finishHistoryCard(card);root.append(card);
  }}
- function appendOCR(rows,expected){if(date!==expected.date||number!==expected.number)throw Error('日付・回数が変更されました。選び直してください。');const result=SleepOCR.draftEntries(rows,draft,candyMap,uid),previous=draft;draft={...draft,entries:[...draft.entries,...result.entries]};if(!keep()){draft=previous;throw Error('入力途中の保存ができません。読み取りを再実行してください。');}render();return result;}
+ function appendOCR(rows,expected){if(date!==expected.date||number!==expected.number)throw Error('日付・回数が変更されました。選び直してください。');const result=SleepOCR.draftEntries(rows,draft,candyMap,uid),previous=draft;draft={...draft,entries:[...draft.entries,...result.entries]};if(!keep()){draft=previous;throw Error('入力途中の保存ができません。読み取りを再実行してください。');}render();return {...result,total:draft.entries.length};}
  function invalidateOCR(){draft=null;loaded=false;researchSource=null;}
  return {selectSocial,appendOCR,entryRow,invalidateOCR,selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
 })();

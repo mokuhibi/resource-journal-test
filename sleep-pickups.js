@@ -30,6 +30,8 @@ const SleepPickups=(()=>{
  function matching(events,day,field){day=eventDay(day);return events.filter(e=>e.start<=day&&day<=e.end&&(e.fields.includes('*')||Boolean(field)&&e.fields.includes(field)));}
  function multiplier(events,day,field,number=1){day=eventDay(day);return number===1?Math.max(1,...matching(events,day,field).flatMap(e=>(e.candyBonuses||[]).filter(b=>b.start<=day&&day<=b.end).map(b=>b.multiplier))):1;}
  function bonus(day,field,number=1){return multiplier(list(),day,field,number);}
+ // Use registered event dates; unregistered dates cannot be inferred.
+ function researchLimit(day,events=list()){day=eventDay(day);return events.some(e=>e.start<=day&&day<=e.end&&/(?:グッドスリープデー|ニュームーンデー)/.test(e.name))?11:10;}
  function current(day,field){return targets(list(),day,field);}
  // Candidate browsing may show all active fields when no field has been selected.
  // Reward/bonus matching continues to require the actual field.
@@ -66,6 +68,6 @@ const SleepPickups=(()=>{
   const events=list().filter(e=>options.browse?e.start<=day&&day<=e.end:!e.standard||!day||matching([e],day,field).length);for(const event of events){const row=el('section',undefined,'pickup-event'),head=el('div',undefined,'pickup-heading');head.append(el('strong',event.name),el('small',event.standard?'標準':'端末登録'));if(!event.standard)head.append(button('編集',()=>{editor=JSON.parse(JSON.stringify(event));delete editor.standard;refresh();}),button('削除',()=>{if(confirm('このイベントを削除しますか？')){if(removeEvent(event.id)){if(editor?.id===event.id)editor=null;refresh();}}},'danger'));row.append(head,el('p',periodText(event),'sleep-note'),el('p',event.fields.includes('*')?'すべてのフィールド':event.fields.join('・'),'sleep-note'),...((event.tiers||event.dailyTiers?tierLines(tiersFor(event,day)):[event.pokemon.map(C.speciesName).join('・')]).filter(Boolean).map(text=>el('p',text,'sleep-note'))));if(event.fullMoon===day)row.append(el('p','満月の日','sleep-note'));for(const bonus of event.skillBonuses||[])row.append(el('p',(bonus.type?bonus.type+'タイプ：':'')+'メインスキルLv＋'+bonus.boost+'('+bonus.pokemon.map(C.speciesName).join('・')+')','sleep-note'));for(const bonus of event.shardBonuses||[])row.append(el('p',(bonus.scope==='sleep'?'睡眠リサーチ':'メインスキル')+'のゆめのかけら ×'+bonus.multiplier+(bonus.firstOnly?'(1回目のみ)':'')+(bonus.type?'・'+bonus.type+'タイプ':'')+(bonus.pokemon?'：'+bonus.pokemon.map(C.speciesName).join('・'):''),'sleep-note'));for(const bonus of event.candyBonuses||[])row.append(el('p',C.displayDate(bonus.start)+'〜'+C.displayDate(bonus.end)+'：1回目の睡眠リサーチのアメ ×'+bonus.multiplier,'sleep-note'));root.append(row);}
   if(!events.length)root.append(el('p',options.browse?'この日のイベントはありません。':'登録済みのイベントはありません。','sleep-note'));
  }
- return {candidateEvents,rankedTargets,candidates,eventDay,tiersFor,periodText,tierLines,fields,validate,documentData,targets,matching,multiplier,bonus,current,list,load,render,saveEvent,removeEvent};
+ return {researchLimit,candidateEvents,rankedTargets,candidates,eventDay,tiersFor,periodText,tierLines,fields,validate,documentData,targets,matching,multiplier,bonus,current,list,load,render,saveEvent,removeEvent};
 })();
 if(typeof module!=='undefined')module.exports=SleepPickups;

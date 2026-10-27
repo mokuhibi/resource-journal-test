@@ -45,26 +45,40 @@ const SleepOCR=(()=>{
  const research=()=>typeof SleepResearch!=='undefined'?SleepResearch:require('./sleep-research.js');
  function repeat(r,s){return (s.sleepSessions||[]).some(session=>session.entries.some(e=>e.ocrSource?.imageHash===r.imageHash&&e.ocrSource?.rowIndex===r.rowIndex));}
  function amountFor(r,multiplier){if(!['result','history'].includes(r.kind))throw Error('画面の種類を判別できません。写真を確認し、睡眠リサーチの手入力を使用してください。');if(r.kind==='result'||r.manualAmount===true){if(r.amount===''||!Number.isSafeInteger(Number(r.amount))||Number(r.amount)<0||Number(r.amount)>1000000000)throw Error('アメの個数を確認してください。');return {amount:Number(r.amount),calculatedAmount:null,manualAmount:true};}const base=research().estimate(r.species,Number(r.stars));if(base===null||!Number.isFinite(base))throw Error('報酬が未確認のため、アメの個数を手入力してください。');return research().changeStars({species:r.species,amount:'',manualAmount:false},Number(r.stars),multiplier);}
+ // The same conservative test is used to infer screenshot order and remove overlaps.
+ function overlapAt(left,right,n,effective=r=>r){
+  const present=v=>v!==''&&v!==null&&v!==undefined;
+  const pairs=left.slice(-n).map((a,i)=>[effective(a),effective(right[i])]),known=pairs.filter(([a,b])=>a.species&&a.species===b.species),tokens=new Set(known.map(([a])=>[a.species,a.stars,a.kind==='result'?a.amount:''].join('|')));
+  const conflictingStyle=([a,b])=>{if(!a.species||a.species!==b.species)return false;const name=a.species.replace(/\(.*$/,''),part=r=>{const s=r.signature||'';return s.startsWith(name)&&s.endsWith('寝')?s.slice(name.length).replace(/^[#＃♯§©:*]+/,''):'';},x=part(a),y=part(b);return x.length>=4&&y.length>=4&&distance(x,y)>Math.max(2,Math.floor(Math.max(x.length,y.length)*.45));};
+  const compatible=([a,b])=>a.kind===b.kind&&['result','history'].includes(a.kind)&&!(a.date&&b.date&&a.date!==b.date)&&!(a.species&&b.species&&a.species!==b.species)&&!(present(a.stars)&&present(b.stars)&&a.stars!==b.stars)&&!(a.kind==='result'&&present(a.amount)&&present(b.amount)&&a.amount!==b.amount)&&!conflictingStyle([a,b]);
+  const style=([a,b])=>{if(!a.species||a.species!==b.species)return false;const name=a.species.replace(/\(.*$/,''),x=a.signature||'',y=b.signature||'';let common=0;while(common<Math.min(x.length,y.length)&&x[common]===y[common])common++;return common>=name.length+3;};
+  const complete=([a,b])=>a.species&&a.species===b.species&&present(a.stars)&&a.stars===b.stars&&(a.kind==='history'||present(a.amount)&&a.amount===b.amount);
+  const strong=pairs.filter(pair=>complete(pair)||style(pair)).length,positions=pairs.filter(([a,b])=>a.bounds&&b.bounds&&a.imageWidth&&b.imageWidth).map(([a,b])=>a.bounds.y/a.imageWidth-b.bounds.y/b.imageWidth),aligned=positions.length<2||Math.max(...positions)-Math.min(...positions)<.08;
+  const certain=pairs.every(compatible)&&aligned&&(n===1?pairs[0][0].edgeFooter&&pairs[0][1].edgeHeader&&complete(pairs[0])&&style(pairs[0]):tokens.size>=2&&strong>=2&&pairs.every(([a,b])=>a.species||b.species));
+  return {pairs,certain};
+ }
+ function imageOrder(rows,images){
+  if(images.length<2||images.some((v,i)=>v!==i))return images;
+  const grouped=new Map(images.map(i=>[i,rows.filter(r=>r.image===i).sort((a,b)=>a.rowIndex-b.rowIndex)])),edges=new Map(images.map(i=>[i,new Set()])),indegree=new Map(images.map(i=>[i,0]));
+  for(const a of images)for(const b of images){if(a===b)continue;const left=grouped.get(a),right=grouped.get(b);for(let n=Math.min(left.length,right.length);n>0;n--)if(overlapAt(left,right,n).certain){edges.get(a).add(b);indegree.set(b,indegree.get(b)+1);break;}}
+  const ordered=[],remaining=new Set(images);while(remaining.size){const available=[...remaining].filter(i=>indegree.get(i)===0);if(available.length!==1)return images;const next=available[0];ordered.push(next);remaining.delete(next);for(const dest of edges.get(next))indegree.set(dest,indegree.get(dest)-1);}
+  return ordered.every((id,i)=>i===0||edges.get(ordered[i-1]).has(id))?ordered:images;
+ }
  function draftEntries(rows,draft,map,newId){
   const entries=[],issues=[],seen=new Map(draft.entries.filter(e=>e.ocrSource).map(e=>[e.ocrSource.imageHash+':'+e.ocrSource.rowIndex,e])),overlap=new Set(),resolved=new Map(),aliases=new Map(),ambiguous=new Set();
   // Only adjacent screenshots can overlap. Compare suffix/prefix sequences, not species alone.
-  const images=[...new Set(rows.map(r=>r.image))].sort((a,b)=>a-b),present=v=>v!==''&&v!==null&&v!==undefined,rootId=id=>{while(aliases.has(id))id=aliases.get(id);return id;},effective=r=>{const saved=resolved.get(rootId(r.id));return saved?{...r,species:saved.species,stars:saved.stars,amount:saved.amount}:r;};
+  const originalImages=[...new Set(rows.map(r=>r.image))].sort((a,b)=>a-b),images=imageOrder(rows,originalImages),reordered=images.some((id,i)=>id!==originalImages[i]),present=v=>v!==''&&v!==null&&v!==undefined,rootId=id=>{while(aliases.has(id))id=aliases.get(id);return id;},effective=r=>{const saved=resolved.get(rootId(r.id));return saved?{...r,species:saved.species,stars:saved.stars,amount:saved.amount}:r;};
   for(let image=1;image<images.length;image++){
-   if(images[image]!==images[image-1]+1)continue;
+   if(!reordered&&images[image]!==images[image-1]+1)continue;
    const left=rows.filter(r=>r.image===images[image-1]).sort((a,b)=>a.rowIndex-b.rowIndex),right=rows.filter(r=>r.image===images[image]).sort((a,b)=>a.rowIndex-b.rowIndex);
    for(let n=Math.min(left.length,right.length);n>=1;n--){
-    const pairs=left.slice(-n).map((a,i)=>[effective(a),effective(right[i])]),known=pairs.filter(([a,b])=>a.species&&a.species===b.species),tokens=new Set(known.map(([a])=>[a.species,a.stars,a.kind==='result'?a.amount:''].join('|')));
-    const conflictingStyle=([a,b])=>{if(!a.species||a.species!==b.species)return false;const name=a.species.replace(/\(.*$/,''),part=r=>{const s=r.signature||'';return s.startsWith(name)&&s.endsWith('寝')?s.slice(name.length).replace(/^[#＃♯§©:*]+/,''):'';},x=part(a),y=part(b);return x.length>=4&&y.length>=4&&distance(x,y)>Math.max(2,Math.floor(Math.max(x.length,y.length)*.45));};
-    const compatible=([a,b])=>a.kind===b.kind&&['result','history'].includes(a.kind)&&!(a.date&&b.date&&a.date!==b.date)&&!(a.species&&b.species&&a.species!==b.species)&&!(present(a.stars)&&present(b.stars)&&a.stars!==b.stars)&&!(a.kind==='result'&&present(a.amount)&&present(b.amount)&&a.amount!==b.amount)&&!conflictingStyle([a,b]);
-    const style=([a,b])=>{if(!a.species||a.species!==b.species)return false;const name=a.species.replace(/\(.*$/,''),x=a.signature||'',y=b.signature||'';let common=0;while(common<Math.min(x.length,y.length)&&x[common]===y[common])common++;return common>=name.length+3;};
-    const complete=([a,b])=>a.species&&a.species===b.species&&present(a.stars)&&a.stars===b.stars&&(a.kind==='history'||present(a.amount)&&a.amount===b.amount);
-    const strong=pairs.filter(pair=>complete(pair)||style(pair)).length,positions=pairs.filter(([a,b])=>a.bounds&&b.bounds&&a.imageWidth&&b.imageWidth).map(([a,b])=>a.bounds.y/a.imageWidth-b.bounds.y/b.imageWidth),aligned=positions.length<2||Math.max(...positions)-Math.min(...positions)<.08;
-    const certain=pairs.every(compatible)&&aligned&&(n===1?pairs[0][0].edgeFooter&&pairs[0][1].edgeHeader&&complete(pairs[0])&&style(pairs[0]):tokens.size>=2&&strong>=2&&pairs.every(([a,b])=>a.species||b.species));
+    const {pairs,certain}=overlapAt(left,right,n,effective);
     if(certain){for(const [a,b] of pairs){const id=rootId(a.id),merged={...(resolved.get(id)||a)};for(const key of ['species','stars','amount'])if(!present(merged[key])&&present(b[key]))merged[key]=b[key];resolved.set(id,merged);aliases.set(b.id,id);overlap.add(b.id);}break;}
     for(const [a,b] of pairs)if(a.kind===b.kind&&!(a.date&&b.date&&a.date!==b.date)&&a.species&&a.species===b.species&&(!present(a.stars)||!present(b.stars)||a.stars===b.stars))ambiguous.add(b.id);
    }
   }
-  for(const original of rows){const r=resolved.get(original.id)||original;const source=r.imageHash+':'+r.rowIndex,label='写真'+(r.image+1)+'・行'+(r.rowIndex+1);if(r.date&&r.date!==draft.date){issues.push(label+'：日付が異なります('+r.date+')。追加していません。');continue;}if(overlap.has(r.id)||seen.has(source)&&seen.get(source).species===r.species&&seen.get(source).stars===r.stars){issues.push(label+'：重複行を追加しませんでした。');continue;}
+  const orderedRows=reordered?images.flatMap(i=>rows.filter(r=>r.image===i).sort((a,b)=>a.rowIndex-b.rowIndex)):rows;
+  for(const original of orderedRows){const r=resolved.get(original.id)||original;const source=r.imageHash+':'+r.rowIndex,label='写真'+(r.image+1)+'・行'+(r.rowIndex+1);if(r.date&&r.date!==draft.date){issues.push(label+'：日付が異なります('+r.date+')。追加していません。');continue;}if(overlap.has(r.id)||seen.has(source)&&seen.get(source).species===r.species&&seen.get(source).stars===r.stars){issues.push(label+'：重複行を追加しませんでした。');continue;}
    if(ambiguous.has(r.id))issues.push(label+'：重複の可能性があります。元の写真と一覧を確認してください。');if(seen.has(source))issues.push(label+'：以前の読み取りと行の位置が異なります。追加した内容と元の写真を確認してください。');
    try{if(!Object.hasOwn(map,r.species)||!Number.isInteger(r.stars)||r.stars<1||r.stars>4)throw Error('ポケモン名・星を読み取れません('+String(r.raw||'不明').replace(/\s+/g,' ').slice(0,60)+')。'+(r.suggestions?.length?'候補：'+r.suggestions.join('・')+'。':'')+'元の写真を確認し、手入力してください。');const value=amountFor(r,draft.number===2?1:draft.candyMultiplier??1);if(draft.entries.length+entries.length>=100)throw Error('1回に追加できるのは100匹までです。');entries.push({id:newId(),species:r.species,candy:map[r.species],stars:r.stars,...value,ocrSource:{imageHash:r.imageHash,rowIndex:r.rowIndex,kind:r.kind,signature:r.signature}});seen.set(source,entries.at(-1));}catch(e){issues.push(label+'：'+e.message);}
   }return {entries,issues};
