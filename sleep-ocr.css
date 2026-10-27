@@ -29,4 +29,21 @@
 .sleep-ocr-review-choices{display:flex;gap:4px;flex:none}
 .sleep-ocr-review-choices button{min-height:44px;padding:4px 8px;font-size:13px}
 .sleep-ocr-review-choices button[aria-pressed=true]{background:var(--mh-selected);border-color:var(--mh-accent)}
-@media(max-width:390px){.sleep-ocr-review-row{display:block}.sleep-ocr-review-choices{margin-top:4px}}
+#app-panel.sleep-ocr-review-panel{display:flex;flex-direction:column;max-height:calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));background:var(--mh-surface)}
+#app-panel.sleep-ocr-review-panel:not([open]){display:none}
+#app-panel.sleep-ocr-review-panel .app-panel-head{flex:none;background:var(--mh-surface)}
+#app-panel.sleep-ocr-review-panel .app-panel-head button{display:none}
+#app-panel.sleep-ocr-review-panel .app-panel-body{display:flex;flex-direction:column;min-height:0;max-height:none;overflow:hidden;padding:0 16px;background:var(--mh-surface)}
+#app-panel.sleep-ocr-review-panel .sleep-ocr-review-count{position:static;flex:none;padding:12px 0 8px;font-size:14px}
+#app-panel.sleep-ocr-review-panel .sleep-ocr-warning{flex:none;margin:0 0 8px}
+#app-panel.sleep-ocr-review-panel .sleep-ocr-review-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#app-panel.sleep-ocr-review-panel .sleep-ocr-actions{position:static;flex:none;margin:0 -16px;padding:12px 16px max(12px,env(safe-area-inset-bottom));background:var(--mh-surface)}
+.sleep-ocr-review-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.sleep-ocr-review-info{min-width:0;display:flex;flex-direction:column;gap:2px}
+.sleep-ocr-review-info small{font-size:11px;color:var(--mh-muted)}
+.sleep-ocr-review-title{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
+.sleep-ocr-review-title small{font-size:11px;font-weight:400;white-space:nowrap;color:var(--mh-muted)}
+.sleep-ocr-review-detail{display:flex;align-items:baseline;gap:4px;min-width:0;line-height:1.35}
+.sleep-ocr-review-detail>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sleep-ocr-review-detail>span:last-child{flex:none;white-space:nowrap}
+@media(max-width:390px){.sleep-ocr-review-choices{flex-direction:column;gap:2px}.sleep-ocr-review-choices button{min-height:44px;padding:2px 6px;font-size:12px}}

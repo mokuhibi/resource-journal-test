@@ -184,3 +184,8 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 
 #sleep-entries .sleep-entry-selected{outline:2px solid var(--mh-accent);outline-offset:-2px;border-radius:8px}
 #sleep-entries .sleep-entry-review{box-shadow:inset 3px 0 #b07b2d;border-radius:8px}
+#sleep #sleep-entries .sleep-entry-sortable{grid-template-columns:42px minmax(0,1fr) 52px 52px 44px;gap:4px}
+#sleep #sleep-entries .sleep-entry-drag{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-width:42px;min-height:44px;color:var(--mh-muted);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+#sleep #sleep-entries .sleep-entry-drag>span{height:19px;font-size:20px;line-height:19px}
+#sleep #sleep-entries .sleep-entry-drag>small{font-size:10px;font-variant-numeric:tabular-nums;line-height:14px}
+#sleep #sleep-entries .sleep-entry-dragging{background:var(--mh-selected)}
