@@ -459,3 +459,6 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 #settings #about-app>p,#settings #about-app>.about-contact>p{margin:6px 0 0;font-size:13px;line-height:1.7;color:var(--editorial-muted);overflow-wrap:anywhere}
 #settings #about-app>#data-sources{margin:16px 0;padding:0;border:0;background:none}
 #settings #about-app>.about-contact a{color:var(--editorial-ink);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+#settings #settings-settings-panel>details.card:not(#about-app)>summary{font-size:17px;font-weight:600;min-height:44px;line-height:1.5;padding:10px 0;cursor:pointer}
+#settings #settings-settings-panel>details.card:not(#about-app)>summary::marker{color:var(--mh-muted)}
+#settings #settings-settings-panel>details.card:not(#about-app)[open]>summary{margin-bottom:12px}

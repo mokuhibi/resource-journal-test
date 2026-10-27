@@ -79,3 +79,19 @@ body button.save-idle:not(:disabled){background:#f5f6f6!important;color:var(--mh
 #team #team-panel .team-slot-button{min-height:102px}
 #team #team-panel #team-slots .team-slot-row>.team-slot-button{height:102px;min-height:102px;padding:4px 3px}
 #team #team-panel #team-slots .pokemon-card-level{padding-right:18px;font-size:10px}
+#team .individual-subskills label{font-size:11px;gap:3px;white-space:nowrap}
+#team .individual-subskills .individual-pick{white-space:normal;overflow-wrap:normal;word-break:normal;line-height:1.2;font-size:12px}
+#team .individual-top-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 62px}
+#team .individual-top-grid>.individual-field:has(#profile-main-skill,#register-main-skill){grid-column:1/4}
+#team .individual-top-grid>.individual-field:has(#profile-skill,#register-skill){grid-column:4}
+#team #team-panel #team-slots .team-slot-edit{width:20px;height:22px;min-height:22px;padding:2px;top:1px;right:1px}
+#team #team-panel #team-slots .team-slot-row>span{font-size:9px;top:5px;left:4px}
+#team #team-panel #team-slots .pokemon-card-level{padding:0 14px 0 12px;text-align:center;font-size:9px;white-space:nowrap;letter-spacing:-.5px}
+#team #team-panel #team-slots .team-slot-edit{min-width:20px!important;width:20px!important}
+@media(max-width:360px){#team #team-panel #team-slots{gap:1px!important}#team #team-panel #team-slots .pokemon-card-level{font-size:8px;padding-right:18px;padding-left:10px;letter-spacing:-.6px}}
+#team .individual-top-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 62px!important}
+#team #team-panel #team-slots .team-slot-edit{width:16px!important;min-width:16px!important;height:20px;min-height:20px;padding:0}
+#team #team-panel #team-slots .team-slot-edit::before{content:'';position:absolute;inset:-7px 0}
+@media(max-width:360px){#team #team-panel #team-slots .pokemon-card-level{font-size:9px;padding-right:16px;padding-left:10px;letter-spacing:-.5px}}
+#team .individual-top-grid :is(#profile-main-skill,#register-main-skill){font-size:13px}
+@media(max-width:360px){#team #team-panel #team-slots .pokemon-card-level{font-size:10px;transform:scaleX(.85);transform-origin:center}}

@@ -37,7 +37,7 @@ const ProfileForm=(()=>{
   }
   if(edit){$('profile-form').prepend(grid);$('profile-species').hidden=true;}else{$('register-panel').insertBefore(grid,$('registration-fields'));$('selected-name').hidden=true;}
   const subs=$(edit?'subskill-fields':'register-subskill-fields');subs.classList.add('individual-subskills');
-  for(const [i,label] of [...subs.children].entries()){const select=label.querySelector('select'),title='サブスキル'+[10,25,50,70,80][i];select.setAttribute('aria-label',title);select.title=title;}
+  for(const [i,label] of [...subs.children].entries()){const select=label.querySelector('select'),title='サブスキル'+[10,25,50,70,80][i];for(const node of label.childNodes)if(node.nodeType===3)node.textContent='Lv.'+[10,25,50,70,80][i];select.setAttribute('aria-label',title);select.title=title;}
  }
  function init(){
   const old=$('profile-skill'),levels=el('select');levels.id=old.id;levels.setAttribute('aria-label','スキルレベル');old.replaceWith(levels);
