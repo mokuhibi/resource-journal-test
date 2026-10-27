@@ -97,7 +97,7 @@ const CandyCore = (() => {
   if(settings.aggregateCandy?.social!==undefined&&typeof settings.aggregateCandy.social!=='boolean')throw Error('ソーシャルリサーチの集計設定');
   if(settings.candyFilters!==undefined){if(!settings.candyFilters||Array.isArray(settings.candyFilters)||typeof settings.candyFilters!=='object')throw Error('集計フィルター');for(const scope of ['types','week','month','breakdown']){const flags=settings.candyFilters[scope];if(flags===undefined)continue;if(!flags||Array.isArray(flags)||typeof flags!=='object'||[...Object.keys(old),'social'].some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean'))throw Error('集計フィルター');}}
   if(settings.shardFilters!==undefined){if(!settings.shardFilters||Array.isArray(settings.shardFilters)||typeof settings.shardFilters!=='object')throw Error('集計フィルター');for(const scope of ['week','month']){const flags=settings.shardFilters[scope];if(flags!==undefined&&(!flags||Array.isArray(flags)||typeof flags!=='object'||['research','skill','cluster','other'].some(key=>flags[key]!==undefined&&typeof flags[key]!=='boolean')))throw Error('集計フィルター');}}
-  for(const group of ['displayActions','aggregateActions'])if(settings[group]!==undefined&&(!settings[group]||Array.isArray(settings[group])||typeof settings[group]!=='object'||Object.values(settings[group]).some(v=>typeof v!=='boolean')))throw Error('行動別設定');
+  for(const group of ['displayActions','aggregateActions','aggregateCandyActions','aggregateShardActions'])if(settings[group]!==undefined&&(!settings[group]||Array.isArray(settings[group])||typeof settings[group]!=='object'||Object.values(settings[group]).some(v=>typeof v!=='boolean')))throw Error('行動別設定');
   return result;
  }
  function migrate(raw,map){

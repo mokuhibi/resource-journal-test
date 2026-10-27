@@ -64,3 +64,18 @@
 body button.save-dirty:not(:disabled){background:#171717!important;color:#fff!important;border-color:#171717!important}
 body button.save-idle:not(:disabled){background:#f5f6f6!important;color:var(--mh-muted)!important;border-color:transparent!important}
 @media(prefers-color-scheme:dark){body button.save-dirty:not(:disabled){background:#111!important;color:#fff!important;border-color:#aaa!important}}
+
+#team .individual-subskills label{display:flex;align-items:center;gap:4px;min-width:0;margin:0}
+#team .individual-subskills .individual-pick{text-align:center;min-width:0;flex:1;padding:4px;font-size:12px}
+#team .individual-subskills .subskill-gold{background:#f5e5a5;color:var(--mh-text)}
+#team .individual-subskills .subskill-blue{background:#d7e8f5;color:var(--mh-text)}
+#team .individual-subskills .subskill-white{background:var(--mh-surface);color:var(--mh-text)}
+#team .individual-top-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+#team .individual-top-grid>.individual-field{grid-column:span 2}
+#team .individual-top-grid>.individual-field:has(#profile-main-skill,#register-main-skill){grid-column:span 3}
+#team .individual-top-grid>.individual-field:has(#profile-skill,#register-skill){grid-column:span 1}
+#team .individual-top-grid .individual-field:has(#profile-species-select,#pokemon-search,#profile-nickname,#nickname){font-size:16px}
+#team #team-panel #team-slots .team-slot-row>.team-slot-button{min-height:102px;padding-top:24px}
+#team #team-panel .team-slot-button{min-height:102px}
+#team #team-panel #team-slots .team-slot-row>.team-slot-button{height:102px;min-height:102px;padding:4px 3px}
+#team #team-panel #team-slots .pokemon-card-level{padding-right:18px;font-size:10px}

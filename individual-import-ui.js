@@ -14,17 +14,8 @@ const IndividualImportUI=(()=>{
   if(v.shiny!==undefined)textRow(root,'色違い',v.shiny?'はい':'いいえ');
   return root;
  }
- function editor(p){
-  let root=$('individual-import-supplement');if(!root){root=el('details');root.id='individual-import-supplement';$('profile-details').after(root);}
-  root.replaceChildren();root.hidden=!p.importedIndividual?.source;if(root.hidden)return;
-  root.append(el('summary','取り込んだ個体情報'),details(p));
-  // All original recognized column values remain available, including unsupported values.
-  const original=el('details');original.append(el('summary','ファイルにあった値'));
-  const list=el('dl',undefined,'individual-import-details');
-  const labels={species:'ポケモン',nickname:'ニックネーム',level:'レベル',nature:'せいかく',skillLevel:'スキルレベル',mainSkill:'メインスキル',sleepHours:'一緒に眠った時間',shiny:'色違い'};
-  for(const [k,v]of Object.entries(p.importedIndividual.fields||{}))if(v&&k!=='sleepHours'&&!k.startsWith('ingredients'))textRow(list,labels[k]||k.replace('ingredients','食材').replace(/^sub([0-4])$/,(_,i)=>'Lv'+[10,25,50,70,80][i]),v);
-  original.append(list);root.append(original);
- }
+ function editor(){const root=$('individual-import-supplement');if(root)root.hidden=true;}
+
  function current(){return JSON.stringify(state.pokemon);}
  function initialCategory(row){
   if(row.errors.length)return 'exclude';if(row.action==='add')return 'new';

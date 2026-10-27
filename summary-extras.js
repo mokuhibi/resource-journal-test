@@ -9,13 +9,14 @@ const SummaryExtras=(()=>{
  const shardVisible=(method,settings=state.settings)=>method==='cluster'?otherVisible('cluster',settings):method==='other'?['mission','achievement','gift'].some(key=>otherVisible(key,settings)):settings[settingKeys[shardKey(method)]]!==false;
  // 全体設定とセクション内フィルターは、入力表示・履歴とは独立する。
  const aggregateVisible=(kind,method)=>{
+  const scoped={...state.settings,aggregateActions:state.settings[kind==='candy'?'aggregateCandyActions':'aggregateShardActions']||state.settings.aggregateActions};
   const key=kind==='candy'?method:shardKey(method),legacy=(state.settings[kind==='candy'?'aggregateCandy':'aggregateShards']||C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'])[key]!==false;
-  const categories=kind==='candy'?(key==='skill'?['copy','metronome','nap','other']:[key]):key==='skill'?['mew','delibird','copy','metronome','shards']:key==='other'?['nap','other']:key==='cluster'?['other']:[key];
-  if(kind==='shard'&&key==='cluster'&&state.settings.aggregateActions?.cluster===false)return false;
-  const childOn=kind==='shard'&&(key==='cluster'?state.settings.aggregateActions?.cluster===true:key==='other'?['mission','achievement','gift'].some(child=>state.settings.aggregateActions?.[child]===true):false);
-  return categories.some(k=>C.actionAllowed(state.settings,k)&&(legacy||state.settings.aggregateActions?.[k]===true||k==='other'&&childOn));
+  const categories=kind==='candy'?(key==='skill'?['copy','metronome','nap','other']:[key]):key==='skill'?(state.settings.aggregateShardActions?['copy','metronome','shards']:['mew','delibird','copy','metronome','shards']):key==='other'?['nap','other']:key==='cluster'?['other']:[key];
+  if(kind==='shard'&&key==='cluster'&&scoped.aggregateActions?.cluster===false)return false;
+  const childOn=kind==='shard'&&(key==='cluster'?scoped.aggregateActions?.cluster===true:key==='other'?['mission','achievement','gift'].some(child=>scoped.aggregateActions?.[child]===true):false);
+  return categories.some(k=>C.actionAllowed(scoped,k)&&(legacy||scoped.aggregateActions?.[k]===true||k==='other'&&childOn));
  };
- const allowedRecord=(r,kind='candy')=>{const key=C.actionCategory(r),legacy=(state.settings[kind==='candy'?'aggregateCandy':'aggregateShards']||C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'])[kind==='candy'?r.method:shardKey(r.method)]!==false;const child=r.method==='cluster'?'cluster':r.method==='other'?r.otherKind:null,childOn=key==='other'&&C.otherKeys.includes(child)&&state.settings.aggregateActions?.[child]===true;return C.otherRecordAllowed(state.settings,r)&&C.actionAllowed(state.settings,key)&&(legacy||state.settings.aggregateActions?.[key]===true||childOn);};
+ const allowedRecord=(r,kind='candy')=>{const scoped={...state.settings,aggregateActions:state.settings[kind==='candy'?'aggregateCandyActions':'aggregateShardActions']||state.settings.aggregateActions},category=C.actionCategory(r),key=kind==='shard'&&state.settings.aggregateShardActions&&['mew','delibird'].includes(category)?'shards':category,legacy=(state.settings[kind==='candy'?'aggregateCandy':'aggregateShards']||C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'])[kind==='candy'?r.method:shardKey(r.method)]!==false;const child=r.method==='cluster'?'cluster':r.method==='other'?r.otherKind:null,childOn=key==='other'&&C.otherKeys.includes(child)&&scoped.aggregateActions?.[child]===true;return C.otherRecordAllowed(scoped,r)&&C.actionAllowed(scoped,key)&&(legacy||scoped.aggregateActions?.[key]===true||childOn);};
  const localVisible=(scope,method)=>!scope||state.settings.candyFilters?.[scope]?.[method]!==false;
  const candySourceVisible=(method,scope)=>aggregateVisible('candy',method)&&localVisible(scope,method);
  const candyRecords=(records,scope)=>records.filter(r=>(r.activationVersion!==1||r.resourceFlags.candy)&&allowedRecord(r)&&localVisible(scope,r.method));
