@@ -57,7 +57,7 @@ const SleepOCR=(()=>{
   const supported=n>=3&&tokens.size>=2&&strong>=2&&pairs.every(([a,b])=>(!a.species||!b.species||a.species===b.species)&&(a.species||b.species)&&(!present(a.stars)||!present(b.stars)||a.stars===b.stars)&&!conflictingStyle([a,b])),amountConflicts=pairs.filter(([a,b])=>a.kind==='result'&&present(a.amount)&&present(b.amount)&&a.amount!==b.amount).length;
   const ordered=aligned&&supported&&amountConflicts===1&&pairs.every(([a,b])=>a.kind===b.kind&&(!a.date||!b.date||a.date===b.date));
   const certain=pairs.every(compatible)&&aligned&&(n===1?pairs[0][0].edgeFooter&&pairs[0][1].edgeHeader&&complete(pairs[0])&&style(pairs[0]):tokens.size>=2&&strong>=2&&pairs.every(([a,b])=>a.species||b.species));
-  return {pairs,certain,ordered};
+  return {pairs,certain,ordered,aligned};
  }
  function imageOrder(rows,images){
   if(images.length<2||images.some((v,i)=>v!==i))return images;
@@ -66,11 +66,24 @@ const SleepOCR=(()=>{
   const ordered=[],remaining=new Set(images);while(remaining.size){const available=[...remaining].filter(i=>indegree.get(i)===0);if(available.length!==1)return images;const next=available[0];ordered.push(next);remaining.delete(next);for(const dest of edges.get(next))indegree.set(dest,indegree.get(dest)-1);}
   return ordered.every((id,i)=>i===0||edges.get(ordered[i-1]).has(id))?ordered:images;
  }
- function draftEntries(rows,draft,map,newId){
+ function overlapCandidates(rows){
+  const images=imageOrder(rows,[...new Set(rows.map(r=>r.image))].sort((a,b)=>a-b)),groups=[],number=new Map(rows.map((r,i)=>[r.id,i+1]));
+  for(let i=1;i<images.length;i++){
+   const left=rows.filter(r=>r.image===images[i-1]).sort((a,b)=>a.rowIndex-b.rowIndex),right=rows.filter(r=>r.image===images[i]).sort((a,b)=>a.rowIndex-b.rowIndex);
+   for(let n=Math.min(left.length,right.length);n>=1;n--){
+    const match=overlapAt(left,right,n),weak=n>=2&&match.aligned&&match.pairs.every(([a,b])=>a.kind===b.kind&&(!a.date||!b.date||a.date===b.date)&&a.species&&a.species===b.species&&a.stars&&a.stars===b.stars)&&new Set(match.pairs.map(([a])=>a.species+'|'+a.stars)).size>=2;
+    if(!match.certain&&!match.ordered&&!weak)continue;
+    for(const [a,b] of match.pairs)groups.push({rows:[{...a,ocrLine:number.get(a.id)},{...b,ocrLine:number.get(b.id)}],confidence:match.certain?'high':match.ordered&&a.amount===b.amount?'high':'review'});
+    break;
+   }
+  }
+  return groups;
+ }
+ function draftEntries(rows,draft,map,newId,preserveSelected=false){
   const entries=[],issues=[],seen=new Map(draft.entries.filter(e=>e.ocrSource).map(e=>[e.ocrSource.imageHash+':'+e.ocrSource.rowIndex,e])),overlap=new Set(),resolved=new Map(),aliases=new Map(),ambiguous=new Set();
   // Only adjacent screenshots can overlap. Compare suffix/prefix sequences, not species alone.
   const originalImages=[...new Set(rows.map(r=>r.image))].sort((a,b)=>a-b),images=imageOrder(rows,originalImages),reordered=images.some((id,i)=>id!==originalImages[i]),present=v=>v!==''&&v!==null&&v!==undefined,rootId=id=>{while(aliases.has(id))id=aliases.get(id);return id;},effective=r=>{const saved=resolved.get(rootId(r.id));return saved?{...r,species:saved.species,stars:saved.stars,amount:saved.amount}:r;};
-  for(let image=1;image<images.length;image++){
+  for(let image=1;!preserveSelected&&image<images.length;image++){
    if(!reordered&&images[image]!==images[image-1]+1)continue;
    const left=rows.filter(r=>r.image===images[image-1]).sort((a,b)=>a.rowIndex-b.rowIndex),right=rows.filter(r=>r.image===images[image]).sort((a,b)=>a.rowIndex-b.rowIndex);
    for(let n=Math.min(left.length,right.length);n>=1;n--){
@@ -81,7 +94,7 @@ const SleepOCR=(()=>{
    }
   }
   const orderedRows=reordered?images.flatMap(i=>rows.filter(r=>r.image===i).sort((a,b)=>a.rowIndex-b.rowIndex)):rows;
-  for(const original of orderedRows){const r=resolved.get(original.id)||original;const source=r.imageHash+':'+r.rowIndex,label='写真'+(r.image+1)+'・行'+(r.rowIndex+1);if(r.date&&r.date!==draft.date){issues.push(label+'：日付が異なります('+r.date+')。追加していません。');continue;}if(overlap.has(r.id)||seen.has(source)&&seen.get(source).species===r.species&&seen.get(source).stars===r.stars){issues.push(label+'：重複行を追加しませんでした。');continue;}
+  for(const original of orderedRows){const r=resolved.get(original.id)||original;const source=r.imageHash+':'+r.rowIndex,label='写真'+(r.image+1)+'・行'+(r.rowIndex+1);if(r.date&&r.date!==draft.date){issues.push(label+'：日付が異なります('+r.date+')。追加していません。');continue;}if(overlap.has(r.id)||!preserveSelected&&seen.has(source)&&seen.get(source).species===r.species&&seen.get(source).stars===r.stars){issues.push(label+'：重複行を追加しませんでした。');continue;}
    if(ambiguous.has(r.id))issues.push(label+'：重複の可能性があります。元の写真と一覧を確認してください。');if(seen.has(source))issues.push(label+'：以前の読み取りと行の位置が異なります。追加した内容と元の写真を確認してください。');
    try{if(!Object.hasOwn(map,r.species)||!Number.isInteger(r.stars)||r.stars<1||r.stars>4)throw Error('ポケモン名・星を読み取れません('+String(r.raw||'不明').replace(/\s+/g,' ').slice(0,60)+')。'+(r.suggestions?.length?'候補：'+r.suggestions.join('・')+'。':'')+'元の写真を確認し、手入力してください。');const value=amountFor(r,draft.number===2?1:draft.candyMultiplier??1);if(draft.entries.length+entries.length>=100)throw Error('1回に追加できるのは100匹までです。');entries.push({id:newId(),species:r.species,candy:map[r.species],stars:r.stars,...value,ocrSource:{imageHash:r.imageHash,rowIndex:r.rowIndex,kind:r.kind,signature:r.signature,...(ambiguous.has(r.id)?{review:true}:{})}});seen.set(source,entries.at(-1));}catch(e){issues.push(label+'：'+e.message);}
   }return {entries,issues};
@@ -93,6 +106,6 @@ const SleepOCR=(()=>{
    next=research().saveCandy(next,{...draft,field:g.field,candyMultiplier:r.number===1?Number(g.multiplier):1,entries:[...draft.entries,...entries]},map,now);
   }return {state:next,count:selected.length,totals};
  }
- return {draftEntries,build,amountFor,repeat,norm,distance,matchName,readDate,layout,starCount,worker,recognize,duplicates,crop};
+ return {draftEntries,overlapCandidates,build,amountFor,repeat,norm,distance,matchName,readDate,layout,starCount,worker,recognize,duplicates,crop};
 })();
 if(typeof module!=='undefined')module.exports=SleepOCR;
