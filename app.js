@@ -99,6 +99,7 @@ function skillContext(method,actorId){const team=currentTeam(),p=method==='mew'?
 
 function record(method,slot,amount,actorId){const date=recordDate();if(!Number.isFinite(date.getTime())){notice('記録日時を入力してください。',true);return;}const team=currentTeam(),p=team[slot-1],skillOnly=(method==='delibird'&&slot===6)||(method==='mew'&&slot===null);const context=method==='help'?{team:clone(team),actorId:null,actorSlot:null,event:null,effectiveLevel:null}:skillContext(method,actorId);
  if((!p&&!skillOnly)||!context){notice('編成とスキル個体の個体情報を設定してください。',true);return;}
+ if(method==='help'&&typeof FieldHistoryUI!=='undefined')context.fieldContext=FieldHistoryUI.context(date);
  if(method==='mew'&&!skillOnly&&!C.mewAmounts(actorOf(context).profile.skillLevel).includes(amount)){renderRecord();notice('登録スキルLvに合わせてボタンを更新しました。もう一度選んでください。');return;}
  if($('auto-now').checked)$('datetime').value=C.localInput(date);
  const r={id:uid(),datetime:date.toISOString(),method,amount,slot,pokemonId:skillOnly?null:p.id,pokemon:skillOnly?'スキルのみ':storedLabel(p),species:skillOnly?null:p.species,nickname:skillOnly?'':p.nickname,candy:skillOnly?null:candyMap[p.species],context};

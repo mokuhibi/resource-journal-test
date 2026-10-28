@@ -116,7 +116,7 @@
  function getDraft(state,date,number,id){
   const cached=state.sleepDrafts?.[date+':'+number];if(cached)return JSON.parse(JSON.stringify(cached));
   const row=researchRows(state,date).find(r=>r.number===number),saved=row?.kind==='session'?row.record:row?.sleepSession;
-  let draft=saved?JSON.parse(JSON.stringify(saved)):{id,date,number,field:state.settings?.sleepField||'',sleepType:'',entries:[],baseAmount:'',researchExp:'0',researchRank:Number.isInteger(state.settings?.researchRank)?state.settings.researchRank:null};
+  let draft=saved?JSON.parse(JSON.stringify(saved)):{id,date,number,field:(typeof FieldHistory!=='undefined'?FieldHistory:require('./field-history.js')).inherited(state,date).field,sleepType:'',entries:[],baseAmount:'',researchExp:'0',researchRank:Number.isInteger(state.settings?.researchRank)?state.settings.researchRank:null};
   if(row?.kind==='legacy')draft={...draft,legacyResearchId:row.record.id,baseAmount:row.record.baseAmount,researchExp:row.record.researchExp,researchRank:row.record.researchLevel??null};
   else if(saved?.shardsRecorded===false)draft={...draft,baseAmount:'',researchExp:'0'};
   return draft;
@@ -135,7 +135,7 @@
   if(drafts[key]){if(sameDate)drafts[key]={...drafts[key],baseAmount:replacement.baseAmount,researchExp:replacement.researchExp,researchRank:replacement.researchLevel};else{drafts[key]={...drafts[key],baseAmount:'',researchExp:'0'};delete drafts[key].legacyResearchId;}}
   return {...state,shardRecords:replacement?state.shardRecords.map(r=>r.id===id?replacement:r):state.shardRecords.filter(r=>r.id!==id),...(state.sleepSessions?{sleepSessions}:{}),...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
  }
- function updateResearch(state,date,key,values,map,newId,now){
+ function updateResearch(state,date,key,values,map,newId,now,field){
   if(!validDate(date)||!count(values.baseAmount)||!count(values.researchExp))throw Error('リサーチ日と個数を確認してください。');
   const rows=researchRows(state,date),row=rows.find(r=>r.key===key);
   const rank=row?(row.kind==='legacy'?row.record.researchLevel:(row.record.shardsRecorded===false?state.settings?.researchRank:row.record.researchRank)):state.settings?.researchRank;
@@ -147,8 +147,8 @@
    return {...state,shardRecords:state.shardRecords.map(r=>r.id===row.record.id?{...r,...values,amount,updatedAt:now}:r),...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
   }
   let session;
-  if(row)session={...row.record,...values,researchRank:rank,amount,shardsRecorded:true,updatedAt:now};
-  else{const match=/^new:([12])$/.exec(key),number=match?Number(match[1]):0;if(!number||rows.some(r=>r.number===number))throw Error('編集する睡眠を選び直してください。');const draft=state.sleepDrafts?.[date+':'+number];session={id:draft?.id||newId,date,number,field:draft?.field||state.settings?.sleepField||'',sleepType:draft?.sleepType||'とくちょうなし',entries:[],recordedAt:now,researchRank:rank,candyRecorded:false,shardsRecorded:true,...values,amount};}
+  if(row)session={...row.record,...values,...(field!==undefined?{field}:{}),researchRank:rank,amount,shardsRecorded:true,updatedAt:now};
+  else{const match=/^new:([12])$/.exec(key),number=match?Number(match[1]):0;if(!number||rows.some(r=>r.number===number))throw Error('編集する睡眠を選び直してください。');const draft=state.sleepDrafts?.[date+':'+number];session={id:draft?.id||newId,date,number,field:field??draft?.field??(typeof FieldHistory!=='undefined'?FieldHistory:require('./field-history.js')).inherited(state,date).field,sleepType:draft?.sleepType||'とくちょうなし',entries:[],recordedAt:now,researchRank:rank,candyRecorded:false,shardsRecorded:true,...values,amount};}
   const next=save(state,session,map),drafts={...(state.sleepDrafts||{})},draftKey=date+':'+session.number;
   // Keep unsaved candy edits while synchronising only the saved shard fields.
   if(drafts[draftKey])drafts[draftKey]={...drafts[draftKey],id:session.id,...values,researchRank:rank};

@@ -29,7 +29,26 @@ const FieldHistory=(()=>{
  function save(s,item){validate([item]);const rows=[...(s.fieldHistory||[]).filter(r=>r.id!==item.id),{...item,time:item.time||null}];validate(rows);return {...s,fieldHistory:rows};}
  // Day selections override the displayed day without changing legacy weekly/timed rows.
  function saveDay(s,d,field,id){const old=(s.fieldHistory||[]).find(r=>r.date===d&&r.scope==='day'&&!r.time);return save(s,{id:old?.id||id,date:d,time:null,field,scope:'day'});}
+ // Only saved records can seed an input. Older fieldHistory rows may be selections without a record.
+ function inherited(s,when){
+  const timed=typeof when!=='string'||when.includes('T'),target=timed?new Date(when).getTime():Infinity,d=timed&&Number.isFinite(target)?day(when):when;
+  if(!validDay(d))return {field:'',status:'missing',confirmed:false};
+  const first=week(d),candidates=[];
+  const addRecord=(r,field)=>{const at=Date.parse(r.datetime);if(!fields.includes(field)||!Number.isFinite(at)||at>target)return;const date=day(at);if(date>=first&&date<=d)candidates.push({field,at});};
+  for(const r of s.records||[])addRecord(r,r.field||r.context?.fieldContext?.field);
+  for(const r of s.shardRecords||[])if(['skill','lucky'].includes(r.method))addRecord(r,r.field||r.fieldContext?.field);
+  for(const r of s.sleepSessions||[]){
+   if(!fields.includes(r.field)||!validDay(r.date)||r.date<first||r.date>d||r.candyRecorded===false&&r.shardsRecorded===false)continue;
+   const saved=Date.parse(r.recordedAt),sameDay=Number.isFinite(saved)&&day(saved)===r.date;
+   // A session has a game date, but no research time. For same-day timestamp queries,
+   // use its save time only when that time belongs to the same game day.
+   if(timed&&r.date===d&&(!sameDay||saved>target))continue;
+   candidates.push({field:r.field,at:sameDay?saved:Date.parse(r.date+'T04:00:00+09:00')});
+  }
+  candidates.sort((a,b)=>a.at-b.at);const latest=candidates.at(-1);
+  return latest?{field:latest.field,status:'inherited',confirmed:false}:{field:'',status:'missing',confirmed:false};
+ }
  function dayView(s,d){const resolved=resolve(s,d),changes=entries(s,d).filter(r=>r.date===d),previous=resolve({...s,fieldHistory:(s.fieldHistory||[]).filter(r=>r.scope!=='day')},add(d,-1));let colors=resolved.entry?.scope==='day'&&!resolved.entry.time?[resolved.field]:changes.some(r=>r.time)?[previous.confirmed&&week(add(d,-1))===week(d)?previous.field:'',...changes.map(r=>r.field)]:[resolved.field];if(!resolved.confirmed&&resolved.candidates.length)colors=resolved.candidates;colors=colors.filter((f,i)=>i===0||colors[i-1]!==f);return {...resolved,colors,changes,references:references(s,d)};}
- return {definitions,fields,info,labelColors,validDay,add,day,local,week,instant,validate,entries,references,resolve,save,saveDay,dayView};
+ return {definitions,fields,info,labelColors,validDay,add,day,local,week,instant,validate,entries,references,resolve,save,saveDay,inherited,dayView};
 })();
 if(typeof module!=='undefined')module.exports=FieldHistory;
