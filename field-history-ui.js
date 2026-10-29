@@ -8,9 +8,8 @@ const FieldHistoryUI=(()=>{
  function sync(){
   if(!ready)return;const root=$('record-field-row'),date=recordDate(),day=Number.isFinite(date.getTime())?C.gameDay(date):'';if(manualDay&&manualDay!==day){manualDay='';manualField='';}const value=context(date);root.replaceChildren();
   const choice=select(value.field,'記録フィールド');choice.id='record-field';choice.className='record-event-field';const colors=FieldHistory.labelColors(value.field);if(value.field){choice.style.backgroundColor=colors.background;choice.style.color=colors.color;}root.append(choice);
-  const hint=$('record-field-hint');hint.replaceChildren();hint.hidden=value.confirmed===true;
-  if(value.status==='inherited')hint.append(el('small','記録済みのフィールドを仮表示'));
-  else if(!value.confirmed)hint.append(el('small',value.field?'記録するまで保存されません':'フィールドを選択'));
+  const hint=$('record-field-hint');hint.replaceChildren();hint.hidden=value.confirmed===true||value.status==='inherited';hint.style.display=hint.hidden?'none':'';
+  if(!hint.hidden)hint.append(el('small',value.field?'記録するまで保存されません':'フィールドを選択'));
   choice.onchange=()=>{manualDay=day;manualField=choice.value;sync();render();};
  }
 
