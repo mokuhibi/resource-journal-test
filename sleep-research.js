@@ -39,8 +39,9 @@
 
  const fmt=n=>n.toLocaleString('ja-JP');
  const normalize=s=>s.normalize('NFKC').trim().replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
- function estimate(species,stars){return autoStars[species]?.includes(stars)?candidateAmount(species,stars):null;}
- function changeStars(entry,stars,multiplier=1){const basic=estimate(entry.species,stars),calculatedAmount=basic===null?null:Math.ceil(basic*multiplier),manual=entry.manualAmount===true||(entry.amount!==''&&(entry.calculatedAmount===null||Number(entry.amount)!==entry.calculatedAmount));return {...entry,stars,calculatedAmount,amount:manual?entry.amount:(calculatedAmount??''),...(manual?{manualAmount:true}:{})};}
+ const isExField=field=>/\s*EX$/.test(field||'');
+ function estimate(species,stars,field=''){return isExField(field)?null:autoStars[species]?.includes(stars)?candidateAmount(species,stars):null;}
+ function changeStars(entry,stars,multiplier=1,field=''){const basic=estimate(entry.species,stars,field),calculatedAmount=basic===null?null:Math.ceil(basic*multiplier),manual=entry.manualAmount===true||(entry.amount!==''&&(entry.calculatedAmount===null||Number(entry.amount)!==entry.calculatedAmount));return {...entry,stars,calculatedAmount,amount:manual?entry.amount:(calculatedAmount??''),...(manual?{manualAmount:true}:{})};}
  const multipliers=[1,1.5,2,3];
  function candyMultiplier(state,date){
   const stored=state.settings?.sleepCandyMultipliers||{};if(Object.hasOwn(stored,date))return stored[date];
@@ -54,7 +55,7 @@
  function setCandyMultiplier(state,date,multiplier,map){
   if(!validDate(date)||!multipliers.includes(multiplier))throw Error('アメ獲得量を確認してください。');
   const key=date+':1',cached=state.sleepDrafts?.[key],saved=(state.sleepSessions||[]).find(s=>s.date===date&&s.number===1),draft=cached||saved;
-  const sleepDrafts={...(state.sleepDrafts||{})};if(draft)sleepDrafts[key]={...draft,candyMultiplier:multiplier,entries:draft.entries.map(e=>changeStars(e,e.stars,multiplier))};
+  const sleepDrafts={...(state.sleepDrafts||{})};if(draft)sleepDrafts[key]={...draft,candyMultiplier:multiplier,entries:draft.entries.map(e=>changeStars(e,e.stars,multiplier,draft.field))};
   validateDrafts(sleepDrafts,map);return {...state,settings:{...state.settings,sleepCandyMultipliers:{...(state.settings?.sleepCandyMultipliers||{}),[date]:multiplier}},sleepDrafts};
  }
  function validateMultipliers(state){const values=state.settings?.sleepCandyMultipliers;if(values===undefined)return;if(!values||typeof values!=='object'||Array.isArray(values)||Object.entries(values).some(([d,m])=>!validDate(d)||!multipliers.includes(m)))throw Error('睡眠のアメ倍率設定');}
@@ -97,6 +98,8 @@
  }
  // Save only candy. Shard values always come from the saved row, never the other component's draft.
  function saveCandy(state,draft,map,now){
+  if(draft.entries.some(e=>e.amount==null||String(e.amount).trim()===''))throw Error('アメ数が未入力です。各ポケモンのアメ数を入力してください。');
+  if(isExField(draft.field)&&draft.entries.some(e=>e.manualAmount!==true&&e.calculatedAmount!=null))throw Error('EXのアメ数を確認し、実際の個数を入力してください。');
   const row=researchRows(state,draft.date).find(r=>r.number===draft.number),old=row?.kind==='session'?row.record:row?.sleepSession,legacy=row?.kind==='legacy'?row.record:null;
   const base=old||{},rank=old?old.researchRank:(legacy?legacy.researchLevel:draft.researchRank),values=legacy?{baseAmount:legacy.baseAmount,researchExp:legacy.researchExp,amount:legacy.amount}:old?{baseAmount:old.baseAmount,researchExp:old.researchExp,amount:old.amount}:{baseAmount:0,researchExp:0,amount:0};
   const session={...base,id:old?.id||draft.id,date:draft.date,number:draft.number,field:draft.field,sleepType:draft.sleepType||'とくちょうなし',entries:draft.entries.map(e=>({...e,amount:e.amount===''?NaN:Number(e.amount)})),researchRank:rank??null,...values,recordedAt:old?.recordedAt||now,updatedAt:now,candyRecorded:true,...(draft.candyMultiplier!==undefined?{candyMultiplier:draft.number===1?draft.candyMultiplier:1}:{}),shardsRecorded:legacy?false:(old?old.shardsRecorded!==false:false),...(legacy?{legacyResearchId:legacy.id}:{})};
@@ -164,6 +167,6 @@
  // Collapse only sleep-screen candidates; saved species keys and encounters remain intact.
  const candidateName=species=>species.replace(/^(バケッチャ|パンプジン)[（(](?:ちゅうだま|こだま|おおだま|ギガだま)(?:しゅ)?[）)]$/,'$1');
  function candidateGroups(names){const groups=new Map();for(const species of names){const key=candidateName(species);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(species);}return [...groups.values()];}
- const api={removeResearch,candidateName,candidateGroups,initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,starOverrides,displayStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
+ const api={removeResearch,candidateName,candidateGroups,initialDate,candyMultiplier,setCandyMultiplier,validateMultipliers,visible,researchRows,researchTotal,updateResearch,getDraft,researchDraft,replaceLegacy,base,specialRewards,sizeRewards,autoStars,absentStars,starOverrides,displayStars,rewardStatus,nextStars,candidateAmount,estimate,changeStars,isExField,normalize,validate,validateDrafts,validDate,candyRecords,shardRecords,countSessions,save,saveCandy,datetime,fmt};
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SleepResearch=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
