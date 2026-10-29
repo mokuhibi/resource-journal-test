@@ -366,7 +366,10 @@ body .app>:is(#record,#sleep,#summary,#shards,#team,#history,#settings)>.editori
 .app-panel-body{padding:16px;overflow-y:auto;max-height:calc(100dvh - 160px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overscroll-behavior:contain}
 .panel-muted{font-size:14px;color:var(--editorial-muted);margin:0 0 12px}
 .export-scope-option{display:block;width:100%;min-height:48px;text-align:left;margin:8px 0;padding:12px;background:var(--editorial-soft);border:0;border-radius:6px;font-size:15px;white-space:normal}
-.release-entry h3{font-size:20px;margin:0 0 6px}.release-entry time{font-size:13px;color:var(--editorial-muted)}
+.release-announcements{margin-bottom:24px}.release-announcements>h3,.release-history>h3{font-size:17px;font-weight:700;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--editorial-line)}
+.release-announcement{padding-bottom:16px}.release-announcement+.release-announcement{border-top:1px solid var(--editorial-line);padding-top:16px}.release-announcement time{font-size:13px;color:var(--editorial-muted)}
+.release-announcement h4{font-size:16px;line-height:1.5;margin:6px 0 8px}.release-announcement p{font-size:14px;line-height:1.7;margin:0 0 8px;overflow-wrap:anywhere}.release-announcement p:last-child{margin-bottom:0}
+.release-entry h4{font-size:20px;margin:0 0 6px}.release-entry time{font-size:13px;color:var(--editorial-muted)}
 .release-entry ul{padding-left:20px;font-size:15px;line-height:1.7}.release-entry+.release-entry{border-top:1px solid var(--editorial-line);padding-top:20px;margin-top:20px}
 #team #registered-pokemon-list>.roster-purpose-heading{grid-column:1/-1;margin:24px 0 0;font-size:15px;line-height:1.5;font-weight:600}
 #team .registration-method-heading{font-size:15px;font-weight:600;margin:20px 0 12px}
