@@ -981,6 +981,9 @@ const MainSkillMaster=(()=>{
  // User-confirmed Mewtwo main skill; no new resource calculation is inferred.
  entries.push({id:"psystrike_berry_zone",name:"サイコブレイク(きのみゾーン)",legacyName:"サイコブレイク(きのみゾーン)",mew:false});
  species["ミュウツー"]={skillId:"psystrike_berry_zone"};
+ entries.push({id:"mystical_fire_cooking_advance_s",name:"マジカルフレイム(料理アドバンスS)",legacyName:"マジカルフレイム(料理アドバンスS)",mew:false});
+ species["ムウマ"]={skillId:"cooking_power_s"};
+ species["ムウマージ"]={skillId:"mystical_fire_cooking_advance_s"};
  const find=value=>entries.find(s=>s.id===value||s.legacyName===value||s.name===value||s.aliases?.includes(value));
  const id=value=>find(value)?.id||value||'';
  const name=value=>String(find(value)?.name||value||'未設定').replaceAll('（','(').replaceAll('）',')');
@@ -991,7 +994,7 @@ const MainSkillMaster=(()=>{
  const fields=key=>key?({mainSkillId:id(key),mainSkill:value(key)}):{};
  const mewEntries=()=>entries.filter(s=>s.mew);
  // 現行アプリの対応スキル上限。発動側のLvと参照先の現在Lvを混同しない。
- const copyCap=p=>p?.species==='ミュウ'?8:p?.species==='デリバード'?7:({skill_20:7,super_luck:7,dream_shard_s:8,aura_sphere:8,metronome:8})[id(forPokemon(p))]||null;
+ const copyCap=p=>p?.species==='ミュウ'?8:p?.species==='デリバード'||['ムウマ','ムウマージ'].includes(p?.species)?7:({skill_20:7,super_luck:7,dream_shard_s:8,aura_sphere:8,metronome:8})[id(forPokemon(p))]||null;
  const shardMode=p=>{const key=id(forPokemon(p));if(key==='super_luck')return 'lucky';if(p?.species==='ミュウ'&&key==='metronome')return 'fixed';if(!['dream_shard_s','aura_sphere'].includes(key))return null;return species[p.species]?.shardMode==='random'?'random':'fixed';};
  return {entries,species,find,id,name,value,defaultId,forPokemon,fields,mewEntries,shardMode,copyCap};
 })();
