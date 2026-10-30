@@ -163,8 +163,6 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep .period-picker-top{height:var(--period-control-height)}
 #sleep .period-picker-top>.period-picker-date{height:var(--period-control-height);min-height:var(--period-control-height);padding:8px 4px;line-height:1.5;font-size:16px;font-weight:600;color:var(--mh-text)}
 #sleep #sleep-entries .sleep-entry-amount input{margin-top:0}
-#sleep #sleep-entries .sleep-entry-amount:has(.sleep-amount-source){flex-direction:column;justify-content:center}
-#sleep #sleep-entries .sleep-amount-source{font-size:9px;line-height:10px;color:var(--mh-muted);white-space:nowrap}
 #sleep .sleep-sticky-total :is(#sleep-candy-total,.sleep-entry-count)[data-saved=true]{font-weight:700}
 #sleep #sleep-root .period-picker-date{font-size:16px;font-weight:600;color:var(--editorial-ink);height:var(--period-control-height);padding:8px 4px;line-height:1.5}
 
