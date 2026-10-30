@@ -42,6 +42,17 @@
 #app-panel.individual-choice .individual-choice-grid .subskill-gold{background:#f5e5a5;color:var(--mh-text)}
 #app-panel.individual-choice .individual-choice-grid .subskill-blue{background:#d7e8f5;color:var(--mh-text)}
 #app-panel.individual-choice .individual-choice-grid .subskill-white{background:var(--mh-surface);color:var(--mh-text)}
+#app-panel.individual-choice .subskill-choice-grid{grid-template-columns:minmax(0,1.7fr) minmax(0,1.4fr)}
+#app-panel.individual-choice .individual-choice-grid.subskill-choice-grid>.subskill-level-list{grid-template-rows:repeat(5,54px);align-content:start;gap:3px;padding-right:5px;border-right:1px solid var(--mh-border)}
+#app-panel.individual-choice .subskill-level-row{display:grid;grid-template-columns:42px minmax(0,1fr);gap:3px;min-width:0;min-height:54px;border-left:3px solid transparent}
+#app-panel.individual-choice .subskill-level-row[aria-current=true]{border-left-color:var(--mh-accent);background:var(--mh-selected)}
+#app-panel.individual-choice .subskill-level-row button{min-height:54px;padding:3px;font-size:12px;line-height:1.3}
+#app-panel.individual-choice .subskill-level-row button:first-child{border:0;background:transparent;text-align:center}
+#app-panel.individual-choice .subskill-level-row button:last-child{align-self:center;height:46px;min-height:46px;padding:2px 3px}
+#app-panel.individual-choice .subskill-level-row button[aria-pressed=true]{outline:0}
+#app-panel.individual-choice .subskill-options{gap:2px}
+#app-panel.individual-choice .subskill-options button{min-height:44px;padding:4px 3px;line-height:1.3}
+@media(max-width:350px){#app-panel.individual-choice .subskill-options button{font-size:12px}}
 
 #team .individual-stats-row .individual-number-field input{padding-left:28px;text-align:right}
 #team .individual-editor-head #profile-remove{margin:0;transform:none;align-self:center}
@@ -55,6 +66,25 @@
 #app-panel.individual-choice .individual-choice-shell .nature-choice{grid-template-columns:60px 60px minmax(85px,1fr)}
 #app-panel.individual-choice .nature-up{color:#b45353}
 #app-panel.individual-choice .nature-down{color:#2878b1}
+#app-panel.individual-choice .individual-nature-layout{display:grid;grid-template-columns:clamp(112px,29%,160px) minmax(0,1fr);gap:8px;height:min(58dvh,450px);min-height:min(280px,50dvh)}
+#app-panel.individual-choice .nature-index{align-self:start;min-width:0;border-right:1px solid var(--mh-border);padding-right:6px}
+#app-panel.individual-choice .nature-index-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-bottom:1px solid var(--mh-border)}
+#app-panel.individual-choice .nature-index-tabs button{position:relative;min-width:0;min-height:44px;padding:6px 0;border:0;border-radius:0;background:none;color:var(--mh-muted);font-size:12px;white-space:nowrap}
+#app-panel.individual-choice .nature-index-tabs button[aria-pressed=true]{color:var(--mh-accent);font-weight:600}
+#app-panel.individual-choice .nature-index-tabs button[aria-pressed=true]::after{content:'';position:absolute;bottom:-1px;left:3px;right:3px;height:2px;background:var(--mh-accent)}
+#app-panel.individual-choice .nature-index-list button{display:flex;align-items:center;width:100%;min-height:44px;margin:0;padding:5px 6px;border:0;border-left:3px solid transparent;border-bottom:1px solid var(--mh-border);border-radius:0!important;box-shadow:none;background:transparent;color:var(--mh-text);text-align:left;font-size:13px}
+#app-panel.individual-choice .nature-index-list button[aria-current=true]{border-left-color:var(--mh-accent);background:var(--mh-selected);font-weight:700}
+#app-panel.individual-choice .nature-options{gap:0;padding:0 2px}
+#app-panel.individual-choice .nature-group h3{margin:0;padding:7px 4px;background:var(--mh-surface);font-size:13px;font-weight:600;line-height:1.4}
+#app-panel.individual-choice .nature-radio-row{position:relative;display:flex;align-items:center;gap:7px;box-sizing:border-box;min-height:46px;margin:0;padding:5px 4px;border-bottom:1px solid var(--mh-border);font-size:13px;cursor:pointer}
+#app-panel.individual-choice .nature-radio-row.is-selected{background:var(--mh-selected)}
+#app-panel.individual-choice .nature-radio-row::before{content:'○';flex:none;width:17px;color:var(--mh-accent);font-size:20px;line-height:1;text-align:center}
+#app-panel.individual-choice .nature-radio-row.is-selected::before{content:'●';font-size:16px}
+#app-panel.individual-choice .nature-radio-row input{position:absolute;width:1px;height:1px;min-height:0;margin:0;opacity:0}
+#app-panel.individual-choice .nature-radio-row:has(input:focus-visible){outline:2px solid var(--mh-accent);outline-offset:-2px}
+#app-panel.individual-choice .nature-radio-copy{display:flex;align-items:center;justify-content:space-between;gap:5px;min-width:0;width:100%}
+#app-panel.individual-choice .nature-radio-copy .nature-radio-name{color:var(--mh-text);font-weight:500;white-space:nowrap}
+#app-panel.individual-choice .nature-radio-effect{display:inline-flex;gap:1px;white-space:nowrap;color:var(--mh-text);font-size:12px}
 body button.save-dirty:not(:disabled){background:#171717!important;color:#fff!important;border-color:#171717!important}
 body button.save-idle:not(:disabled){background:#f5f6f6!important;color:var(--mh-muted)!important;border-color:transparent!important}
 @media(prefers-color-scheme:dark){body button.save-dirty:not(:disabled){background:#111!important;color:#fff!important;border-color:#aaa!important}}
