@@ -106,6 +106,6 @@ const SleepOCR=(()=>{
    next=research().saveCandy(next,{...draft,field:g.field,candyMultiplier:r.number===1?Number(g.multiplier):1,entries:[...draft.entries,...entries]},map,now);
   }return {state:next,count:selected.length,totals};
  }
- return {draftEntries,overlapCandidates,build,amountFor,repeat,norm,distance,matchName,readDate,layout,starCount,worker,recognize,duplicates,crop};
+ return {draftEntries,overlapCandidates,build,amountFor,repeat,norm,distance,matchName,readDate,layout,starCount,worker,recognize,duplicates,crop,image};
 })();
 if(typeof module!=='undefined')module.exports=SleepOCR;

@@ -35,3 +35,6 @@
 .social-species[data-pokemon-type]{background:color-mix(in srgb,var(--pokemon-type-color) 18%,var(--mh-surface))}
 .social-entry-names{display:flex;flex-direction:column;min-width:0;line-height:1.3!important}
 .social-entry-names small{font-size:10px;color:var(--mh-muted);padding-inline:3px}
+.social-entry{grid-template-columns:26px minmax(0,1fr) 30px 30px}
+#social-root .social-entry-drag{width:26px;min-width:0;min-height:44px;border:0;background:transparent;padding:0;color:var(--mh-muted);font-size:18px;touch-action:none;cursor:grab}
+.social-entry-dragging{background:var(--mh-selected)}
