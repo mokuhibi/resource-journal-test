@@ -4,6 +4,8 @@
 #social-root .social-date-card{position:static;padding:0 0 8px;margin-bottom:8px;backdrop-filter:none}
 #social-root .social-date-card .record-date-row{width:100%}
 #social-root .social-date-card .formatted-date-field{margin-top:0}
+#record #social-root .social-date-card .formatted-date-field{height:48px;border:0;border-radius:0;background:transparent;box-shadow:none}
+#record #social-root .social-date-card .formatted-date-field>.date-weekday{padding:0;font-size:16px;font-weight:600;letter-spacing:-.3px;color:var(--record-text);text-align:left}
 .social-status{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px;font-variant-numeric:tabular-nums}
 #social-root .social-status strong{font-size:12px;white-space:nowrap}
 #social-root .social-status button{min-height:44px;padding:6px;font-size:12px;white-space:nowrap}
