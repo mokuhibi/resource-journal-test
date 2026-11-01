@@ -47,4 +47,8 @@
 #app-panel.social-ocr-panel .app-panel-head button{display:none}
 .social-candidate{grid-template-columns:minmax(0,1fr) 26px 26px;gap:1px}
 #social-root .social-candidate button{width:26px;padding-inline:1px}
+#record #social-root :is(.social-actions button,.social-heading button,.social-search>button,.social-candidate button,.social-entry>button:not(.social-entry-drag)){border:1px solid var(--record-line);border-radius:var(--record-control-radius);background:var(--record-action);color:var(--record-text);font-weight:500;box-shadow:none}
+#record #social-root .social-actions button{font-size:13px;padding:6px 8px}
+#record #social-root .social-search>button{font-size:10px;padding-inline:1px}
+#record #social-root .social-entry>button:not(.social-entry-drag){color:var(--mh-error)}
 @media(max-width:350px){.social-columns{grid-template-columns:minmax(0,11fr) minmax(0,14fr)}}
