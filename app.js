@@ -109,8 +109,8 @@ function record(method,slot,amount,actorId){const date=recordDate();if(!Number.i
 }
 // 合計カードだけで使う表示用の表。集計済みの値を列に分けます。
 function totalBreakdown(parent,amountLabel){const table=el('table',undefined,'total-breakdown'),head=el('thead'),tr=el('tr'),body=el('tbody');for(const text of ['', '回数',amountLabel]){const th=el('th',text);th.scope='col';tr.append(th);}head.append(tr);table.append(head,body);parent.append(table);return body;}
-function totalBreakdownRow(body,name,count,amount,cls=''){const tr=el('tr',undefined,cls),nameCell=el('th',name);nameCell.scope='row';tr.append(nameCell,qel('td',count===null?'―':count+'回'),qel('td',amount+'個'));body.append(tr);}
-function totals(parent,records,title,hideEmpty=false,sourceVisible=enabled){parent.replaceChildren(el('small',title),qel('div',`${C.sum(records)}個`,'total'));const body=totalBreakdown(parent,'アメ');for(const [method,name] of Object.entries(methods)){if(!enabled(method)||!sourceVisible(method))continue;const rs=records.filter(r=>r.method===method);if((method==='skill'||hideEmpty)&&!rs.length)continue;totalBreakdownRow(body,method==='skill'?'その他':name,recordCount(rs),C.sum(rs),method);}}
+function totalBreakdownRow(body,name,count,amount,cls='',details=null){const tr=el('tr',undefined,cls),nameCell=el('th',name);nameCell.scope='row';tr.append(nameCell,qel('td',(count===null?'―':count+'回')+(details===null?'':' '+details+'件')),qel('td',amount+'個'));body.append(tr);}
+function totals(parent,records,title,hideEmpty=false,sourceVisible=enabled){parent.replaceChildren(el('small',title),qel('div',`${C.sum(records)}個`,'total'));const body=totalBreakdown(parent,'アメ');for(const [method,name] of Object.entries(methods)){if(!enabled(method)||!sourceVisible(method))continue;const rs=records.filter(r=>r.method===method);if((method==='skill'||hideEmpty)&&!rs.length)continue;const count=method==='social'?(rs.every(r=>r.groupId)?new Set(rs.map(r=>r.groupId)).size:null):recordCount(rs);totalBreakdownRow(body,method==='skill'?'その他':name,count,C.sum(rs),method,method==='social'?rs.length:null);}}
 
 
 function renderRecord(){

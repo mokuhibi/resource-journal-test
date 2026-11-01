@@ -296,6 +296,9 @@ body:has(#record[hidden]) .app>header small{grid-column:2;grid-row:2;font-size:1
 :is(#summary,#shards) .overview-header .total-breakdown thead th:nth-child(1){width:44%}
 :is(#summary,#shards) .overview-header .total-breakdown thead th:nth-child(2){width:20%}
 :is(#summary,#shards) .overview-header .total-breakdown thead th:nth-child(3){width:36%}
+#summary .overview-header .total-breakdown thead th:nth-child(1){width:40%}
+#summary .overview-header .total-breakdown thead th:nth-child(2){width:24%}
+#summary .overview-header .total-breakdown tr.social td:nth-child(2){font-size:11px;padding-inline:2px}
 :is(#summary,#shards) .overview-header .total-breakdown :is(th,td){box-sizing:border-box;text-align:right;white-space:nowrap}
 :is(#summary,#shards) .overview-header .total-breakdown th:first-child{padding-left:0;text-align:left;white-space:normal;overflow-wrap:anywhere}
 #shards .overview-header .total-breakdown .shard-member th{padding-left:0;color:#5c6056;font-weight:400}
