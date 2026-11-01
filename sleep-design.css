@@ -189,3 +189,5 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep #sleep-entries .sleep-entry-drag>span{height:19px;font-size:20px;line-height:19px}
 #sleep #sleep-entries .sleep-entry-drag>small{font-size:10px;font-variant-numeric:tabular-nums;line-height:14px}
 #sleep #sleep-entries .sleep-entry-dragging{background:var(--mh-selected)}
+
+#sleep-shard-form .shard-reward-ocr-row{display:flex;justify-content:flex-end;margin-top:12px}#sleep-shard-form .shard-reward-ocr-row button{min-height:44px}
