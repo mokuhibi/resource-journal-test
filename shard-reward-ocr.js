@@ -8,7 +8,7 @@ const ShardRewardOCR=(()=>{
  }
  function amount(text,confidence){const raw=String(text||'').normalize('NFKC').replace(/\s/g,'');if(confidence<85||!(/^(?:\d{1,3}(?:,\d{3})+|\d+)$/.test(raw)))return null;const n=Number(raw.replace(/,/g,''));return Number.isSafeInteger(n)&&n>=0&&n<=1000000000?n:null;}
  function zoomCrop(canvas,x,y,w,h){const crop=SleepOCR.crop(canvas,x,y,w,h),zoom=document.createElement('canvas');zoom.width=crop.width*2;zoom.height=crop.height*2;const ctx=zoom.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(crop,0,0,zoom.width,zoom.height);crop.width=crop.height=1;return zoom;}
- function isLabel(kind,text){const label=String(text||'').normalize('NFKC').replace(/\s/g,'');return kind==='researchExp'?/リサーチEXP/i.test(label):/ゆめの[かが]けら/.test(label);}
+ function isLabel(kind,text){const label=String(text||'').normalize('NFKC').replace(/\s/g,'');return kind==='researchExp'?/リサーチEXP/i.test(label):/ゆめの(?:[かが]|かが)けら/.test(label);}
  function emit(trace,event){if(typeof trace==='function')try{trace(event);}catch{}}
  function rejection(data){const raw=String(data.text||'').normalize('NFKC').replace(/\s/g,'');if(data.confidence<85)return '信頼度85未満';if(!/^(?:\d{1,3}(?:,\d{3})+|\d+)$/.test(raw))return '数字形式不一致';return '範囲外';}
  async function read(file,trace){const canvas=await SleepOCR.image(file),w=canvas.width,ocr=await SleepOCR.worker();const result={researchExp:null,baseAmount:null};emit(trace,{stage:'image',width:w,height:canvas.height});try{
