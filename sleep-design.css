@@ -191,3 +191,4 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep #sleep-entries .sleep-entry-dragging{background:var(--mh-selected)}
 
 #sleep-shard-form .shard-reward-ocr-row{display:flex;justify-content:flex-end;margin-top:12px}#sleep-shard-form .shard-reward-ocr-row button{min-height:44px}
+#sleep-shard-form .reward-ocr-diagnostics{margin-top:12px;padding:10px;border:1px solid #d8d8d8;border-radius:8px}#sleep-shard-form .reward-ocr-diagnostics summary{cursor:pointer;font-weight:600}#sleep-shard-form .reward-ocr-diagnostics textarea{display:block;box-sizing:border-box;width:100%;max-height:40vh;margin:8px 0;font:12px/1.5 monospace}#sleep-shard-form .reward-ocr-diagnostics button{min-height:44px}
