@@ -1,6 +1,7 @@
 'use strict';
 // Standard events are read-only distribution data. Personal events live in existing settings/CSV.
 // Optional dailyTiers: [{date:gameDay, tiers:{special|large|medium|small:[species]}}].
+// Optional fieldPokemon: {field:[species]}; limits a global pickup to officially listed fields.
 // gameDayHours displays the JST04:00 window; fullMoon marks a game date. No implicit resource bonuses.
 // Optional skillBonuses: {boost, pokemon:[verified members], type?:display name}.
 // Optional shardBonuses: {scope:skill|sleep, multiplier, rounding:ceil|floor|round, firstOnly?, pokemon?, type?}.
@@ -14,6 +15,7 @@ const SleepPickups=(()=>{
   if(!Array.isArray(events)||events.length>1000)throw Error('イベント一覧の形式が不正です。');const ids=new Set();
   for(const e of events){if(!e||typeof e.id!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(e.id)||ids.has(e.id)||typeof e.name!=='string'||!e.name.trim()||e.name.length>100||!validDay(e.start)||!validDay(e.end)||e.start>e.end||!Array.isArray(e.fields)||!e.fields.length||new Set(e.fields).size!==e.fields.length||e.fields.some(f=>f!=='*'&&!fields.includes(f))||e.fields.includes('*')&&e.fields.length!==1||!Array.isArray(e.pokemon)||(!e.pokemon.length&&!e.skillBonuses?.length&&!e.shardBonuses?.length)||new Set(e.pokemon).size!==e.pokemon.length||e.pokemon.some(n=>!Object.hasOwn(map,n)))throw Error('ピックアップイベントの内容を確認してください。');const checkTiers=tiers=>{if(!tiers||typeof tiers!=='object'||Array.isArray(tiers)||Object.entries(tiers).some(([key,xs])=>!tierKeys.includes(key)||!Array.isArray(xs)||xs.some(n=>!e.pokemon.includes(n)))||new Set(Object.values(tiers).flat()).size!==Object.values(tiers).flat().length)throw Error('ピックアップ区分');};
    if(e.tiers!==undefined)checkTiers(e.tiers);
+   if(e.fieldPokemon!==undefined&&(!e.fieldPokemon||typeof e.fieldPokemon!=='object'||Array.isArray(e.fieldPokemon)||Object.keys(e.fieldPokemon).some(f=>!fields.includes(f))||Object.values(e.fieldPokemon).some(xs=>!Array.isArray(xs)||new Set(xs).size!==xs.length||xs.some(n=>!e.pokemon.includes(n)))))throw Error('フィールド別ピックアップ');
    if(e.dailyTiers!==undefined){if(!Array.isArray(e.dailyTiers)||e.dailyTiers.length>1000||new Set(e.dailyTiers.map(x=>x?.date)).size!==e.dailyTiers.length)throw Error('日別ピックアップ');for(const entry of e.dailyTiers){if(!entry||!validDay(entry.date)||entry.date<e.start||entry.date>e.end)throw Error('日別ピックアップの日付');checkTiers(entry.tiers);const members=[...Object.values(e.tiers||{}).flat(),...Object.values(entry.tiers).flat()];if(new Set(members).size!==members.length)throw Error('日別ピックアップの重複');}}
    if(e.gameDayHours!==undefined&&typeof e.gameDayHours!=='boolean'||e.fullMoon!==undefined&&(!validDay(e.fullMoon)||e.fullMoon<e.start||e.fullMoon>e.end))throw Error('イベントの開催日時');
    if(e.candyBonuses!==undefined&&(!Array.isArray(e.candyBonuses)||e.candyBonuses.some(b=>!validDay(b.start)||!validDay(b.end)||b.start>b.end||b.start<e.start||b.end>e.end||![1.5,2,3].includes(b.multiplier))))throw Error('イベントのアメ倍率');if(e.skillBonuses!==undefined&&(!Array.isArray(e.skillBonuses)||e.skillBonuses.some(b=>!b||!Number.isInteger(b.boost)||b.boost<1||b.boost>7||!Array.isArray(b.pokemon)||!b.pokemon.length||new Set(b.pokemon).size!==b.pokemon.length||b.pokemon.some(n=>!Object.hasOwn(map,n))||b.type!==undefined&&(typeof b.type!=='string'||!b.type.trim()||b.type.length>30))))throw Error('メインスキルLv補正の対象と上昇量を確認してください。');
@@ -24,7 +26,8 @@ const SleepPickups=(()=>{
  // Date arguments are already game dates; timestamps are converted at JST 04:00.
  function eventDay(value){if(validDay(value))return value;const d=new Date(value);return Number.isFinite(d.getTime())?fieldData.day(d):'';}
  function tiersFor(event,value){const tiers={};for(const source of [event.tiers||{},event.dailyTiers?.find(x=>x.date===eventDay(value))?.tiers||{}])for(const [key,xs] of Object.entries(source))tiers[key]=[...(tiers[key]||[]),...xs];return tiers;}
- function targets(events,day,field){return [...new Set(matching(events,day,field).flatMap(e=>e.dailyTiers?Object.values(tiersFor(e,day)).flat():e.pokemon))];}
+ function eventMembers(e,day,field){const members=e.dailyTiers?Object.values(tiersFor(e,day)).flat():e.pokemon;return field&&e.fieldPokemon?members.filter(n=>e.fieldPokemon[field]?.includes(n)):members;}
+ function targets(events,day,field){return [...new Set(matching(events,day,field).flatMap(e=>eventMembers(e,day,field)))];}
  function periodText(event){if(!event.gameDayHours)return C.displayDate(event.start)+' 〜 '+C.displayDate(event.end);const end=new Date(Date.parse(event.end)+86400000).toISOString().slice(0,10);return C.displayDate(event.start)+' 4:00 〜 '+C.displayDate(end)+' 3:59';}
  function list(){return [...standard.map(e=>({...e,standard:true})),...(state.settings.sleepPickupEvents||[]).map(e=>({...e,standard:false}))].sort((a,b)=>b.start.localeCompare(a.start)||a.name.localeCompare(b.name));}
  function matching(events,day,field){day=eventDay(day);return events.filter(e=>e.start<=day&&day<=e.end&&(e.fields.includes('*')||Boolean(field)&&e.fields.includes(field)));}
@@ -36,8 +39,8 @@ const SleepPickups=(()=>{
  // Candidate browsing may show all active fields when no field has been selected.
  // Reward/bonus matching continues to require the actual field.
  function candidateEvents(day,field){return list().filter(e=>e.start<=eventDay(day)&&eventDay(day)<=e.end&&(!field||e.fields.includes('*')||e.fields.includes(field)));}
- function rankedTargets(events,day){const rank=new Map();for(const e of events){const tiers=tiersFor(e,day);for(const n of e.dailyTiers?Object.values(tiers).flat():e.pokemon){const i=tierKeys.findIndex(k=>tiers[k]?.includes(n));rank.set(n,Math.min(rank.get(n)??4,i<0?4:i));}}return rank;}
- function candidates(names,day,field){const rank=rankedTargets(candidateEvents(day,field),day);return names.filter(n=>rank.has(n)).sort((a,b)=>rank.get(a)-rank.get(b));}
+ function rankedTargets(events,day,field){const rank=new Map();for(const e of events){const tiers=tiersFor(e,day);for(const n of eventMembers(e,day,field)){const i=tierKeys.findIndex(k=>tiers[k]?.includes(n));rank.set(n,Math.min(rank.get(n)??4,i<0?4:i));}}return rank;}
+ function candidates(names,day,field){const rank=rankedTargets(candidateEvents(day,field),day,field);return names.filter(n=>rank.has(n)).sort((a,b)=>rank.get(a)-rank.get(b));}
  async function load(){
   const key=KEY+'-pickup-standard';try{const cached=localStorage.getItem(key);if(cached)standard=documentData(JSON.parse(cached),candyMap);}catch(_){}
   try{const response=await fetch('sleep-pickups.json?t='+Date.now(),{cache:'no-store'});if(!response.ok)throw Error('取得失敗');const next=documentData(await response.json(),candyMap);standard=next;status='';try{localStorage.setItem(key,JSON.stringify({schemaVersion:1,events:standard}));}catch(_){} }
