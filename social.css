@@ -52,3 +52,4 @@
 #record #social-root .social-search>button{font-size:10px;padding-inline:1px}
 #record #social-root .social-entry>button:not(.social-entry-drag){color:var(--mh-error)}
 @media(max-width:350px){.social-columns{grid-template-columns:minmax(0,11fr) minmax(0,14fr)}}
+#app-panel .social-ocr-diagnostics{margin:12px 0;padding:10px;border:1px solid #d8d8d8;border-radius:8px}#app-panel .social-ocr-diagnostics summary{cursor:pointer;font-weight:600}#app-panel .social-ocr-diagnostics textarea{display:block;box-sizing:border-box;width:100%;max-height:40vh;margin:8px 0;font:12px/1.5 monospace}#app-panel .social-ocr-diagnostics button{min-height:44px}
