@@ -334,7 +334,7 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
 #summary .candy-source-choice[data-source=skills] button[data-source=skills]{min-height:30px;height:30px;border-radius:var(--mh-radius) var(--mh-radius) 0 0}
 #summary .candy-source-choice .candy-skill-expand{display:block;min-height:14px;height:14px;padding:0;border-top:0;border-radius:0 0 var(--mh-radius) var(--mh-radius);font-size:11px;line-height:14px;background:var(--mh-surface);color:var(--source-color)}
 #summary .candy-source-choice .candy-skill-expand[aria-expanded=true]{background:color-mix(in srgb,var(--source-color) 22%,var(--mh-surface))}
-#summary .candy-skill-children{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px}
+#summary .candy-skill-children{grid-column:1/-1;display:grid;grid-template-columns:repeat(var(--visible-skills,4),minmax(0,1fr));gap:2px}
 #summary .candy-skill-children .candy-source-choice button{min-height:44px}
 /* Shared compact individual cards for the roster and team picker. */
 #team #registered-pokemon-list .registered-row,#team-picker .team-picker-grid .team-picker-row{position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;min-width:0;height:102px;min-height:102px;padding:5px 4px;gap:0;border:1px solid var(--mh-border);border-radius:var(--mh-radius);background:var(--mh-surface);color:var(--mh-text);text-align:left}

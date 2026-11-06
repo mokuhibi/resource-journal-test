@@ -68,12 +68,14 @@ const SleepUI=(()=>{
  }
  function syncNavigation(){
   if(!navigationReady)return;
+  if(socialView&&state.settings.displayActions?.social===false)socialView=false;
   const enabled=SleepResearch.visible(state);if(!enabled&&activeTab!=='record')recordView=false;
   for(const [hostId,on] of [['record',recordView],['history',historyView]]){
    $(hostId+'-main-view').hidden=on||(hostId==='record'&&socialView)||(hostId==='history'&&fieldView);const buttons=$(hostId+'-view-switch').children;
    for(const b of buttons){const selected=b===buttons[hostId==='history'&&fieldView||hostId==='record'&&socialView?2:on?1:0];b.setAttribute('aria-selected',String(selected));b.setAttribute('aria-pressed',String(selected));}
    if(hostId==='record'){
     buttons[1].hidden=!enabled&&!(typeof SummaryExtras!=='undefined'&&SummaryExtras.shardVisible('research'))&&!recordView;
+    if(buttons[2])buttons[2].hidden=state.settings.displayActions?.social===false;
 
     if(typeof SkillActions!=='undefined')SkillActions.show();
    }
