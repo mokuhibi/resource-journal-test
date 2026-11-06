@@ -1,14 +1,14 @@
 'use strict';
 // 表示専用。既存の通常集計フィルター・ゲーム内日付・保存済み獲得数を使用する。
 const CandyGraphs=(()=>{
- const colors={help:'#567563',mew:'#a46f85',delibird:'#ae7568',skill:'#686b63',research:'#a89461',social:'#608896'},selection={week:null,month:null};
+ const colors={help:'#567563',skills:'#686b63',other:'#8a806e',research:'#a89461',social:'#608896'},selection={week:null,month:null};
  const fmt=n=>n.toLocaleString('ja-JP');
- function legend(sources,records,kind='candy'){const root=el('div',undefined,'candy-chart-legend');for(const [key,name] of sources){const item=el('span'),dot=el('i',undefined,kind==='shard'?'shard-source-'+key:undefined);if(kind!=='shard')dot.style.background=colors[key];dot.setAttribute('aria-hidden','true');item.append(dot,el('span',name));if(records)item.append(qel('strong',fmt(C.sum(records.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):r.method)===key)))+'個'));root.append(item);}return root;}
+ function legend(sources,records,kind='candy'){const root=el('div',undefined,'candy-chart-legend');for(const [key,name] of sources){const item=el('span'),dot=el('i',undefined,kind==='shard'?'shard-source-'+key:undefined);if(kind!=='shard')dot.style.background=colors[key];dot.setAttribute('aria-hidden','true');item.append(dot,el('span',name));if(records)item.append(qel('strong',fmt(C.sum(records.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):SummaryExtras.candySource(r))===key)))+'個'));root.append(item);}return root;}
  function details(root,records,date,sources,kind='candy'){
   root.replaceChildren();const rs=records.filter(r=>C.gameDay(r.datetime)===date),head=el('div',undefined,'graph-detail-head');
   const title=el('h4',C.displayDate(date));head.append(title,qel('strong',fmt(C.sum(rs))+'個','detail-total'));root.append(head);
   const table=el('table',undefined,'graph-detail-table'),thead=el('thead'),tr=el('tr'),body=el('tbody');for(const text of ['獲得方法','回数',kind==='shard'?'ゆめのかけら':'アメ'])tr.append(el('th',text));thead.append(tr);table.append(thead,body);
-  for(const [key,name] of sources){const xs=rs.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):r.method)===key),row=el('tr'),label=el('th',name);label.scope='row';const dot=el('i',undefined,'source-dot'+(kind==='shard'?' shard-source-'+key:''));if(kind!=='shard')dot.style.background=colors[key];label.prepend(dot);const count=kind==='candy'&&key==='social'?new Set(xs.map(r=>r.groupId||r.id)).size+'回 '+fmt(xs.length)+'件':(typeof SleepResearch!=='undefined'?SleepResearch.countSessions(xs):xs.length)+'回';row.append(label,qel('td',count),qel('td',fmt(C.sum(xs))+'個'));body.append(row);}root.append(table);
+  for(const [key,name] of sources){const xs=rs.filter(r=>(kind==='shard'?SummaryExtras.shardKey(r.method):SummaryExtras.candySource(r))===key),row=el('tr'),label=el('th',name);label.scope='row';const dot=el('i',undefined,'source-dot'+(kind==='shard'?' shard-source-'+key:''));if(kind!=='shard')dot.style.background=colors[key];label.prepend(dot);const count=kind==='candy'&&key==='social'?new Set(xs.map(r=>r.groupId||r.id)).size+'回 '+fmt(xs.length)+'件':(typeof SleepResearch!=='undefined'?SleepResearch.countSessions(xs):xs.length)+'回';row.append(label,qel('td',count),qel('td',fmt(C.sum(xs))+'個'));body.append(row);}root.append(table);
   if(!sources.length||!rs.length)root.append(el('p',sources.length?'この日の記録はありません。':'表示する獲得方法がすべてOFFです。','graph-empty-note'));
   root.append(button('この日の集計を見る →',()=>{RangePicker.set(kind==='shard'?'shard-period':'period',date);DateUI.update();window.scrollTo({top:0,behavior:'auto'});},'day-summary-link'));
  }
@@ -32,7 +32,7 @@ const CandyGraphs=(()=>{
   if(!listening){listening=true;document.addEventListener('click',e=>{if(opened&&!opened.detail.contains(e.target)&&!opened.anchor.contains(e.target))closePopover();});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&opened){e.preventDefault();closePopover(true);}});window.addEventListener('scroll',placePopover,{passive:true});window.addEventListener('resize',placePopover);window.visualViewport?.addEventListener('resize',placePopover);window.visualViewport?.addEventListener('scroll',placePopover);}
  }
  function weekly(root,records,day){
-  closePopover();records=SummaryExtras.candyRecords(records,'week');const sources=SummaryExtras.visibleCandySources('week'),days=C.weeklyTotals(records,day),parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>r.method===key),day));
+  closePopover();records=SummaryExtras.candyRecords(records,'week');const sources=SummaryExtras.visibleCandySources('week'),days=C.weeklyTotals(records,day),parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>SummaryExtras.candySource(r)===key),day));
   const weekRecords=records.filter(r=>C.inRange(r,C.range('week',day)));root.replaceChildren();headingTotal(root.id,C.sum(weekRecords));$('candy-week-totals').replaceChildren();$('candy-week-totals').hidden=true;
   root.append(el('p',C.displayDate(days[0].date)+' 〜 '+C.displayDate(days[6].date),'weekly-range'));
   selection.week=days.some(d=>d.date===selection.week)?selection.week:days.some(d=>d.date===day)?day:days[0].date;
