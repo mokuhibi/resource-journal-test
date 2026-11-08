@@ -89,9 +89,10 @@ const ShardUI=(()=>{
   }
  }
  const recordSources=new Set(['skill','research','other']);
+ const recordSourceOn=method=>recordSources.has(method==='cluster'?'other':method==='lucky'?'skill':method);
  function renderSummary(){
   PeriodPicker.sync();
-  const day=$('shard-date').value||C.gameDay(new Date()),period=RangePicker.get('shard-period'),rs=summaryRecords().filter(r=>C.inRange(r,period));
+  const day=$('shard-date').value||C.gameDay(new Date()),period=RangePicker.get('shard-period'),rs=summaryRecords().filter(r=>C.inRange(r,period)&&recordSourceOn(r.method));
   $('shard-range').textContent=period?`${C.displayDate(period[0])} 04:00 〜 ${C.displayDate(period[1])} 04:00`:'全期間';
   const title=SummaryExtras.periodCaption(period),root=$('shard-total');root.replaceChildren(el('small',title),qel('div',C.sum(rs)+'個','total'));
   const body=totalBreakdown(root,'ゆめのかけら');
@@ -126,5 +127,5 @@ const ShardUI=(()=>{
   if(typeof SleepShards!=='undefined')SleepShards.init();
   $('shard-other-form').onsubmit=e=>{e.preventDefault();try{if(!['mission','achievement','gift'].includes($('shard-other-kind').value)||!SummaryExtras.otherVisible($('shard-other-kind').value))throw Error('入手方法を選択してください。');if(save({method:'other',otherKind:$('shard-other-kind').value,amount:number('shard-other-amount'),memo:$('shard-other-memo').value.trim()})){$('shard-other-form').reset();$('shard-other-memo').value='';}}catch(err){notice(err.message,true);}};
  }
- return {saveRecord:save,recordName,methodName,summaryRecords,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
+ return {saveRecord:save,recordName,methodName,summaryRecords,recordSourceOn,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
 })();
