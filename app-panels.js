@@ -22,7 +22,7 @@ const AppRelease=(()=>{
    if(visible.length){const section=el('section',undefined,'release-announcements');section.append(el('h3','お知らせ'));for(const item of visible){const article=el('article',undefined,'release-announcement'),date=el('time',item.date);date.dateTime=item.date;article.append(date,el('h4',item.title));for(const paragraph of item.paragraphs)article.append(el('p',paragraph));section.append(article);}body.append(section);}
    const releases=el('section',undefined,'release-history');releases.append(el('h3','更新履歴'));for(const entry of history){const section=el('section',undefined,'release-entry'),h=el('h4','v'+entry.version),date=el('time',entry.date);date.dateTime=entry.date;const list=el('ul');for(const change of entry.changes)list.append(el('li',change));section.append(h,date,list);releases.append(section);}body.append(releases);
   });
-  b.textContent='Ver.1.1.0 TEST';b.setAttribute('aria-label','バージョン・お知らせ・更新履歴');b.onclick=open;
+  b.textContent='Ver.1.1.1 TEST';b.setAttribute('aria-label','バージョン・お知らせ・更新履歴');b.onclick=open;
   const historyButton=button(announcements.some(item=>item.active)?'お知らせ':'更新履歴',open);historyButton.id='release-history-button';historyButton.setAttribute('aria-label','お知らせと更新履歴');const controls=el('div',undefined,'release-controls');b.before(controls);controls.append(b,historyButton);
   const key=KEY+'-release-seen';let seen;try{seen=localStorage.getItem(key);}catch(_){return;}
   if(current.version==='1.0.0'||seen===current.version)return;
