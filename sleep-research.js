@@ -147,7 +147,7 @@
   if(row?.kind==='legacy'){
    const drafts={...(state.sleepDrafts||{})},key=date+':'+row.number;
    if(drafts[key])drafts[key]={...drafts[key],...values,researchRank:rank};
-   return {...state,shardRecords:state.shardRecords.map(r=>r.id===row.record.id?{...r,...values,amount,updatedAt:now}:r),...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
+   return {...state,shardRecords:state.shardRecords.map(r=>r.id===row.record.id?{...r,...values,...(field!==undefined?{field}:{}),amount,updatedAt:now}:r),...(state.sleepDrafts?{sleepDrafts:drafts}:{})};
   }
   let session;
   if(row)session={...row.record,...values,...(field!==undefined?{field}:{}),researchRank:rank,amount,shardsRecorded:true,updatedAt:now};
