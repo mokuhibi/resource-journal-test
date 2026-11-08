@@ -90,6 +90,7 @@ const ShardUI=(()=>{
  }
  const recordSources=new Set(['skill','research','other']);
  const recordSourceOn=method=>recordSources.has(method==='cluster'?'other':method==='lucky'?'skill':method);
+ const toggleRecordSource=key=>{if(recordSources.has(key))recordSources.delete(key);else recordSources.add(key);renderSummary();};
  function renderSummary(){
   PeriodPicker.sync();
   const day=$('shard-date').value||C.gameDay(new Date()),period=RangePicker.get('shard-period'),rs=summaryRecords().filter(r=>C.inRange(r,period)&&recordSourceOn(r.method));
@@ -98,7 +99,7 @@ const ShardUI=(()=>{
   const body=totalBreakdown(root,'ゆめのかけら');
   appendBreakdown(body,rs);
   const controls=el('div',undefined,'candy-source-switches shard-record-filters');controls.setAttribute('aria-label','ゆめのかけらの記録の表示項目');
-  for(const [key,name] of [['research','睡眠'],['skill','メインスキル'],['other','その他']]){if(!(key==='other'?['other','cluster'].some(k=>SummaryExtras.aggregateVisible('shard',k)):SummaryExtras.aggregateVisible('shard',key)))continue;const choice=el('div',undefined,'candy-source-choice'),b=button(name,()=>{if(recordSources.has(key))recordSources.delete(key);else recordSources.add(key);renderSummary();});b.dataset.source=key;b.setAttribute('aria-pressed',String(recordSources.has(key)));b.style.setProperty('--source-color',SummaryExtras.sourceColor(key==='skill'?'skills':key));const amount=C.sum(rs.filter(r=>(r.method==='cluster'?'other':r.method==='lucky'?'skill':r.method)===key)),total=C.sum(rs);choice.append(b,el('small',recordSources.has(key)&&total?((amount/total)*100).toFixed(1)+'%':'—','candy-source-percent'));controls.append(choice);}
+  for(const [key,name] of [['research','睡眠'],['skill','メインスキル'],['other','その他']]){if(!(key==='other'?['other','cluster'].some(k=>SummaryExtras.aggregateVisible('shard',k)):SummaryExtras.aggregateVisible('shard',key)))continue;const choice=el('div',undefined,'candy-source-choice'),b=button(name,()=>toggleRecordSource(key));b.dataset.source=key;b.setAttribute('aria-pressed',String(recordSources.has(key)));b.style.setProperty('--source-color',SummaryExtras.sourceColor(key==='skill'?'skills':key));const amount=C.sum(rs.filter(r=>(r.method==='cluster'?'other':r.method==='lucky'?'skill':r.method)===key)),total=C.sum(rs);choice.append(b,el('small',recordSources.has(key)&&total?((amount/total)*100).toFixed(1)+'%':'—','candy-source-percent'));controls.append(choice);}
   controls.style?.setProperty?.('--source-count',String(controls.children.length||1));controls.id='shard-record-filters';const previous=$('shard-record-filters');if(previous)previous.replaceWith(controls);else root.before(controls);
   let source='';for(const row of body.children){const cls=[...row.classList].find(x=>x.startsWith('shard-method-'));if(cls)source=cls.replace('shard-method-','');row.hidden=!recordSources.has(source==='cluster'?'other':source);}
   const all=summaryRecords();for(const scope of ['week','month']){const chart=$(scope==='week'?'shard-weekly-chart':'shard-calendar');let controls=$('shard-'+scope+'-filters');if(!controls){controls=el('div');controls.id='shard-'+scope+'-filters';(scope==='month'?$('shard-month'):chart).before(controls);}SummaryExtras.filterControls(controls,scope,all.filter(r=>C.inRange(r,C.range(scope,day))),'shard');}
@@ -127,5 +128,5 @@ const ShardUI=(()=>{
   if(typeof SleepShards!=='undefined')SleepShards.init();
   $('shard-other-form').onsubmit=e=>{e.preventDefault();try{if(!['mission','achievement','gift'].includes($('shard-other-kind').value)||!SummaryExtras.otherVisible($('shard-other-kind').value))throw Error('入手方法を選択してください。');if(save({method:'other',otherKind:$('shard-other-kind').value,amount:number('shard-other-amount'),memo:$('shard-other-memo').value.trim()})){$('shard-other-form').reset();$('shard-other-memo').value='';}}catch(err){notice(err.message,true);}};
  }
- return {saveRecord:save,recordName,methodName,summaryRecords,recordSourceOn,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
+ return {saveRecord:save,recordName,methodName,summaryRecords,recordSourceOn,toggleRecordSource,isTarget,init,renderInputs,addSkillSetting,renderSummary,appendBreakdown,appendHistory};
 })();

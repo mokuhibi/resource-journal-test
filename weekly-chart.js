@@ -13,7 +13,7 @@ const WeeklyChart={
   records=SummaryExtras.shardRecords(records,'week');
   const sources=SummaryExtras.visibleShardSources('week');
   const days=C.weeklyTotals(records,day),max=Math.max(1,...days.map(d=>d.amount));
-  const parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>key==='skill'?['skill','lucky'].includes(r.method):r.method===key),day));
+  const parts=sources.map(([key])=>C.weeklyTotals(records.filter(r=>SummaryExtras.shardSummaryKey(r.method)===key),day));
   root.replaceChildren();headingTotal(root.id,days.reduce((n,d)=>n+d.amount,0));
   $('shard-week-totals').replaceChildren();$('shard-week-totals').hidden=true;
   root.append(el('p',`${C.displayDate(days[0].date)} 〜 ${C.displayDate(days[6].date)}`,'weekly-range'));
