@@ -1,5 +1,17 @@
 育成リソースノート — 外部ソフトウェアの表示
 
+ポケモンの得意分野（pokemon-specialties.js）
+247種の得意分野は Neroli's Lab の固定版 647ddf8167fb8ae2295769ea70914af125f16a79 に由来します。
+https://github.com/nerolis-lab/nerolis-lab
+Copyright The Neroli's Lab Authors
+該当部分のライセンス: Apache-2.0。全文は pokemon-specialties-Apache-2.0.txt を参照。
+日本語の名前対応・サイズ名変換は育成リソースノート用に変更しました。
+タマゲタケ・モロバレルの「食材」は https://wikiwiki.jp/poke_sleep/タマゲタケ と
+https://wikiwiki.jp/poke_sleep/モロバレル、ムウマ・ムウマージの「スキル」は
+https://wikiwiki.jp/poke_sleep/ムウマ と https://game8.jp/pokemonsleep/831491 で個別照合しました。
+厳選手帳の追加2種の元資料 RaenonX、および攻略サイトのデータベース全体については、
+複製・再配布の条件を確認できていません。許諾済みという意味ではありません。
+
 pokesleep-tool / 個体値計算機 for ポケモンスリープ
 作者: にとよん (nitoyon) および各貢献者
 https://github.com/nitoyon/pokesleep-tool
