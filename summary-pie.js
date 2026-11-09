@@ -55,8 +55,8 @@ const SummaryPie=(()=>{
    const line=document.createElement('div');line.className=ranked?'summary-pie-pokemon-row':'summary-pie-source-row';line.dataset.value=String(item.value);
    const badge=document.createElement('span');badge.className='summary-pie-rank';badge.style.backgroundColor=item.color;badge.textContent=ranked&&!other?String(i+1):'';badge.setAttribute('aria-label',ranked&&!other?`${i+1}位`:item.name+'の色');
    const name=document.createElement('span');name.className='summary-pie-name';name.textContent=item.name;name.title=item.name;
-   const percent=document.createElement('span');percent.className='summary-pie-percent';percent.textContent=Math.round(item.value/total*100)+'%';
-   const amount=document.createElement('span');amount.className='summary-pie-amount';amount.textContent=item.value.toLocaleString('ja-JP')+'個';
+   const percent=document.createElement('span');percent.className='summary-pie-percent';percent.textContent=String(Math.round(item.value/total*100));const percentUnit=document.createElement('span');percentUnit.className='summary-pie-unit';percentUnit.textContent='%';percent.append(percentUnit);
+   const amount=document.createElement('span');amount.className='summary-pie-amount';amount.textContent=item.value.toLocaleString('ja-JP');const amountUnit=document.createElement('span');amountUnit.className='summary-pie-unit';amountUnit.textContent='個';amount.append(amountUnit);
    line.append(badge,name,percent,amount);list.append(line);angle+=span;
   }
   root.append(svg,list);

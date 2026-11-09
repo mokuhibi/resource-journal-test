@@ -18,6 +18,7 @@
 .summary-pie-rank{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px;font-weight:700}
 .summary-pie-name{min-width:0;overflow-wrap:anywhere}
 .summary-pie-percent,.summary-pie-amount{white-space:nowrap;text-align:right}
+.summary-pie-unit{font-size:.8em;vertical-align:baseline}
 :is(#summary,#shards) .section-total-row{display:flex;align-items:baseline;justify-content:flex-start;gap:8px;min-height:28px;margin:8px 0 10px}
 :is(#summary,#shards) .section-total-row .heading-total{font-size:14px}
 :is(#summary,#shards) .section-total-row .heading-total{margin-left:0}
