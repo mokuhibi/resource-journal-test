@@ -239,7 +239,8 @@ body .tabs .tab-icon{width:12px;height:12px}
 #record #action-other .other-cluster-row :is(input,select,button){padding-inline:6px}
 #record #action-other .other-cluster-row #cluster-count{font-size:12px;padding-inline:2px;appearance:textfield}
 #record #action-other .other-cluster-row #cluster-count::-webkit-inner-spin-button{appearance:none}
-#record #action-other .other-cluster-row #cluster-amount{font-size:clamp(10px,2.7vw,14px);padding-inline:4px}
+#record #action-other .other-cluster-row #cluster-amount{font-size:16px;padding-inline:4px}
+#record #action-other .other-cluster-row #cluster-amount[data-compact=true]{font-size:clamp(10px,2.7vw,14px)}
 #record #action-other .other-cluster-row button{font-size:13px;white-space:nowrap}
 #record #action-other #cluster-panel>h3{display:block}
 #record #action-other .shard-other-record>h3{font-size:16px;font-weight:600;margin:0 0 12px}

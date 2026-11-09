@@ -8,7 +8,7 @@ const ShardUI=(()=>{
  function updateCluster(){
   const rank=sharedRank();$('cluster-rank').textContent=rank?'リサーチランク '+rank:'設定でリサーチランクを設定してください。';
   if(!rank)rankHint($('cluster-rank'));
-  try{$('cluster-amount').value=DreamClusters.amount($('cluster-size').value,number('cluster-count',1,100000),rank).toLocaleString('ja-JP')+'個';}
+  try{const output=$('cluster-amount');output.value=DreamClusters.amount($('cluster-size').value,number('cluster-count',1,100000),rank).toLocaleString('ja-JP')+'個';output.dataset.compact=String(output.value.length>8);}
   catch(e){$('cluster-amount').value='';if(rank)$('cluster-rank').textContent=e.message;}
  }
  const drafts=new Map();let researchDateTouched=false,researchSourceKey=null,researchEditingId=null;
