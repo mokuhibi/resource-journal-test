@@ -6,7 +6,7 @@ const SectionImages=(()=>{
   ['candy-types','ポケモンのアメ一覧','#candy-list','candy','create-candy-image'],
   ['candy-week','週間のアメ','#candy-weekly-chart','candy'],
   ['candy-month','月間のアメ','#candy-calendar','candy'],
-  ['candy-help','アメ拾いの記録','#slot-counts','candy'],
+  ['candy-help','アメ拾い','#slot-counts','candy'],
   ['candy-get','メインスキルの記録','#analysis','candy','create-mew-image'],
   ['shard-breakdown','ゆめのかけらの記録','#shard-total','shard'],
   ['shard-week','週間のゆめのかけら','#shard-weekly-chart','shard'],
