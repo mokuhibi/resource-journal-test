@@ -6,7 +6,7 @@ const SummaryPie=(()=>{
  const point=(angle,r,cx,cy)=>({x:cx+Math.cos(angle)*r,y:cy+Math.sin(angle)*r});
  const palette=['#4f78a8','#4f8666','#ad625b','#97762e','#a66883','#577e91','#96735f','#6b8280','#8b6b91','#8f824d','#92979a'];
  function pokemonGroups(groups){
-  const positive=groups.filter(group=>group.total>0);
+  const positive=groups.filter(group=>group.total>0).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ja'));
   const result=positive.slice(0,10).map((group,i)=>({name:group.name.replace(/のアメ$/,''),value:group.total,color:palette[i]}));
   const rest=positive.slice(10).reduce((sum,group)=>sum+group.total,0);
   if(rest)result.push({name:'その他',value:rest,color:palette[10]});
@@ -39,12 +39,34 @@ const SummaryPie=(()=>{
   }
   root.append(svg);
  }
+ function drawPokemon(root,items){
+  root.replaceChildren();
+  const rows=items.filter(item=>Number.isFinite(item.value)&&item.value>0),total=rows.reduce((sum,item)=>sum+item.value,0);
+  if(!total){const empty=document.createElement('p');empty.textContent='この条件の記録はありません。';root.append(empty);return;}
+  root.classList.add('summary-pie-pokemon');
+  const svg=node('svg',{viewBox:'0 0 180 180',role:'img','aria-label':rows.map((item,i)=>`${item.name==='その他'?'その他':`${i+1}位 ${item.name}`} ${Math.round(item.value/total*100)}%`).join('、')});
+  const list=document.createElement('div');list.className='summary-pie-pokemon-list';
+  let angle=-Math.PI/2;
+  for(const [i,item] of rows.entries()){
+   const span=item.value/total*Math.PI*2,mid=angle+span/2,start=point(angle,78,90,90),end=point(angle+span,78,90,90),half=point(angle+Math.PI,78,90,90);
+   const full=span>Math.PI*2-.0001,shape=full?`M ${start.x} ${start.y} A 78 78 0 1 1 ${half.x} ${half.y} A 78 78 0 1 1 ${start.x} ${start.y} Z`:`M 90 90 L ${start.x} ${start.y} A 78 78 0 ${span>Math.PI?1:0} 1 ${end.x} ${end.y} Z`;
+   const path=node('path',{d:shape,fill:item.color,stroke:'#fff','stroke-width':1.5});const title=node('title');title.textContent=`${item.name} ${item.value.toLocaleString('ja-JP')}個 (${Math.round(item.value/total*100)}%)`;path.append(title);svg.append(path);
+   const other=item.name==='その他';if(span>=.4){const at=point(mid,49,90,90),text=node('text',{x:at.x,y:at.y+4,'text-anchor':'middle',fill:'#fff','font-size':other?10:15,'font-weight':700});text.textContent=other?'その他':String(i+1);svg.append(text);}
+   const line=document.createElement('div');line.className='summary-pie-pokemon-row';
+   const badge=document.createElement('span');badge.className='summary-pie-rank';badge.style.backgroundColor=item.color;badge.textContent=other?'':String(i+1);badge.setAttribute('aria-label',other?'その他の色':`${i+1}位`);
+   const name=document.createElement('span');name.className='summary-pie-name';name.textContent=item.name;name.title=item.name;
+   const percent=document.createElement('span');percent.className='summary-pie-percent';percent.textContent=Math.round(item.value/total*100)+'%';
+   const amount=document.createElement('span');amount.className='summary-pie-amount';amount.textContent=item.value.toLocaleString('ja-JP')+'個';
+   line.append(badge,name,percent,amount);list.append(line);angle+=span;
+  }
+  root.append(svg,list);
+ }
  function attach(key,host,list,items){
   const controls=document.createElement('div');controls.className='summary-pie-switch';controls.setAttribute('role','group');controls.setAttribute('aria-label','表示方法');
   const chart=document.createElement('div');chart.className='summary-pie';chart.setAttribute('aria-label','円グラフ');
   const show=view=>{views[key]=view;list.hidden=view==='pie';chart.hidden=view!=='pie';for(const button of controls.children)button.setAttribute('aria-pressed',String(button.dataset.view===view));};
   for(const [view,label] of [['list','一覧'],['pie','円グラフ']]){const button=document.createElement('button');button.type='button';button.dataset.view=view;button.textContent=label;button.onclick=()=>show(view);controls.append(button);}
-  host.insertBefore(controls,list);host.insertBefore(chart,list.nextSibling);draw(chart,items);show(views[key]||'list');
+  host.insertBefore(controls,list);host.insertBefore(chart,list.nextSibling);(key==='pokemon-candy'?drawPokemon:draw)(chart,items);show(views[key]||'list');
  }
  return {attach,pokemonGroups,draw};
 })();

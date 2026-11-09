@@ -6,3 +6,10 @@
 .summary-pie{width:100%;max-width:390px;margin:0 auto}
 .summary-pie svg{display:block;width:100%;height:auto;overflow:visible}
 .summary-pie[hidden],.summary-pie-switch[hidden]{display:none}
+.summary-pie-pokemon{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:center;gap:8px;max-width:390px}
+.summary-pie-pokemon svg{width:100%;min-width:0}
+.summary-pie-pokemon-list{min-width:0;display:grid;gap:5px}
+.summary-pie-pokemon-row{display:grid;grid-template-columns:20px minmax(0,1fr) auto auto;align-items:center;column-gap:3px;min-width:0;font-size:10px;line-height:1.3;font-variant-numeric:tabular-nums}
+.summary-pie-rank{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px;font-weight:700}
+.summary-pie-name{min-width:0;overflow-wrap:anywhere}
+.summary-pie-percent,.summary-pie-amount{white-space:nowrap;text-align:right}
