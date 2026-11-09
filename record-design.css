@@ -232,10 +232,15 @@ body .tabs .tab-icon{width:12px;height:12px}
 #action-other .other-cluster-row label :is(input,select){width:100%}
 
 /* The two Other forms keep separate inputs and share aligned rows. */
-#record #action-other .other-cluster-row{grid-template-columns:minmax(0,1fr) minmax(72px,1fr)}
+#record #action-other .other-cluster-row{grid-template-columns:50px 75px minmax(0,1fr) 44px;gap:4px}
 #record #action-other .cluster-result-row{margin-top:8px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
 #record #action-other .cluster-result-row :is(input,button),#record #action-other .other-method-row :is(input,select,button){height:44px;min-height:44px;margin:0;box-sizing:border-box}
 #record #action-other #cluster-amount{width:100%;min-width:0;font-size:16px}
+#record #action-other .other-cluster-row :is(input,select,button){padding-inline:6px}
+#record #action-other .other-cluster-row #cluster-count{font-size:12px;padding-inline:2px;appearance:textfield}
+#record #action-other .other-cluster-row #cluster-count::-webkit-inner-spin-button{appearance:none}
+#record #action-other .other-cluster-row #cluster-amount{font-size:clamp(10px,2.7vw,14px);padding-inline:4px}
+#record #action-other .other-cluster-row button{font-size:13px;white-space:nowrap}
 #record #action-other #cluster-panel>h3{display:block}
 #record #action-other .shard-other-record>h3{font-size:16px;font-weight:600;margin:0 0 12px}
 #record #action-other .other-method-row{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:center}

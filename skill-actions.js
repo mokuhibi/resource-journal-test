@@ -123,12 +123,12 @@ const SkillActions=(()=>{
    const clusterForm=$('shard-cluster-form'),size=$('cluster-size').closest('label'),count=$('cluster-count').closest('label');
    for(const [label,input,title] of [[size,$('cluster-size'),'ゆめのかたまり'],[count,$('cluster-count'),'個数']]){for(const n of [...label.childNodes])if(n.nodeType===3)n.remove();input.setAttribute('aria-label',title);if(input.tagName==='INPUT')input.placeholder=title;}
    const clusterRow=el('div',undefined,'other-cluster-row');clusterRow.append(size,count);clusterForm.querySelector('.filters').replaceWith(clusterRow);clusterForm.querySelector('.cluster-result-label').hidden=true;
-   const result=$('cluster-amount').closest('.cluster-result-row');result.hidden=false;result.querySelector('button').textContent='保存';
+   const result=$('cluster-amount').closest('.cluster-result-row');clusterRow.append($('cluster-amount'),result.querySelector('button'));result.remove();
    const methodRow=el('div',undefined,'other-method-row'),saveRow=el('div',undefined,'other-method-row');
-   methodRow.append($('shard-other-kind').closest('label'),$('shard-other-amount').closest('label'));const save=other.querySelector('button[type=submit]');save.textContent='保存';saveRow.append($('shard-other-memo').closest('label'),save);other.append(methodRow,saveRow);
-   root.prepend($('cluster-panel'));root.prepend(root.querySelector('summary'));other.parentElement.prepend(el('h3','その他','record-subheading'));$('cluster-panel').querySelector('h3').textContent='ゆめのかたまり';
+   methodRow.append($('shard-other-kind').closest('label'),$('shard-other-amount').closest('label'));const save=other.querySelector('button[type=submit]');saveRow.append($('shard-other-memo').closest('label'),save);other.append(methodRow,saveRow);
+   $('cluster-panel').querySelector('h3').textContent='ゆめのかたまり';
   }
-  root.append($('cluster-panel'),other.parentElement);if($('nap-island-details'))root.append($('nap-island-details'));
+  root.append(other.parentElement);if($('nap-island-details'))root.append($('nap-island-details'));root.append($('cluster-panel'));
   const select=$('shard-other-kind');
   for(const option of select.options)if(option.value){const enabled=SummaryExtras.otherVisible(option.value);option.hidden=!enabled;option.disabled=!enabled;}
   if(select.selectedOptions[0]?.disabled)select.value='';

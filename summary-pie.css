@@ -6,11 +6,12 @@
 .summary-pie-switch button{min-height:44px!important;padding:6px 10px;font-size:12px;border:1px solid var(--editorial-line,#e3e4e5);border-radius:0!important;background:#fff;color:var(--editorial-ink,#333)}
 .summary-pie-switch button:first-child{border-radius:6px 0 0 6px!important}
 .summary-pie-switch button:last-child{border-radius:0 6px 6px 0!important;border-left:0}
+.analysis-method-buttons{grid-column:1/-1;justify-content:flex-start}
 :is(#summary,#shards) .summary-pie-switch button[aria-pressed="true"]{background:var(--mh-selected);color:var(--mh-accent);border-color:var(--mh-accent)}
 .summary-pie{width:100%;max-width:390px;margin:0 auto}
 .summary-pie svg{display:block;width:100%;height:auto;overflow:visible}
 .summary-pie[hidden],.summary-pie-switch[hidden]{display:none}
-.summary-pie-pokemon,.summary-pie-sources{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);align-items:center;gap:8px;max-width:390px}
+.summary-pie-pokemon,.summary-pie-sources{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:start;gap:6px;max-width:390px}
 .summary-pie-pokemon svg,.summary-pie-sources svg{width:100%;min-width:0}
 .summary-pie-pokemon-list{min-width:0;display:grid;gap:5px}
 .summary-pie-pokemon-row,.summary-pie-source-row{display:grid;grid-template-columns:20px minmax(0,1fr) auto auto;align-items:center;column-gap:3px;min-width:0;font-size:10px;line-height:1.3;font-variant-numeric:tabular-nums}
@@ -20,5 +21,6 @@
 :is(#summary,#shards) .section-total-row{display:flex;align-items:baseline;justify-content:flex-start;gap:8px;min-height:28px;margin:8px 0 10px}
 :is(#summary,#shards) .section-total-row .heading-total{font-size:14px}
 :is(#summary,#shards) .section-total-row .heading-total{margin-left:0}
+:is(#summary,#shards) .section-total-row .heading-count{margin-left:0}
 :is(#summary,#shards) .summary-view-amount .total{font-size:clamp(25px,8vw,34px);margin:0}
 @media(max-width:360px){.summary-pie-pokemon-row,.summary-pie-source-row{grid-template-columns:18px minmax(0,1fr) auto auto;column-gap:2px;font-size:9px}.summary-pie-rank{width:18px;height:18px;font-size:10px}}
