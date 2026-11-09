@@ -166,6 +166,7 @@ function renderSummary(){
  PeriodPicker.sync();
  $('create-mew-image').hidden=!enabled('mew')&&!enabled('delibird');
  const all=filteredRecords(),rs=SummaryExtras.candyRecords(all,'breakdown'),period=RangePicker.get('period');$('range-label').textContent=period?`${C.displayDate(period[0])} 04:00 〜 ${C.displayDate(period[1])} 04:00`:'全期間';totals($('summary-total'),rs,SummaryExtras.periodCaption(period),false,key=>SummaryExtras.candySourceVisible(key,'breakdown'));SummaryExtras.filterControls($('candy-breakdown-filters'),'breakdown',all);
+ if(typeof SummaryPie!=='undefined')SummaryPie.attach('candy-sources',$('summary-total'),$('summary-total').querySelector('.total-breakdown'),SummaryExtras.candySources.filter(([key])=>SummaryExtras.candySourceVisible(key,'breakdown')).map(([key,name])=>({name,value:C.sum(rs.filter(r=>SummaryExtras.candySource(r)===key)),color:SummaryExtras.sourceColor(key)})));
  const calendarRs=SummaryExtras.candyRecords(allCandyRecords());SummaryExtras.filterControls($('candy-week-filters'),'week',calendarRs.filter(r=>C.inRange(r,C.range('week',$('summary-date').value||C.gameDay(new Date())))));SummaryExtras.filterControls($('candy-month-filters'),'month',calendarRs.filter(r=>C.gameDay(r.datetime).startsWith(($('summary-date').value||C.gameDay(new Date())).slice(0,7))));
  const month=($('summary-date').value||C.gameDay(new Date())).slice(0,7);$('candy-month').textContent=month.replace('-','年')+'月';
  WeeklyChart.render($('candy-weekly-chart'),calendarRs,$('summary-date').value||C.gameDay(new Date()));

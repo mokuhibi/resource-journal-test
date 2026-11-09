@@ -103,7 +103,7 @@ const SummaryExtras=(()=>{
   const order=candySources.map(([key])=>key),labels=Object.fromEntries(candySources);
   const switches=el('div');filterControls(switches,'types',input);root.append(switches);
   const groups=candyGroups(records);
-  if(!groups.length){root.append(el('p',order.some(key=>candySourceVisible(key,'types'))?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。'));return;}
+  if(!groups.length){const empty=el('p',order.some(key=>candySourceVisible(key,'types'))?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。');root.append(empty);if(typeof SummaryPie!=='undefined')SummaryPie.attach('pokemon-candy',root,empty,[]);return;}
   const sources=order.filter(key=>candySourceVisible(key,'types')&&groups.some(g=>g.sources[key]));
   const scroll=el('div',undefined,'candy-table-scroll'),table=el('table',undefined,'candy-totals-table');
   scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','種類別アメの合計(横スクロール)');
@@ -117,6 +117,7 @@ const SummaryExtras=(()=>{
    line.append(qel('td',g.total.toLocaleString('ja-JP')+'個','candy-table-total'));body.append(line);
   }
   table.append(body);scroll.append(table);root.append(scroll);
+  if(typeof SummaryPie!=='undefined')SummaryPie.attach('pokemon-candy',root,scroll,SummaryPie.pokemonGroups(groups));
  }
 
  function monthly(kind,records,day){return CandyGraphs.monthly(records,day,kind);}
