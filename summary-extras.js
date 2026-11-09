@@ -31,10 +31,11 @@ const SummaryExtras=(()=>{
  };
  const allowedRecord=(r,kind='candy')=>{const scoped={...state.settings,aggregateActions:state.settings[kind==='candy'?'aggregateCandyActions':'aggregateShardActions']||state.settings.aggregateActions},category=C.actionCategory(r),key=kind==='shard'&&state.settings.aggregateShardActions&&['mew','delibird'].includes(category)?'shards':category,legacy=(state.settings[kind==='candy'?'aggregateCandy':'aggregateShards']||C.aggregationSettings(state.settings)[kind==='candy'?'aggregateCandy':'aggregateShards'])[kind==='candy'?r.method:shardKey(r.method)]!==false;const child=r.method==='cluster'?'cluster':r.method==='other'?r.otherKind:null,childOn=key==='other'&&C.otherKeys.includes(child)&&scoped.aggregateActions?.[child]===true;return C.otherRecordAllowed(scoped,r)&&C.actionAllowed(scoped,key)&&(legacy||scoped.aggregateActions?.[key]===true||childOn);};
  const filterOn=(scope,key)=>{if(!scope)return true;const flags=state.settings.candyFilters?.[scope]||{};return flags[key]??flags[key==='copy'||key==='metronome'||key==='other'?'skill':key]??true;};
+ const skillDisplayName=scope=>{const on=candySkillSources.filter(([key])=>aggregateVisible('candy',key)&&filterOn(scope,key));return on.length===1?on[0][1]:'スキル';};
  const localVisible=(scope,record)=>{if(!scope)return true;const key=typeof record==='string'?record:candySource(record);return key==='skills'&&typeof record!=='string'?filterOn(scope,candyChild(record)):key==='skills'?candySkillSources.some(([child])=>filterOn(scope,child)):filterOn(scope,key);};
  const candySourceVisible=(method,scope)=>aggregateVisible('candy',method)&&localVisible(scope,method);
  const candyRecords=(records,scope)=>records.filter(r=>(r.activationVersion!==1||r.resourceFlags.candy)&&allowedRecord(r)&&localVisible(scope,r));
- const visibleCandySources=scope=>candySources.filter(([key])=>candySourceVisible(key,scope));
+ const visibleCandySources=scope=>candySources.filter(([key])=>candySourceVisible(key,scope)).map(([key,name])=>[key,key==='skills'?skillDisplayName(scope):name]);
  const shardSourceVisible=method=>(method==='other'?aggregateVisible('shard','other')||aggregateVisible('shard','cluster'):aggregateVisible('shard',method))&&shardSummaryOn(method);
  const shardRecords=records=>records.filter(r=>allowedRecord(r,'shard')&&shardSummaryOn(r.method));
  const visibleShardSources=()=>shardSummarySources.filter(([key])=>shardSourceVisible(key));
@@ -43,7 +44,7 @@ const SummaryExtras=(()=>{
   const shard=kind==='shard',group='candyFilters',filtered=shard?shardRecords(records):candyRecords(records,scope),total=C.sum(filtered);
   for(const [key,title] of orderedSources(kind)){
    if(shard?!(key==='other'?aggregateVisible('shard','other')||aggregateVisible('shard','cluster'):aggregateVisible('shard',key)):!aggregateVisible(kind,key))continue;
-   const name=title,toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),on=shard?shardSummaryOn(key):localVisible(scope,key),amount=C.sum(filtered.filter(r=>(shard?shardSummaryKey(r.method):candySource(r))===key));
+   const name=!shard&&key==='skills'?skillDisplayName(scope):title,toggle=el('button',name),item=el('div',undefined,'candy-source-choice'),on=shard?shardSummaryOn(key):localVisible(scope,key),amount=C.sum(filtered.filter(r=>(shard?shardSummaryKey(r.method):candySource(r))===key));
    toggle.type='button';toggle.dataset.source=key;item.dataset.source=key;toggle.style.setProperty?.('--source-color',candySourceColors[key==='skill'?'skills':key]);toggle.setAttribute('aria-pressed',String(on));toggle.setAttribute('aria-label',name);
    toggle.onclick=()=>{if(shard){ShardUI.toggleRecordSource(key);return;}const flags={...state.settings[group]?.[scope]};if(key==='skills')for(const [child] of candySkillSources)flags[child]=!on;else flags[key]=!on;commit({...state,settings:{...state.settings,[group]:{...state.settings[group],[scope]:flags}}},null);};
    item.append(toggle);
@@ -100,7 +101,7 @@ const SummaryExtras=(()=>{
   const input=records;records=candyRecords(records,'types');
   $('candy-source-totals').replaceChildren();$('candy-source-totals').hidden=true;
   const root=$('candy-list');root.replaceChildren();
-  const order=candySources.map(([key])=>key),labels=Object.fromEntries(candySources);
+  const order=candySources.map(([key])=>key),labels=Object.fromEntries(visibleCandySources('types'));
   const switches=el('div');filterControls(switches,'types',input);root.append(switches);
   const groups=candyGroups(records);
   if(!groups.length){const empty=el('p',order.some(key=>candySourceVisible(key,'types'))?'この条件のアメの記録はありません。':'集計対象の獲得方法が選択されていません。');root.append(empty);if(typeof SummaryPie!=='undefined')SummaryPie.attach('pokemon-candy',root,empty,[]);return;}
@@ -169,5 +170,5 @@ const SummaryExtras=(()=>{
   $('create-candy-image').onclick=()=>{try{const period=RangePicker.get('period');ImagePreview.open('ポケモンのアメ一覧',imagePages(candyGroups(candyRecords(filteredRecords(),'types')),summaryTitle(period)));}catch(e){notice('画像を作成できませんでした：'+e.message);}};
  }
  function settings(){for(const [kind,sources] of [['candy',candySources],['shard',shardSources]])for(const [key] of sources){const input=$('aggregate-'+kind+'-'+key);if(input)input.checked=aggregateVisible(kind,key);}for(const [key,id] of Object.entries(settingKeys))$('setting-'+id).checked=shardVisible(key);}
- return {otherVisible,orderedSources,allowedRecord,shardSourceVisible,shardRecords,visibleShardSources,aggregateVisible,localVisible,candySource,candySourceVisible,filterControls,sourceColor:key=>candySourceColors[key==='skill'?'skills':key==='cluster'?'other':key],periodCaption,candyRecords,visibleCandySources,recordSummary,sourceTotals,candySources,shardSources,shardKey,shardSummaryKey,shardVisible,candyGroups,candyList,monthly,imagePages,init,settings};
+ return {otherVisible,orderedSources,allowedRecord,shardSourceVisible,shardRecords,visibleShardSources,aggregateVisible,localVisible,candySource,candySourceVisible,filterControls,skillDisplayName,sourceColor:key=>candySourceColors[key==='skill'?'skills':key==='cluster'?'other':key],periodCaption,candyRecords,visibleCandySources,recordSummary,sourceTotals,candySources,shardSources,shardKey,shardSummaryKey,shardVisible,candyGroups,candyList,monthly,imagePages,init,settings};
 })();
