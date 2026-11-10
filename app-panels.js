@@ -15,14 +15,14 @@ const AppPanels=(()=>{
 // このリリースから番号を付与。確認できない過去のバージョンは掲載しない。
 const AppRelease=(()=>{
  const announcements=[{active:true,date:'2026-11-01',title:'スクショ読み取り機能を追加しました！',paragraphs:['以下の画面のスクリーンショットから、アメやゆめのかけらを入力できるようになりました。','・睡眠リサーチのアメ','・ソーシャルリサーチのアメ','・睡眠リサーチ報酬のゆめのかけら・リサーチEXP','読み取り結果は保存前に確認・修正できます。','また、EXアメの計算に必要なデータについても、入手の目処が立ちました。対応まで今しばらくお待ちください。']},{active:true,date:'2026-10-29',title:'EXフィールドのアメ数について',paragraphs:['EXフィールドのアメ数が正しく計算されない場合があるため、現在、自動計算を一時停止しています。','EXフィールドでは、アメ数を手入力するか、実際のアメ数が表示されたスクリーンショットから読み取って記録してください。','通常フィールドの自動計算は、これまでどおり利用できます。','過去に保存したEXフィールドの記録は変更していません。以前の記録には正しくないアメ数が含まれている可能性があるため、必要に応じてご確認ください。']}];
- const history=[{version:'1.1.0',date:'2026-10-29',changes:['EXフィールドのアメ数自動計算を一時停止しました。実測値のOCR読み取りと手入力は引き続き利用できます。']},{version:'1.1.0',date:'2026-10-27',changes:['編成・個体編集、睡眠リサーチOCRと記録前操作、ソーシャルリサーチ、設定画面を改善']},{version:'1.0.1',date:'2026-10-26',changes:['睡眠リサーチ履歴の削除機能を追加']},{version:'1.0.0',date:'2026-10-25',changes:['初回公開']}];
+ const history=[{version:'1.1.2',date:'2026-11-10',changes:['円グラフ表示機能の追加','各種機能の改善・修正']},{version:'1.1.1',date:'2026-11-08',changes:['アメ・ゆめのかけらの分類と集計表示、設定を整理しました。','第19回ニュームーンデーとしたごしらえウィーク vol.1に対応し、対象ポケモンのアメ倍率を自動計算します。']},{version:'1.1.0',date:'2026-10-29',changes:['EXフィールドのアメ数自動計算を一時停止しました。実測値のOCR読み取りと手入力は引き続き利用できます。']},{version:'1.1.0',date:'2026-10-27',changes:['編成・個体編集、睡眠リサーチOCRと記録前操作、ソーシャルリサーチ、設定画面を改善']},{version:'1.0.1',date:'2026-10-26',changes:['睡眠リサーチ履歴の削除機能を追加']},{version:'1.0.0',date:'2026-10-25',changes:['初回公開']}];
  function init(){
   const current=history[0],b=document.getElementById('app-version'),open=()=>AppPanels.open('お知らせ・更新履歴',body=>{
    const visible=announcements.filter(item=>item.active);
    if(visible.length){const section=el('section',undefined,'release-announcements');section.append(el('h3','お知らせ'));for(const item of visible){const article=el('article',undefined,'release-announcement'),date=el('time',item.date);date.dateTime=item.date;article.append(date,el('h4',item.title));for(const paragraph of item.paragraphs)article.append(el('p',paragraph));section.append(article);}body.append(section);}
    const releases=el('section',undefined,'release-history');releases.append(el('h3','更新履歴'));for(const entry of history){const section=el('section',undefined,'release-entry'),h=el('h4','v'+entry.version),date=el('time',entry.date);date.dateTime=entry.date;const list=el('ul');for(const change of entry.changes)list.append(el('li',change));section.append(h,date,list);releases.append(section);}body.append(releases);
   });
-  b.textContent='Ver.1.1.1 TEST';b.setAttribute('aria-label','バージョン・お知らせ・更新履歴');b.onclick=open;
+  b.textContent='Ver.1.1.2 TEST';b.setAttribute('aria-label','バージョン・お知らせ・更新履歴');b.onclick=open;
   const historyButton=button(announcements.some(item=>item.active)?'お知らせ':'更新履歴',open);historyButton.id='release-history-button';historyButton.setAttribute('aria-label','お知らせと更新履歴');const controls=el('div',undefined,'release-controls');b.before(controls);controls.append(b,historyButton);
   const key=KEY+'-release-seen';let seen;try{seen=localStorage.getItem(key);}catch(_){return;}
   if(current.version==='1.0.0'||seen===current.version)return;
