@@ -377,8 +377,9 @@ let lastDay=C.gameDay(new Date());setInterval(()=>{const day=C.gameDay(new Date(
 ProfileForm.init();TeamUI.init();IndividualDev.init();IndividualImportUI.init();MewUI.init();SkillUI.registration('');DateUI.init();FieldHistoryUI.init();NapIsland.init();SleepUI.initNavigation();SocialUI.init();$('history-date').value=C.gameDay(new Date());ShardUI.init();$('datetime').value=C.localInput();$('summary-date').value=C.gameDay(new Date());load();renderCatalog();render();DateUI.update();
 
 // 画像用の集計は履歴を読むだけで、保存データを変更しません。
-$('create-mew-image').onclick=()=>{
+$('create-mew-image').onclick=async()=>{
  try{
+  if(typeof SectionImages!=='undefined')await SectionImages.readyFonts();
   const period=RangePicker.get('period');
   const method=$('analysis-method').value,records=filteredRecords().filter(r=>r.method===method&&(method!=='mew'||r.amount>0));
   const title=period?`${C.displayDate(period[0])} 04:00 〜 ${C.displayDate(period[1])} 04:00`:'全期間';

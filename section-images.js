@@ -72,9 +72,9 @@ const SectionImages=(()=>{
   return {title,period:'各項目の対象期間を表示',blocks:keys.flatMap(key=>{const m=capture(key);return [{type:'section',text:m.title,period:m.period},...m.blocks];})};
  }
  function pages(model){
-  const W=600,M=28,inner=W-M*2,limit=1800,ink='#202124',muted='#777C80',line='#ECEDEE',font='-apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif';
+  const W=600,M=28,inner=W-M*2,limit=1800,ink='#202124',muted='#777C80',line='#ECEDEE',font='"M PLUS 1p", -apple-system, BlinkMacSystemFont, sans-serif',numberFont='Montserrat, "M PLUS 1p", -apple-system, BlinkMacSystemFont, sans-serif';
   const probe=document.createElement('canvas').getContext('2d');if(!probe)throw Error('この環境では画像を生成できません。');
-  const setFont=(c,size,bold=false)=>c.font=`${bold?600:400} ${size}px ${font}`;
+  const setFont=(c,size,bold=false,numeric=false)=>c.font=`${bold?600:400} ${size}px ${numeric?numberFont:font}`;
   function wrap(value,width,size){setFont(probe,size);const lines=[];for(const paragraph of String(value).split('\n')){let row='';for(const ch of paragraph.match(/[\d,]+(?:個|匹|回)|[\s\S]/g)||[]){if(row&&probe.measureText(row+ch).width>width){lines.push(row);row='';}row+=ch;}lines.push(row);}return lines;}
   const tasks=[];
   for(const b of model.blocks){
@@ -106,8 +106,8 @@ const SectionImages=(()=>{
   }if(batch.length||!batches.length)batches.push(batch);
   return batches.map((batch,page)=>{
    const h=Math.max(300,top+batch.reduce((n,t)=>n+t.height,0)+54),canvas=document.createElement('canvas');canvas.width=W*2;canvas.height=Math.ceil(h*2);const c=canvas.getContext('2d');if(!c)throw Error('画像を生成できません。');c.scale(2,2);c.fillStyle='#FFFFFF';c.fillRect(0,0,W,h);
-   function txt(value,x,y,size=17,bold=false,color=ink,align='left'){setFont(c,size,bold);c.fillStyle=color;c.textAlign=align;c.fillText(String(value),x,y);}
-   function metricWidth(value,size){const parts=String(value).match(/^([\d,]+)([%個])$/);setFont(c,size);if(!parts)return c.measureText(value).width;const number=c.measureText(parts[1]).width;setFont(c,size*.8);return number+c.measureText(parts[2]).width;}
+   function txt(value,x,y,size=17,bold=false,color=ink,align='left'){setFont(c,size,bold,(bold&&/\d/.test(String(value)))||/^[\d,.]+(?:万|個|回|匹|%)?$/.test(String(value)));c.fillStyle=color;c.textAlign=align;c.fillText(String(value),x,y);}
+   function metricWidth(value,size){const parts=String(value).match(/^([\d,]+)([%個])$/);setFont(c,size,false,true);if(!parts)return c.measureText(value).width;const number=c.measureText(parts[1]).width;setFont(c,size*.8);return number+c.measureText(parts[2]).width;}
    function metric(value,x,y,size){const parts=String(value).match(/^([\d,]+)([%個])$/);if(!parts){txt(value,x,y,size,false,ink,'right');return;}setFont(c,size*.8);const unitWidth=c.measureText(parts[2]).width;txt(parts[1],x-unitWidth,y,size,false,ink,'right');txt(parts[2],x,y,size*.8,false,ink,'right');}
    function fit(value,width,size){setFont(c,size);let label=String(value);while(label.length>1&&c.measureText(label).width>width)label=label.slice(0,-2)+'…';return label;}
    function rule(y){c.beginPath();c.strokeStyle=line;c.lineWidth=1;c.moveTo(M,y);c.lineTo(W-M,y);c.stroke();}
@@ -134,20 +134,22 @@ const SectionImages=(()=>{
    const url=canvas.toDataURL('image/png');if(!url.startsWith('data:image/png'))throw Error('画像が大きすぎるため生成できませんでした。');canvas.width=canvas.height=1;return url;
   });
  }
- function exportScope(key,scope){
-  try{const d=definitions.find(d=>d[0]===key);if(!d)throw Error('画像の項目が見つかりません。');
+ async function readyFonts(){if(document.fonts){try{await Promise.all([document.fonts.load('600 16px "M PLUS 1p"','あ'),document.fonts.load('600 16px Montserrat','123')]);await document.fonts.ready;}catch(_){/* CSS fallback fonts remain available offline. */}}}
+ async function exportScope(key,scope){
+  try{await readyFonts();
+   const d=definitions.find(d=>d[0]===key);if(!d)throw Error('画像の項目が見つかりません。');
    const keys=definitions.filter(x=>scope==='all'||x[3]===d[3]).map(x=>x[0]);
    const model=scope==='single'?capture(key):combined(keys,scope==='all'?'アメ＋ゆめのかけら':d[3]==='candy'?'アメのまとめ':'ゆめのかけらのまとめ');
    ImagePreview.open(model.title,pages(model));
   }catch(e){notice('画像を作成できませんでした：'+e.message);}
  }
- function open(key){exportScope(key,'single');}
+ function open(key){return exportScope(key,'single');}
 
  function init(){for(const [key,title,selector,kind,oldId] of definitions){const root=document.querySelector(selector);let head,b=oldId?document.getElementById(oldId):null;
    if(key.endsWith('-breakdown')){head=el('div',undefined,'summary-section-head export-overview-heading');head.append(el('h3',title));root.before(head);}
    else{const h=root.closest('.card').querySelector('h3');head=h.parentElement.classList.contains('summary-section-head')?h.parentElement:null;if(!head){head=el('div',undefined,'summary-section-head');h.before(head);head.append(h);}}
    if(!b){b=el('button','画像');b.type='button';b.id='export-'+key;head.append(b);}b.classList.add('section-image-button');b.dataset.sectionImage=key;b.setAttribute('aria-label',(kind==='candy'?'アメ':'ゆめのかけら')+'：'+title+'の画像を作成');b.onclick=()=>open(key);
   }}
- return {init,capture,pages,open,exportScope,combined,definitions};
+ return {init,capture,pages,open,exportScope,combined,definitions,readyFonts};
 })();
 SectionImages.init();

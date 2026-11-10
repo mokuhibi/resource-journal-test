@@ -2,10 +2,15 @@
    This final layer defines shared UI and source colours; calculations and saved data are unchanged. */
 :root{
  --mh-bg:#FAF9F6;--mh-surface:#FFFFFF;--mh-text:#333333;--mh-muted:#777777;
- --shard-skill-color:#567563;--shard-research-color:#A89461;--shard-other-color:#A46F85;
- --shard-skill-tint:#EFF3F0;--shard-research-tint:#F7F3E8;--shard-other-tint:#F5EEF1;
+ --resource-candy:#DC9EB5;--resource-shard:#E5C96C;
+ --resource-candy-bg:#FAEFF3;--resource-shard-bg:#FCF8E8;
+ --editorial-candy:var(--resource-candy);--editorial-shard:var(--resource-shard);
+ --source-research:#4f78a8;--source-social:#4f8666;--source-help:#ad625b;--source-skills:#9C7A31;--source-other:#82919B;
+ --shard-skill-color:var(--source-skills);--shard-research-color:var(--source-research);--shard-other-color:var(--source-other);
+ --shard-skill-tint:#F6F0E1;--shard-research-tint:#EDF2F8;--shard-other-tint:#F0F3F5;
  --mh-accent:#80643B;--mh-border:#E5E5E5;--mh-selected:#F3EEE5;--mh-error:#B45353;
- --mh-font:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+ --mh-font:"M PLUS 1p",-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+ --mh-number-font:Montserrat,"M PLUS 1p",-apple-system,BlinkMacSystemFont,sans-serif;
  --mh-text-size:15px;--mh-input-size:16px;--mh-caption-size:13px;--mh-title-size:28px;--mh-section-title-size:17px;--mh-total-size:48px;--mh-total-weight:650;
  --mh-radius:8px;--mh-shadow:none;--mh-gutter:16px;--mh-card-padding:16px;--mh-section-gap:24px;
  --mh-control-height:44px;--mh-space-xs:4px;--mh-space-sm:8px;--mh-space-md:12px;--mh-content-width:840px;
@@ -19,6 +24,30 @@
 body:has(:is(#record,#sleep,#summary,#shards,#history,#team,#settings):not([hidden])){
  background:var(--mh-bg);color:var(--mh-text);font-family:var(--mh-font);font-size:var(--mh-text-size);line-height:1.6;
 }
+/* Shared category colours and numeric emphasis for both tabs. */
+#summary{--heat-1:#F9E9EF;--heat-2:#F3D4E0;--heat-3:#EAB8CA;--heat-4:#DC9EB5;--candy-help:var(--source-help);--candy-mew:var(--source-skills);--candy-delibird:var(--source-skills);--candy-other:var(--source-other)}
+#shards{--heat-1:#FCF5DC;--heat-2:#F7E9B6;--heat-3:#EFD98E;--heat-4:#E5C96C}
+#record{--record-candy:var(--resource-candy);--record-shard:var(--resource-shard);--record-pressed:var(--resource-candy-bg)}
+#record .help{--accent:var(--source-help);--tint:#F8EEED;--edge:var(--source-help)}
+#record :is(.mew,.delibird){--accent:var(--source-skills);--tint:var(--shard-skill-tint);--edge:var(--source-skills)}
+#record #action-skills>h2.record-subheading{color:var(--source-skills)}
+#record #action-skills>:is(.mew,.delibird){--skill-heading-color:var(--source-skills)}
+#summary .candy-values .help,#summary .legend .help{color:var(--source-help)}
+#history .card.help .history-head .history-method{color:var(--source-help)}
+#history .card:is(.mew,.delibird) .history-head .history-method{color:var(--source-skills)}
+body .tabs [data-tab=summary][aria-current=page]{color:color-mix(in srgb,var(--resource-candy) 65%,var(--mh-text))}
+body .tabs [data-tab=summary][aria-current=page]:before{background:var(--resource-candy)}
+body .tabs [data-tab=shards][aria-current=page]{color:color-mix(in srgb,var(--resource-shard) 65%,var(--mh-text))}
+body .tabs [data-tab=shards][aria-current=page]:before{background:var(--resource-shard)}
+:is(#record,#summary,#shards,#sleep,#history) :is(.total,.heading-total,.heading-count,.weekly-value,.capsule-total,.day-total) .quantity-number,
+:is(#record,#summary,#shards,#sleep,#history) :is(.total,.heading-total,.heading-count,.weekly-value,.capsule-total,.day-total),
+:is(#summary,#shards) :is(.summary-pie-percent,.summary-pie-amount),
+:is(#summary,#shards) .resource-calendar .month-value{font-family:var(--mh-number-font)}
+:is(#record,#summary,#shards,#sleep,#history) :is(.total,.heading-total,.heading-count,.weekly-value,.capsule-total,.day-total) .quantity-unit,
+:is(#summary,#shards) .summary-pie-unit{font-family:var(--mh-font)}
+[data-source="candy-help"]{color:var(--source-help)}
+[data-source="candy-mew"],[data-source="candy-delibird"],[data-source="candy-skill"]{color:var(--source-skills)}
+[data-source="candy-other"]{color:var(--source-other)}
 body:has(:is(#record,#sleep,#summary,#shards,#history,#team,#settings):not([hidden])) .app{
  background:var(--mh-surface);max-width:var(--mh-content-width);min-height:100svh;padding-inline:var(--mh-gutter);box-shadow:var(--mh-shadow);
 }

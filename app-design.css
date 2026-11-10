@@ -260,7 +260,6 @@ body:has(#record[hidden]) .app>header small{grid-column:2;grid-row:2;font-size:1
 @media(max-width:359px){#history #history-list{grid-template-columns:minmax(0,1fr)}}
 
 /* 確定カテゴリ配色。共通UI・系列色・危険操作とは分離する。 */
-:root{--resource-candy:#A66B83;--resource-candy-bg:#F8EDF1;--resource-shard:#B58A37;--resource-shard-bg:#FBF4E4}
 #summary{--resource-color:var(--resource-candy);--resource-bg:var(--resource-candy-bg)}
 #shards{--resource-color:var(--resource-shard);--resource-bg:var(--resource-shard-bg)}
 :is(#summary,#shards) :is(.card,.hero,.overview-header){background:var(--resource-bg);box-shadow:inset 0 0 0 1px var(--resource-color)}
@@ -287,8 +286,8 @@ body:has(#record[hidden]) .app>header small{grid-column:2;grid-row:2;font-size:1
 #history .card.delibird .history-head .history-method{color:#ad3d39}
 #history #history-list .history-actions button:not(.danger){background:#fff;border-color:var(--resource-color)}
 /* 設定は見出しだけ。スイッチ・イベント・データ管理は共通の暖色。 */
-#settings .settings-group:first-of-type h4{color:color-mix(in srgb,#A66B83 75%,#24251f)}
-#settings .settings-group:nth-of-type(2) h4{color:color-mix(in srgb,#B58A37 70%,#24251f)}
+#settings .settings-group:first-of-type h4{color:color-mix(in srgb,var(--resource-candy) 75%,#24251f)}
+#settings .settings-group:nth-of-type(2) h4{color:color-mix(in srgb,var(--resource-shard) 70%,#24251f)}
 
 
 /* 上部集計とスキル内訳は共通の3列。長い名前は左列内で折り返す。 */
@@ -306,8 +305,8 @@ body:has(#record[hidden]) .app>header small{grid-column:2;grid-row:2;font-size:1
 /* 保存の反応は記録操作だけ。元の寸法・内容・連続タップを維持。 */
 
 /* 保存内容の通知：カテゴリ面とチェックだけに色を使う。 */
-.record-save-toast{display:flex;align-items:flex-start;gap:8px;overflow-wrap:anywhere;background:#F3DFE7;border-color:#A66B83}
-.record-save-toast[data-category="shards"]{background:#F5E7C5;border-color:#B58A37}
+.record-save-toast{display:flex;align-items:flex-start;gap:8px;overflow-wrap:anywhere;background:#F3DFE7;border-color:var(--resource-candy)}
+.record-save-toast[data-category="shards"]{background:#F5E7C5;border-color:var(--resource-shard)}
 
 /* 履歴2列：日時と方法 → 種類と個数 → 個体。操作は均等な文字ボタン。 */
 #history #history-list .card{container-type:inline-size}
@@ -325,9 +324,9 @@ body:has(#record[hidden]) .app>header small{grid-column:2;grid-row:2;font-size:1
 
 /* 履歴の詳細はカード内で展開せず、下部の全幅パネルで表示。 */
 #history #history-list .history-footer>.history-detail-button{width:33.333%;min-height:44px;padding:8px 0;margin:0;background:none;border:0;box-shadow:none;color:#695322;font-size:12px;font-weight:500;white-space:nowrap}
-#history-details-panel{--detail-color:#A66B83;--detail-bg:#F8EDF1;position:fixed;inset:auto 0 var(--history-nav-height,80px);margin:0 auto;width:100%;max-width:640px;max-height:calc(100dvh - var(--history-nav-height,80px) - 12px);padding:0;border:1px solid var(--detail-color);border-radius:16px 16px 0 0;background:#fffdf7;color:#51401b;overflow:hidden;box-sizing:border-box}
+#history-details-panel{--detail-color:var(--resource-candy);--detail-bg:var(--resource-candy-bg);position:fixed;inset:auto 0 var(--history-nav-height,80px);margin:0 auto;width:100%;max-width:640px;max-height:calc(100dvh - var(--history-nav-height,80px) - 12px);padding:0;border:1px solid var(--detail-color);border-radius:16px 16px 0 0;background:#fffdf7;color:#51401b;overflow:hidden;box-sizing:border-box}
 #history-details-panel[open]{display:flex;flex-direction:column;animation:history-panel-in 160ms ease-out}
-#history-details-panel[data-category=shards]{--detail-color:#B58A37;--detail-bg:#FBF4E4}
+#history-details-panel[data-category=shards]{--detail-color:var(--resource-shard);--detail-bg:var(--resource-shard-bg)}
 #history-details-panel::backdrop{background:#342b204d}
 #history-details-panel .history-detail-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:var(--detail-bg);border-bottom:1px solid var(--detail-color);flex:none}
 #history-details-panel h2{margin:0;font-size:18px;color:#51401b}
@@ -353,10 +352,10 @@ body:has(#record[hidden]) .app>header small{grid-column:2;grid-row:2;font-size:1
 .rank-hint{font-size:13px;color:#695322;margin-block:8px}
 #research-rank-form{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
 #research-rank-form label{min-width:0}#research-rank-form button{min-height:44px}
-#shards #shard-weekly-chart .shard-source-cluster{background:#B58A37}
-[data-source="shard-cluster"]{color:#B58A37}
+#shards #shard-weekly-chart .shard-source-cluster{background:var(--resource-shard)}
+[data-source="shard-cluster"]{color:var(--resource-shard)}
 
-.rank-hint button{font-size:13px;min-height:44px;background:#fff;border:1px solid #B58A37;margin-left:4px}
+.rank-hint button{font-size:13px;min-height:44px;background:#fff;border:1px solid var(--resource-shard);margin-left:4px}
 .source-count{font-size:12px;font-weight:400;color:#695322}.source-subtotal{font-size:12px;color:#695322;padding-left:12px}
 
 /* 外枠は睡眠リサーチ・その他と同じ .card を継承し、二重の境界を作らない。 */

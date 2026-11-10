@@ -19,15 +19,15 @@
   const heights=result.blocks.map(b=>310+Math.ceil(b.rates.length/2)*30+b.distributions.slice(1).reduce((n,r)=>n+(r.amount!==1?70:48),0));
   const canvas=document.createElement('canvas');canvas.width=width;canvas.height=170+(count?heights.reduce((n,h)=>n+h,0):220)+48;
   const c=canvas.getContext('2d');if(!c)throw Error('画像描画に対応していません。');
-  const ink='#202124',brand='#202124',muted='#777C80',line='#ECEDEE';
+  const ink='#202124',brand='#202124',muted='#777C80',line='#ECEDEE',cssSkill=typeof document!=='undefined'&&typeof getComputedStyle==='function'?getComputedStyle(document.documentElement).getPropertyValue('--source-skills'):'',skillColor=typeof cssSkill==='string'&&cssSkill.trim()||'#9C7A31';
   c.fillStyle='#FFFFFF';c.fillRect(0,0,width,canvas.height);
-  function text(value,x,y,size=24,color=ink,align='left',bold=false){c.fillStyle=color;c.font=`${bold?'700':'400'} ${size}px -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", sans-serif`;c.textAlign=align;c.fillText(String(value),x,y);}
+  function text(value,x,y,size=24,color=ink,align='left',bold=false){c.fillStyle=color;c.font=`${bold?'700':'400'} ${size}px ${/^[\d,.]+(?:%|個|回)?$/.test(String(value))?'Montserrat, ':''}"M PLUS 1p", -apple-system, BlinkMacSystemFont, sans-serif`;c.textAlign=align;c.fillText(String(value),x,y);}
   const number=n=>n.toLocaleString('ja-JP');
   function rule(y){c.strokeStyle=line;c.lineWidth=1;c.beginPath();c.moveTo(36,y);c.lineTo(744,y);c.stroke();}
-  text(methodName,36,48,28,methodName==='ミュウ'?'#a46f85':methodName==='デリバード'?'#ae7568':brand,'left',true);
+  text(methodName,36,48,28,skillColor,'left',true);
   text('アメゲット記録',36,94,36,brand,'left',true);
   // 期間は正確さを保って小さく添える。長い期間文字列も枠内に収める。
-  c.fillStyle=muted;c.font='18px -apple-system, sans-serif';c.textAlign='left';c.fillText(period,36,134,708);
+  c.fillStyle=muted;c.font='18px "M PLUS 1p", -apple-system, sans-serif';c.textAlign='left';c.fillText(period,36,134,708);
   if(!count)text('この期間の記録はありません',36,270,26,muted);
   let y=170;
   for(const block of result.blocks){
