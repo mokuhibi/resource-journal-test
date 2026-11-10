@@ -1,6 +1,6 @@
 // 表示用の集計は履歴から都度作り、localStorageには保存しません。
 const SummaryExtras=(()=>{
- const candySources=[['research','睡眠'],['social','ソーシャル'],['help','アメ拾い'],['skills','スキル'],['other','その他']];
+ const candySources=[['research','睡眠'],['social','フレンド'],['help','アメ拾い'],['skills','スキル'],['other','その他']];
  const candySkillSources=[['mew','ミュウ'],['delibird','デリバード'],['copy','スキルコピー'],['metronome','ゆびをふる']];
  const color=(token,fallback)=>{const value=typeof document!=='undefined'&&typeof getComputedStyle==='function'?getComputedStyle(document.documentElement).getPropertyValue(token):'';return typeof value==='string'&&value.trim()||fallback;};
  const candySourceColors={research:color('--source-research','#4f78a8'),social:color('--source-social','#4f8666'),help:color('--source-help','#ad625b'),skills:color('--source-skills','#9C7A31'),other:color('--source-other','#82919B')};

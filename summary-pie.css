@@ -2,6 +2,7 @@
 .summary-view-amount{min-width:0}
 .summary-view-amount>small{display:block;margin-bottom:3px}
 .summary-view-head .heading-total{white-space:normal}
+#summary #candy-list .summary-view-head .heading-total{margin-left:0}
 .summary-pie-switch{display:flex;flex:0 0 auto;justify-content:flex-end;gap:0;margin:0}
 .summary-pie-switch button{min-height:44px!important;padding:6px 10px;font-size:12px;border:1px solid var(--editorial-line,#e3e4e5);border-radius:0!important;background:#fff;color:var(--editorial-ink,#333)}
 .summary-pie-switch button:first-child{border-radius:6px 0 0 6px!important}

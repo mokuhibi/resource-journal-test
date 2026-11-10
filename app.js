@@ -34,16 +34,16 @@ function resourceNotice(r,resource='candy',source=''){
  const parts=[],amount=resource==='shards'?0:r.amount,shards=resource==='shards'?r.amount:r.shardAmount;
  if(shards>0)parts.push('ゆめのかけら ×'+shards.toLocaleString('ja-JP'));
  if(amount>0)parts.push((r.candy||'アメ')+' ×'+amount.toLocaleString('ja-JP'));
- return source+'：'+(parts.length?parts.join('、')+' を保存':['mew','delibird','skill','lucky'].includes(r.method)?'スキル発動のみを保存':(resource==='shards'?'ゆめのかけら':'アメ')+' ×0 を保存');
+ return source+'：'+(parts.length?parts.join('、')+' を記録':['mew','delibird','skill','lucky'].includes(r.method)?'スキル発動のみを記録':(resource==='shards'?'ゆめのかけら':'アメ')+' ×0 を記録');
 }
 function sleepResourceNotice(next,date,number,resource){
  const row=SleepResearch.researchRows(next,date).find(r=>r.number===number),r=row?.record;
- if(!r)return '睡眠リサーチを保存';
+ if(!r)return '睡眠リサーチを記録';
  if(resource==='shards')return resourceNotice(r,'shards','睡眠リサーチ('+number+'回目)');
  const session=row.kind==='session'?r:row.sleepSession,amounts=new Map();
  for(const e of session?.entries||[])amounts.set(e.candy,(amounts.get(e.candy)||0)+e.amount);
  const parts=[...amounts].filter(([,n])=>n>0).map(([name,n])=>name+' ×'+n.toLocaleString('ja-JP'));
- return '睡眠リサーチ('+number+'回目)：'+(parts.length?parts.join('、')+' を保存':'アメ0個を保存');
+ return '睡眠リサーチ('+number+'回目)：'+(parts.length?parts.join('、')+' を記録':'アメ0個を記録');
 }
 function skillRecordHeading(p){
  const head=el('h3',undefined,'skill-record-heading');head.append(el('span',C.speciesName(p.species),'skill-species'));
