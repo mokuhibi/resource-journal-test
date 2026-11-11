@@ -2,8 +2,10 @@
 const NumberInput=(()=>{
  const bound=new WeakSet(),valueProperty=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
  const format=value=>String(value).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+ const mode=input=>{const step=input.getAttribute('step');return step==='any'||step&&Number(step)%1!==0?'decimal':'numeric';};
  function attach(input){
-  if(bound.has(input)||Number(input.max)<1000||!input.max)return;bound.add(input);
+  input.inputMode=mode(input);
+  if(bound.has(input)||mode(input)==='decimal'||Number(input.max)<1000||!input.max)return;bound.add(input);
   const display=document.createElement('input');display.type='text';display.inputMode='numeric';display.autocomplete='off';display.className='comma-input';
   for(const name of ['aria-label','aria-labelledby','placeholder'])if(input.hasAttribute(name))display.setAttribute(name,input.getAttribute(name));
   let typing=false;
@@ -26,6 +28,6 @@ const NumberInput=(()=>{
   input.form?.addEventListener('reset',()=>setTimeout(refresh,0));
   new MutationObserver(refresh).observe(input,{attributes:true,attributeFilter:['required','disabled','readonly','min','max','step','placeholder','aria-label','aria-labelledby']});refresh();
  }
- function init(){const scan=()=>{document.querySelectorAll('input[type=number]').forEach(attach);for(const label of document.querySelectorAll('label'))label.classList.toggle('input-has-caption',[...label.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()));};scan();new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});}
+ function init(){const scan=()=>{document.querySelectorAll('input[type=number]').forEach(attach);for(const label of document.querySelectorAll('label'))label.classList.toggle('input-has-caption',[...label.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()));};scan();new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});document.addEventListener('focusin',event=>{const input=event.target;if(!input.matches?.('input[type=number],input.comma-input')||input.readOnly||input.disabled)return;if(input.type==='number'){input.type='text';input.dataset.numberSelect='';}input.select();});document.addEventListener('focusout',event=>{const input=event.target;if(input.dataset?.numberSelect!==undefined){delete input.dataset.numberSelect;input.type='number';}});}
  return {init,format};
 })();

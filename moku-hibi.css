@@ -61,13 +61,6 @@ body:has(#record:not([hidden])) .app>header{margin-bottom:6px}
 .professor-history-card{padding:16px;border:1px solid var(--mh-edge,#ddd);border-radius:var(--mh-radius,12px);background:var(--mh-surface,#fff)}
 .professor-history-card label{display:grid;gap:4px;min-width:0}
 .professor-history-card input{min-width:0;max-width:100%;box-sizing:border-box}
-#record .professor-date-card{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;padding:8px 0;margin-bottom:8px;background:#fffffff5}
-#record .professor-date-card .record-date-row{width:100%}
-.professor-date-card .record-date-row{display:grid;grid-template-columns:minmax(0,1fr) 94px;gap:6px;align-items:center}
-#record .professor-date-card .formatted-date-field{margin-top:0;height:48px;min-width:0}
-#record .professor-date-card .formatted-date-field>.date-weekday{padding:0 5px;font-size:14px;font-weight:600;letter-spacing:-.3px;color:var(--record-text);text-align:left}
-.professor-date-card button{margin:0;padding:4px 3px;min-height:44px;font-size:11px;white-space:nowrap}
-.professor-date-card button[aria-pressed=true]{background:var(--mh-selected)}
 .professor-view-switch{display:flex;gap:5px;margin-bottom:8px}
 .professor-view-switch>button{width:auto;min-height:40px;margin:0;padding:4px 10px;font-size:12px}
 .professor-view-switch>button[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent)}
