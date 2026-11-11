@@ -14,7 +14,7 @@
  }
  function status(state,item){const transfer=(state.professorTransfers||[]).find(t=>t.getId===item.id);if(transfer)return 'sent';const adopted=(state.professorAdoptions||[]).find(a=>a.getId===item.id);return adopted?'adopted':'pending';}
  function candyRecords(state){return (state.professorTransfers||[]).map(t=>({id:'professor:'+t.id,datetime:new Date(t.sentDate+'T12:00:00+09:00').toISOString(),method:'professor',amount:t.amount,species:t.species,pokemon:t.species,candy:map[t.species],pokemonId:t.getId,slot:null,getId:t.getId}));}
- function friendPoints(state,species){const all=gets(state).filter(g=>g.species===species),base=state.professorFriendPoints?.[species],point=base?base.value+all.filter(g=>Date.parse(g.getAt)>Date.parse(base.at)).length:1+all.length,unknown=Math.max(0,point-1-all.length);return {point,unknown,recorded:all.length,mismatch:all.length>point-1,baseline:base||null};}
+ function friendPoints(state,species){const all=gets(state).filter(g=>g.source==='sleep'&&g.species===species),base=state.professorFriendPoints?.[species],point=base?base.value+all.filter(g=>Date.parse(g.getAt)>Date.parse(base.at)).length:1+all.length,unknown=Math.max(0,point-1-all.length);return {point,unknown,recorded:all.length,mismatch:all.length>point-1,baseline:base||null};}
  function validate(state){
   const all=gets(state),byId=new Map(all.map(g=>[g.id,g]));if(byId.size!==all.length)throw Error('博士GETの重複');
   const transfers=state.professorTransfers||[],adoptions=state.professorAdoptions||[],points=state.professorFriendPoints||{},overrides=state.professorGetOverrides||{};
