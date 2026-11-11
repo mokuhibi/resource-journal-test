@@ -59,31 +59,36 @@ body .tabs [data-tab=shards][aria-current=page]:before{background:var(--resource
 .professor-history-card{padding:16px;border:1px solid var(--mh-edge,#ddd);border-radius:var(--mh-radius,12px);background:var(--mh-surface,#fff)}
 .professor-history-card label{display:grid;gap:4px;min-width:0}
 .professor-history-card input{min-width:0;max-width:100%;box-sizing:border-box}
-.professor-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:0!important}
-.professor-tabs>button{width:100%;padding-inline:2px!important;font-size:12px!important;white-space:normal!important}
-.professor-tabs>button span{display:block;line-height:1.2}
 #record .professor-date-card{position:static;z-index:auto;padding:0;margin-bottom:8px;border:0;background:none;backdrop-filter:none}
 #record .professor-date-card .record-date-row{width:100%}
-#record #record-professor-view>input[type=search],#record #record-professor-view>select{width:100%;box-sizing:border-box;margin:10px 0}
+#record .professor-date-card .formatted-date-field{margin-top:0;height:48px;border:0;border-radius:0;background:transparent;box-shadow:none}
+#record .professor-date-card .formatted-date-field>.date-weekday{padding:0;font-size:16px;font-weight:600;letter-spacing:-.3px;color:var(--record-text);text-align:left}
+.professor-filters{display:grid;grid-template-columns:minmax(0,1fr) 48px 60px 48px;gap:3px;align-items:center;margin:0 0 8px;min-width:0}
+#record .professor-filters>input{width:100%;min-width:0;box-sizing:border-box;margin:0;font-size:12px}
+.professor-filters>button{width:100%;min-width:0;min-height:44px;margin:0;padding:2px 1px;font-size:10px;white-space:nowrap}
+.professor-filters>button[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);border-color:var(--mh-accent)}
+.professor-content>select{width:100%;box-sizing:border-box;margin:0 0 8px}
 .professor-species-list{display:grid}
-.professor-species-row{display:grid;grid-template-columns:34px minmax(0,1fr) 36px 42px 42px;gap:3px;align-items:center;padding:7px 0;border-bottom:1px solid var(--mh-border);min-width:0}
-.professor-species-row>small{font-size:10px;color:var(--mh-muted)}
-.professor-species-detail{display:flex;flex-wrap:wrap;align-items:center;gap:1px 5px;min-width:0;overflow-wrap:anywhere}
-.professor-species-detail>strong{width:100%;font-size:13px;line-height:1.35}
-.professor-fp{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px;min-width:0}
-.professor-fp>button{padding:0 2px!important;min-height:28px!important;font-size:11px!important}
-.professor-fp>input{width:56px;min-width:0;min-height:32px!important;padding:2px}
-.professor-species-row>button{margin:0;min-width:0;min-height:44px;padding:2px;font-size:11px;line-height:1.1;overflow-wrap:anywhere}
+.professor-species-row{display:grid;grid-template-columns:27px 34px minmax(0,1fr) 41px 27px 27px 34px;gap:2px;align-items:center;padding:7px 0;border-bottom:1px solid var(--mh-border);min-width:0;white-space:nowrap}
+.professor-species-row>small{font-size:9px;color:var(--mh-muted)}
+.professor-species-row>strong{min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+.professor-fp{position:relative;display:block;min-width:0}
+.professor-fp>button{width:100%;padding:0 1px!important;min-height:32px!important;font-size:9px!important;white-space:nowrap}
+.professor-fp-editor{position:absolute;top:100%;left:0;z-index:5;display:flex;gap:3px;padding:4px;background:var(--mh-surface);border:1px solid var(--mh-border);border-radius:6px}
+.professor-fp-editor>input{width:60px;min-width:0;min-height:32px!important;padding:2px}
+.professor-species-row>button{margin:0;min-width:0;min-height:44px;padding:0 1px;font-size:10px;line-height:1;white-space:nowrap}
+.professor-species-row>button .tab-icon{width:14px;height:14px}
+.professor-species-row>.professor-get-amount{min-width:0;gap:1px;font-size:10px}
 .professor-get-group{border-bottom:1px solid var(--mh-border)}
 .professor-get-group>h3{margin:12px 0 4px;font-size:14px}
 .professor-get-row{display:grid;grid-template-columns:minmax(0,1fr) 54px 54px;gap:5px;align-items:center;padding:8px 0;border-top:1px solid var(--mh-border)}
-.professor-get-row.has-registration{grid-template-columns:minmax(0,1fr) 45px 45px 64px}
+.professor-get-row.has-registration{grid-template-columns:minmax(0,1fr) 42px 42px 42px}
 .professor-get-detail{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:wrap;overflow-wrap:anywhere}
 .professor-get-name.processed{color:var(--mh-muted)}
 .professor-get-amount{display:inline-flex;align-items:center;gap:2px;white-space:nowrap;font-size:12px}
 .professor-get-amount .tab-icon{width:14px;height:14px}
 .professor-get-row>button{min-width:0;min-height:44px;margin:0;padding:4px 2px;font-size:12px}
-.professor-get-row>button[aria-pressed=true]{color:var(--source-professor);background:color-mix(in srgb,var(--source-professor) 15%,white);border-color:var(--source-professor)}
+.professor-get-row>button[aria-pressed=true]{color:var(--mh-text);background:#eee;border-color:var(--mh-border)}
 .professor-profile-modal .app-panel-body{overflow-y:auto;max-height:calc(100dvh - 140px)}
 #record #record-professor-view .individual-roster-grid{display:grid;grid-template-columns:repeat(var(--roster-columns,3),minmax(0,1fr));gap:8px}
 #record #record-professor-view .registered-row{position:relative;display:flex;flex-direction:column;min-width:0;min-height:102px;padding:5px 4px;border:1px solid var(--mh-border);border-radius:var(--mh-radius);background:var(--mh-surface)}
