@@ -45,14 +45,14 @@ const TeamUI=(()=>{
  function edit(origin='roster'){editOrigin=['team','roster'].includes(origin)?origin:'roster';view=editOrigin;editing=true;sync();window.scrollTo({top:0});$('profile-back').focus({preventScroll:true});}
  function finishEdit(){show(editOrigin);}
  function registration(){$('registration-fields').hidden=!selected;ProfileForm.refresh(selected);}
- function renderRoster(){
-  const root=$('registered-pokemon-list'),q=normalize($('roster-search').value);root.replaceChildren();root.style.setProperty('--roster-columns',columns);root.dataset.columns=String(columns);
+ function renderRoster(root=$('registered-pokemon-list'),displayView=rosterView,search=$('roster-search').value){
+  const q=normalize(search);root.replaceChildren();root.style.setProperty('--roster-columns',columns);root.dataset.columns=String(columns);
   const normal=state.pokemon.filter(p=>!special(p));
   const category=p=>['メタモン','マネネ','バリヤード'].includes(p.species)?'スキルコピー':p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome'?'ゆびをふる':special(p)?'アメ':relatedPokemon(p)?'ゆめのかけら':'その他のポケモン';
   const target=p=>category(p)!=='その他のポケモン';
-  const visible=state.pokemon.filter(p=>(rosterView==='skills'?!p.provisional&&target(p):rosterView==='registered'?!p.provisional:rosterView==='provisional'?p.provisional:true)&&(!q||[p.species,C.speciesName(p.species),p.nickname].some(v=>normalize(v||'').includes(q))));
+  const visible=state.pokemon.filter(p=>(displayView==='skills'?!p.provisional&&target(p):displayView==='registered'?!p.provisional:displayView==='provisional'?p.provisional:true)&&(!q||[p.species,C.speciesName(p.species),p.nickname].some(v=>normalize(v||'').includes(q))));
   for(const b of document.querySelectorAll('[data-roster-view]')){b.setAttribute('aria-pressed',String(b.dataset.rosterView===rosterView));if(b.dataset.rosterView==='provisional'){const n=state.pokemon.filter(p=>p.provisional).length;b.textContent='仮登録'+(n?'('+n+')':'');}}
-  const groups=rosterView==='skills'?['アメ','ゆめのかけら','スキルコピー','ゆびをふる','その他のポケモン'].map(title=>[title,sorted(visible.filter(p=>category(p)===title))]):[['',sorted(visible)]];
+  const groups=displayView==='skills'?['アメ','ゆめのかけら','スキルコピー','ゆびをふる','その他のポケモン'].map(title=>[title,sorted(visible.filter(p=>category(p)===title))]):[['',sorted(visible)]];
   for(const [title,members] of groups){if(!members.length)continue;if(title)root.append(el('h3',title,'roster-purpose-heading'));const group=el('div',undefined,'individual-roster-grid');root.append(group);
   for(const p of members){
    const line=el('div',undefined,'registered-row'),info=cardInfo(p),actions=el('div',undefined,'row-actions');

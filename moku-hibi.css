@@ -51,18 +51,46 @@ body .tabs [data-tab=shards][aria-current=page]:before{background:var(--resource
 [data-source="candy-professor"]{color:var(--source-professor)}
 .sleep-get-dot{color:#d74d50;font-size:.65em;margin-right:.25em;vertical-align:middle}
 #record-professor-view,#history-professor-view{padding-bottom:calc(90px + env(safe-area-inset-bottom));}
-.professor-main-form,.professor-get-list,.professor-points,.professor-history-card{display:grid;gap:10px}
-.professor-main-form,.professor-points,.professor-history-card{padding:16px;border:1px solid var(--mh-edge,#ddd);border-radius:var(--mh-radius,12px);background:var(--mh-surface,#fff)}
-.professor-main-form label,.professor-history-card label{display:grid;gap:4px;min-width:0}
-.professor-main-form input,.professor-main-form select,.professor-points input,.professor-points select,.professor-history-card input{min-width:0;max-width:100%;box-sizing:border-box}
+#record #record-view-switch{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-bottom:16px!important}
+#record #record-view-switch>button{display:flex;flex-direction:column;justify-content:center;width:100%;min-width:0;min-height:62px;padding:4px 1px;white-space:normal}
+#record #record-view-switch>button .tab-label{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;font-size:12px;line-height:1.25;white-space:normal}
+#record #record-view-switch>button .tab-icon{width:15px;height:15px}
+.professor-get-list,.professor-points,.professor-history-card{display:grid;gap:10px}
+.professor-points,.professor-history-card{padding:16px;border:1px solid var(--mh-edge,#ddd);border-radius:var(--mh-radius,12px);background:var(--mh-surface,#fff)}
+.professor-history-card label{display:grid;gap:4px;min-width:0}
+.professor-send-form :is(input,select,button),.professor-points :is(input,select),.professor-history-card input{min-width:0;max-width:100%;box-sizing:border-box}
+.professor-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:0!important}
+.professor-tabs>button{flex-direction:column;width:100%;padding-inline:2px!important;font-size:12px!important;white-space:normal!important}
+.professor-tabs>button span{display:block;line-height:1.2}
+.professor-send-form{display:grid;gap:12px}
+.professor-send-head{display:grid;grid-template-columns:minmax(0,1fr) 70px;gap:8px;align-items:center}
+.professor-send-head :is(input,button){min-height:44px;margin:0}
+.professor-selected{display:grid;gap:0}
+.professor-selected-row{display:grid;grid-template-columns:minmax(0,1fr) 72px 34px;gap:6px;align-items:center;min-height:50px;border-bottom:1px solid var(--mh-border)}
+.professor-selected-row>span{min-width:0;overflow-wrap:anywhere}
+.professor-selected-row input{margin:0;text-align:center}
+.professor-selected-row button{margin:0;padding:0;min-height:36px}
+.professor-search-area{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
+.professor-search-area>input{grid-column:1/-1;margin:0}
+.professor-search-area>select,.professor-search-area>button{margin:0;min-height:44px}
 .professor-candidates{max-height:200px;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
 .professor-candidates button{min-width:0;overflow-wrap:anywhere}
-.professor-get-row{display:grid;grid-template-columns:20px minmax(0,1fr) minmax(54px,70px);gap:6px;align-items:center;padding:10px;border-bottom:1px solid var(--mh-edge,#ddd)}
-.professor-get-row>span{min-width:0;overflow-wrap:anywhere}
-.professor-get-row>button{grid-column:span 1}
-.professor-get-row>button:first-of-type{grid-column:2}
+.professor-get-group{border-bottom:1px solid var(--mh-border)}
+.professor-get-group>h3{margin:12px 0 4px;font-size:14px}
+.professor-get-row{display:grid;grid-template-columns:minmax(0,1fr) 54px 54px;gap:5px;align-items:center;padding:8px 0;border-top:1px solid var(--mh-border)}
+.professor-get-detail{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:wrap;overflow-wrap:anywhere}
+.professor-get-name.processed{color:var(--mh-muted)}
+.professor-get-amount{display:inline-flex;align-items:center;gap:2px;white-space:nowrap;font-size:12px}
+.professor-get-amount .tab-icon{width:14px;height:14px}
+.professor-get-row>button{min-width:0;min-height:44px;margin:0;padding:4px 2px;font-size:12px}
+.professor-get-row>button[aria-pressed=true]{color:var(--source-professor);background:color-mix(in srgb,var(--source-professor) 15%,white);border-color:var(--source-professor)}
+#record #record-professor-view .individual-roster-grid{display:grid;grid-template-columns:repeat(var(--roster-columns,3),minmax(0,1fr));gap:8px}
+#record #record-professor-view .registered-row{position:relative;display:flex;flex-direction:column;min-width:0;min-height:102px;padding:5px 4px;border:1px solid var(--mh-border);border-radius:var(--mh-radius);background:var(--mh-surface)}
+#record #record-professor-view .pokemon-card-info{display:flex;flex-direction:column;min-width:0;width:100%}
+#record #record-professor-view .pokemon-card-info>*{display:block;margin:0;min-width:0;line-height:18px}
+#record #record-professor-view .pokemon-card-info .pokemon-card-species{font-size:11px;color:var(--mh-muted);overflow-wrap:anywhere}
 .professor-history-card{margin-block:10px}
-@media(max-width:390px){.professor-get-row{grid-template-columns:18px minmax(0,1fr) 56px}.professor-main-form,.professor-points,.professor-history-card{padding:10px}}
+@media(max-width:390px){.professor-points,.professor-history-card{padding:10px}}
 body:has(:is(#record,#sleep,#summary,#shards,#history,#team,#settings):not([hidden])) .app{
  background:var(--mh-surface);max-width:var(--mh-content-width);min-height:100svh;padding-inline:var(--mh-gutter);box-shadow:var(--mh-shadow);
 }
