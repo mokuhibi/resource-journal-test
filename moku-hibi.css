@@ -5,7 +5,7 @@
  --resource-candy:#DC9EB5;--resource-shard:#E5C96C;
  --resource-candy-bg:#FAEFF3;--resource-shard-bg:#FCF8E8;
  --editorial-candy:var(--resource-candy);--editorial-shard:var(--resource-shard);
- --source-research:#4f78a8;--source-social:#4f8666;--source-help:#ad625b;--source-skills:#9C7A31;--source-other:#82919B;
+ --source-research:#4f78a8;--source-social:#4f8666;--source-help:#ad625b;--source-skills:#9C7A31;--source-professor:#8B5CF6;--source-other:#82919B;
  --shard-skill-color:var(--source-skills);--shard-research-color:var(--source-research);--shard-other-color:var(--source-other);
  --shard-skill-tint:#F6F0E1;--shard-research-tint:#EDF2F8;--shard-other-tint:#F0F3F5;
  --mh-accent:#80643B;--mh-border:#E5E5E5;--mh-selected:#F3EEE5;--mh-error:#B45353;
@@ -48,6 +48,21 @@ body .tabs [data-tab=shards][aria-current=page]:before{background:var(--resource
 [data-source="candy-help"]{color:var(--source-help)}
 [data-source="candy-mew"],[data-source="candy-delibird"],[data-source="candy-skill"]{color:var(--source-skills)}
 [data-source="candy-other"]{color:var(--source-other)}
+[data-source="candy-professor"]{color:var(--source-professor)}
+.sleep-get-dot{color:#d74d50;font-size:.65em;margin-right:.25em;vertical-align:middle}
+#record-professor-view,#history-professor-view{padding-bottom:calc(90px + env(safe-area-inset-bottom));}
+.professor-main-form,.professor-get-list,.professor-points,.professor-history-card{display:grid;gap:10px}
+.professor-main-form,.professor-points,.professor-history-card{padding:16px;border:1px solid var(--mh-edge,#ddd);border-radius:var(--mh-radius,12px);background:var(--mh-surface,#fff)}
+.professor-main-form label,.professor-history-card label{display:grid;gap:4px;min-width:0}
+.professor-main-form input,.professor-main-form select,.professor-points input,.professor-points select,.professor-history-card input{min-width:0;max-width:100%;box-sizing:border-box}
+.professor-candidates{max-height:200px;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.professor-candidates button{min-width:0;overflow-wrap:anywhere}
+.professor-get-row{display:grid;grid-template-columns:20px minmax(0,1fr) minmax(54px,70px);gap:6px;align-items:center;padding:10px;border-bottom:1px solid var(--mh-edge,#ddd)}
+.professor-get-row>span{min-width:0;overflow-wrap:anywhere}
+.professor-get-row>button{grid-column:span 1}
+.professor-get-row>button:first-of-type{grid-column:2}
+.professor-history-card{margin-block:10px}
+@media(max-width:390px){.professor-get-row{grid-template-columns:18px minmax(0,1fr) 56px}.professor-main-form,.professor-points,.professor-history-card{padding:10px}}
 body:has(:is(#record,#sleep,#summary,#shards,#history,#team,#settings):not([hidden])) .app{
  background:var(--mh-surface);max-width:var(--mh-content-width);min-height:100svh;padding-inline:var(--mh-gutter);box-shadow:var(--mh-shadow);
 }

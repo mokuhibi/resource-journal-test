@@ -512,3 +512,4 @@ const nationalDex = {
   "ハルクジラ": 975,
   "ドオー": 980
 };
+if(typeof module!=='undefined'&&module.exports)module.exports={candyMap,nationalDex};

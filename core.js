@@ -66,7 +66,7 @@ const CandyCore = (() => {
  // 行動別設定は既存のリソース別設定とANDで判定し、旧設定・記録は移行しない。
  function actionCategory(r){
   if(r.source==='nap_island'||r.otherKind==='nap_island')return 'nap';
-  if(['help','research','social'].includes(r.method))return r.method;
+  if(['help','research','social','professor'].includes(r.method))return r.method;
   const p=r.context?.actor||r.pokemonSnapshot,species=p?.species||(['skill','lucky'].includes(r.method)?r.species:'');
   if(r.method==='mew'||r.source==='mew'||species==='ミュウ')return 'mew';
   if(r.method==='delibird'||species==='デリバード')return 'delibird';
@@ -106,6 +106,7 @@ const CandyCore = (() => {
   if(raw.settings?.sleepPickupEvents!==undefined)(typeof SleepPickups!=='undefined'?SleepPickups:require('./sleep-pickups.js')).validate(raw.settings.sleepPickupEvents,map);
   if(raw.sleepSessions!==undefined||raw.sleepDrafts!==undefined||raw.settings?.sleepCandyMultipliers!==undefined){const sleep=typeof SleepResearch!=='undefined'?SleepResearch:require('./sleep-research.js');sleep.validateMultipliers(raw);sleep.validate(raw.sleepSessions||[],map,shardRecords);sleep.validateDrafts(raw.sleepDrafts,map);}
   if(raw.socialResearch!==undefined)(typeof SocialResearch!=='undefined'?SocialResearch:require('./social-research.js')).validate(raw.socialResearch,map);
+  (typeof Professor!=='undefined'?Professor:require('./professor.js')).validate(raw);
   const ids=new Set();
   for(const p of raw.pokemon){if(!p||(p.shardSkill!==undefined&&typeof p.shardSkill!=='boolean')||(p.mainSkill!==undefined&&(typeof p.mainSkill!=='string'||!p.mainSkill.trim()))||(p.mainSkillId!==undefined&&(typeof p.mainSkillId!=='string'||!p.mainSkillId.trim()))||typeof p.id!=='string'||ids.has(p.id)||(p.provisional!==undefined&&typeof p.provisional!=='boolean')||!(Object.hasOwn(map,p.species)||p.provisional===true&&p.species==='')||typeof p.nickname!=='string'||(p.profile!=null&&!profileValid(p.profile,p.species,true)))throw Error('個体情報');ids.add(p.id);}
   if(raw.savedTeams!==undefined){
