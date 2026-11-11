@@ -62,7 +62,7 @@ const SleepUI=(()=>{
    const host=$(hostId),content=el('div');content.id=hostId+'-main-view';
    for(const child of [...host.children])if(!child.classList.contains('editorial-page-title'))content.append(child);
    const items=hostId==='record'?[['main','記録'],['sleep','睡眠リサーチ'],...(typeof SocialUI!=='undefined'?[['social','ソーシャルリサーチ']]:[]),['professor','博士に送る']]:[['main',title],['sleep','睡眠リサーチ'],['field','フィールド'],['professor','博士']];
-   const choices=tabs(items,'main',key=>{if(key==='professor'){selectProfessor(hostId);return;}if(hostId==='record'&&key==='social'){selectSocial();return;}if(hostId==='history'&&key==='field')selectFieldHistory();else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>{TabIcons.recordTab(choices.children[i],key);if(key==='sleep'||key==='social'||key==='professor'){const label=choices.children[i].querySelector('.tab-label'),parts={sleep:['睡眠','リサーチ'],social:['ソーシャル','リサーチ'],professor:['博士','に送る']}[key];label.replaceChildren(...parts.map(part=>el('span',part)));if(key==='social')choices.children[i].dataset.socialTab='true';}});if(hostId==='history'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>{if(key!=='professor')TabIcons.add(choices.children[i],key==='main'?'history':key==='field'?'map':'moon');});host.append(choices,content);
+   const choices=tabs(items,'main',key=>{if(key==='professor'){selectProfessor(hostId);return;}if(hostId==='record'&&key==='social'){selectSocial();return;}if(hostId==='history'&&key==='field')selectFieldHistory();else selectView(hostId,key==='sleep');},title+'の表示');choices.id=hostId+'-view-switch';if(hostId==='record'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>{TabIcons.recordTab(choices.children[i],key);if(key==='sleep'||key==='social'||key==='professor'){const label=choices.children[i].querySelector('.tab-label'),parts={sleep:['睡眠','リサーチ'],social:['ソーシャル','リサーチ'],professor:['博士','に送る']}[key];label.replaceChildren(...parts.map(part=>el('span',part)));if(key==='social')choices.children[i].dataset.socialTab='true';}});if(hostId==='history'&&typeof TabIcons!=='undefined')items.forEach(([key],i)=>TabIcons.add(choices.children[i],key==='main'?'history':key==='field'?'map':key==='professor'?'bed':'moon'));host.append(choices,content);
    if(hostId==='history'){const pane=el('div');pane.id='history-field-view';pane.hidden=true;host.append(pane);}
    const professorPane=el('div');professorPane.id=hostId+'-professor-view';professorPane.hidden=true;host.append(professorPane);
   }
@@ -98,7 +98,7 @@ const SleepUI=(()=>{
  }
  function selectResearch(day,round){if(!SleepResearch.validDate(day)||![1,2].includes(round))return;date=day;number=round;draft=loadDraft();loaded=true;researchSource=null;if(!rowFor())applyBonus();}
  function selectFieldHistory(){historyView=false;fieldView=true;professorHistoryView=false;showTab('history');}
- function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date&&(readOnly()||draft?.entries.length))SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;socialView=professorRecordView=false;}else{historyView=sleep;fieldView=professorHistoryView=false;}showTab(host);}
+ function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date&&(readOnly()||draft?.entries.length))SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;socialView=professorRecordView=false;}else{if(sleep&&!historyView){historyKind='week';historyDay=C.gameDay(new Date());calendarMonth=historyDay.slice(0,7);}historyView=sleep;fieldView=professorHistoryView=false;}showTab(host);}
  function openResearch(day,round,nextMode){
   if(mode!=='history'&&!keep())return;date=day;number=round;mode=inputMode=nextMode;draft=loadDraft();loaded=true;researchSource=null;recordView=true;socialView=professorRecordView=false;showTab('record');
  }
@@ -147,7 +147,7 @@ const SleepUI=(()=>{
    if(shard.shardsRecorded!==false){const total=el('div');total.append(qel('strong','ゆめのかけら '+shard.amount.toLocaleString('ja-JP')+'個'));box.append(total);}
    box.append(qel('p','ゆめのかけら '+(shard.shardsRecorded===false?'未入力':(shard.baseAmount??shard.amount).toLocaleString('ja-JP')+'個')+(shard.shardsRecorded!==false&&shard.researchExp!==undefined?' ／ EXP '+shard.researchExp.toLocaleString('ja-JP'):''),'sleep-note'));list.append(box);
   }
-  if(!list.children.length)list.append(el('p','保存済みの睡眠リサーチはありません。','sleep-note'));root.append(list);
+  if(!list.children.length)list.append(el('p','保存済みの睡眠リサーチはありません。','sleep-note'));root.append(list);if(typeof historyActionIcons==='function')historyActionIcons(list);
  }
  // 表示領域の変化だけを監視し、スクロール位置や保存データは操作しない。
  function bindSearchViewport(root,header,q){

@@ -21,6 +21,8 @@ const TabIcons=(()=>{
  paths["bed"]='<path d="M2 4v16" /><path d="M2 8h16a4 4 0 0 1 4 4v8" /><path d="M2 17h20" /><path d="M6 8v9" />';
  paths["rotate-ccw"]='<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" />';
  paths["image-plus"]="<path d=\"M16 5h6\" />\n  <path d=\"M19 2v6\" />\n  <path d=\"M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5\" />\n  <path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\" />\n  <circle cx=\"9\" cy=\"9\" r=\"2\" />";
+ paths.pencil='<path d="m18 2 4 4-14 14-6 2 2-6L18 2Z" /><path d="m14.5 5.5 4 4" />';
+ paths.x='<path d="M18 6 6 18" /><path d="m6 6 12 12" />';
  const main={record:'notebook-pen',summary:'candy',shards:'diamond',history:'history',team:'users',settings:'settings'},record={main:'notebook-pen',sleep:'moon',social:'mail',professor:'bed',nap:'mountain'};
  function add(button,name){
   if(!paths[name]||button.querySelector('.tab-icon'))return;

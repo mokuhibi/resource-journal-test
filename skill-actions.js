@@ -167,7 +167,7 @@ const SkillActions=(()=>{
   const actor=r.context.actor;historyCard(card,{...r,slot:r.context.actorSlot,pokemonSnapshot:actor},r.method==='mew'?'ミュウ':'スキル',r.amount?r.candy:'スキルのみ',label(actor),actions);
   // 履歴は発動ごとに1枚。両獲得量・発動個体を常に残します。
   const meta=card.querySelector('.history-meta');meta.replaceChildren(qel('strong',r.amount+'個','history-amount'));if(r.amount)meta.append(el('span',r.candy));if(r.resourceFlags.shards)meta.append(qel('span','ゆめのかけら '+r.shardAmount+'個'));
-  card.append(el('p',mainSkillText(actor)+' · Lv.'+r.recordedSkillLevel+(r.outcomeSkillId?' · '+SK.name(r.outcomeSkillId):' · 結果不明'),'history-supplement'));
+  if(r.method!=='mew')card.append(el('p',mainSkillText(actor)+' · Lv.'+r.recordedSkillLevel+(r.outcomeSkillId?' · '+SK.name(r.outcomeSkillId):' · 結果不明'),'history-supplement'));
   card.historyInfo.r=r;finishHistoryCard(card);root.append(card);
  }
  function edit(r){

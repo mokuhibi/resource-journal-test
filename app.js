@@ -249,11 +249,10 @@ function historyCard(card,r,method,primary,target,actions){
  const mewShards=r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s',shards=card.classList.contains('shards')||mewShards;
  if(mewShards){card.classList.add('shards');card.dataset.shardSource='skill';const actor=actorOf(r.context);target=historyPlace(r.context?.actorSlot)+(actor?'　'+label(actor):'');}
  const categoryMethod=shards?(mewShards||['skill','lucky'].includes(r.method)?'スキル':r.method==='research'?'睡眠リサーチ':r.method==='other'&&r.otherKind==='nap_island'?'おひるね島':r.method==='cluster'?'ゆめのかたまり':r.method==='other'?'その他':'入手方法不明'):(C.isNapRecord(r)?'おひるね島':r.method==='skill'?'その他':method||'入手方法不明');
- const head=el('div',undefined,'history-topline'),time=el('time',undefined,'history-time');const [date,clock]=historyTime(r.recordedAt||r.datetime).split(' ');time.append(el('span',date),document.createTextNode(' '),el('span',clock));head.append(el('small',shards?'ゆめのかけら':'アメ','history-category'),time);
- const source=el('div',undefined,'history-head history-source');source.append(el('strong',categoryMethod,'history-method'));
- const meta=el('div',undefined,'history-meta');meta.append(qel('strong',(mewShards?r.shardAmount:r.amount)+'個','history-amount'));
+ const head=el('div',undefined,'history-topline'),time=el('time',historyTime(r.recordedAt||r.datetime).split(' ')[0],'history-time');head.append(el('strong',categoryMethod,'history-method'),time);
+ const meta=el('div',undefined,'history-meta');meta.append(el('small',shards?'ゆめのかけら':'アメ','history-category'),qel('strong',(mewShards?r.shardAmount:r.amount)+'個','history-amount'));
  if(!shards&&primary&&!['アメ','スキルのみ'].includes(primary)){const name=el('strong',primary,'history-primary');name.title=primary;meta.append(name);}
- card.append(head,source,meta);
+ card.append(head,meta);
  // 過去のスナップショットを優先し、現在の登録名・編成を参照しない。
  const pokemon=mewShards?actorOf(r.context):(r.method==='research'||r.method==='mew'&&r.amount===0)?null:historicalPokemon(r),species=pokemon?.species?C.speciesName(pokemon.species):'',nickname=pokemon?.nickname?.trim()||'',slot=mewShards?r.context?.actorSlot:r.slot,place=Number.isInteger(slot)&&slot>=1&&slot<=5?slot+'番':'';
  if(species){
@@ -266,13 +265,14 @@ function historyCard(card,r,method,primary,target,actions){
 function finishHistoryCard(card){
  const footer=el('div',undefined,'history-footer');footer.append(HistoryDetails.button(card.historyInfo),card.historyActions);card.append(footer);
 }
+function historyActionIcons(root){if(!root.querySelectorAll)return;for(const b of root.querySelectorAll('.history-actions button, .field-history-change button')){const name=b.textContent.trim(),icon=name==='編集'||name==='訂正'?'pencil':name==='削除'||name==='取り消す'?'x':'';if(!icon)continue;b.setAttribute('aria-label',name);b.title=name;TabIcons.add(b,icon);b.classList.add('history-icon-action');}}
 
 function renderHistory(){PeriodPicker.sync();const period=historyRange();$('history-day').textContent=period?C.displayDate(period[0])+' 〜 '+C.displayDate(C.addDays(period[1],-1)):'全期間';const root=$('history-list');root.replaceChildren();for(const r of [...state.records].filter(r=>visibleRecord(r)&&C.inRange(r,period)).reverse().sort((a,b)=>Date.parse(b.datetime)-Date.parse(a.datetime))){
  if(r.activationVersion===1){SkillActions.history(root,r);continue;}
  const card=el('div',undefined,'card '+r.method);card.dataset.datetime=r.datetime;const actions=el('div',undefined,'history-actions');
  actions.append(button('訂正',()=>openHistoryEditor(r)),button('削除',()=>{if(confirm('この記録を削除しますか？'))commit({...state,records:state.records.filter(x=>x.id!==r.id)},'削除しました。');},'danger'));
  historyCard(card,r,C.isNapRecord(r)?'おひるね島':methods[r.method],r.amount===0?'スキルのみ':r.candy||'アメ',C.isNapRecord(r)?C.speciesName(r.species):r.amount===0?historyPlace(r.slot):historyPlace(r.slot)+'　'+oldLabel(r),actions);finishHistoryCard(card);root.append(card);
- }if(typeof SleepUI!=='undefined')SleepUI.appendHistory(root,period);ShardUI.appendHistory(root,period);if(typeof SocialUI!=='undefined')SocialUI.appendHistory(root,period);if($('history-period').value!=='day'){let previous;for(const card of [...root.children]){const day=C.gameDay(new Date(card.dataset.datetime));if(day!==previous){root.insertBefore(el('h3',C.displayDate(day),'history-date-divider'),card);previous=day;}}}if(!root.children.length)root.append(el('p','履歴なし'));}
+ }if(typeof SleepUI!=='undefined')SleepUI.appendHistory(root,period);ShardUI.appendHistory(root,period);if(typeof SocialUI!=='undefined')SocialUI.appendHistory(root,period);if($('history-period').value!=='day'){let previous;for(const card of [...root.children]){const day=C.gameDay(new Date(card.dataset.datetime));if(day!==previous){root.insertBefore(el('h3',C.displayDate(day),'history-date-divider'),card);previous=day;}}}if(!root.children.length)root.append(el('p','履歴なし'));historyActionIcons(root);}
 function movePokemon(id,delta){const xs=state.pokemon.filter(p=>!special(p)),i=xs.findIndex(p=>p.id===id);if(i<0||i+delta<0||i+delta>=xs.length)return;[xs[i],xs[i+delta]]=[xs[i+delta],xs[i]];commit({...state,pokemon:[...state.pokemon.filter(special),...xs]},'並べ替えました。');}
 function renderTeam(){const root=$('team-slots');root.replaceChildren();state.team.forEach((id,i)=>{const l=el('div',undefined,'team-slot-row'),current=state.pokemon.find(p=>p.id===id);l.append(el('span',i===0?'1R':String(i+1)));if(i===0)l.classList.add('leader-slot');const b=button('',()=>TeamPicker.open(i),'team-slot-button');b.append(current?TeamUI.cardInfo(current):TeamUI.name(current));TeamUI.typeBorder(b,current);b.setAttribute('aria-expanded','false');b.title=current?label(current):'未設定';b.id='team-slot-'+i;b.setAttribute('aria-label','チーム位置'+(i===0?'1R':i+1)+'のポケモンを選択');b.setAttribute('aria-haspopup','dialog');l.append(b);if(current){const edit=button('',()=>openIndividualEditor(current,'team'),'team-slot-edit');TabIcons.add(edit,'file-pen-line'); edit.setAttribute('aria-label',label(current)+'を編集');l.append(edit);}root.append(l);});TeamUI.renderSavedTeams();TeamPicker.refresh();
 

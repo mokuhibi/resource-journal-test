@@ -447,3 +447,52 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
 /* Touch Safari can retain :hover after a dialog closes. Only the open slot stays highlighted. */
 #team #team-panel .team-slot-button:not([aria-expanded=true]):hover{background:var(--mh-surface)}
 #team #team-panel .team-slot-button[aria-expanded=true]{background:var(--mh-selected)}
+
+/* History cards keep the existing two-column grid and align actions within each row. */
+#history #history-list{align-items:stretch;gap:12px}
+#history #history-list .card{display:flex;flex-direction:column;min-width:0;margin:0;padding:12px;background:#fff;border:1px solid #dadada;border-radius:10px;box-shadow:none}
+#history #history-list .card.shards{background:#fff;border:1px solid #dadada}
+#history #history-list .history-topline{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px 6px}
+#history #history-list .history-topline .history-method{min-width:0;font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+#history #history-list .history-topline .history-time{white-space:nowrap;font-size:11px;line-height:1.5;text-align:right}
+#history #history-list .history-meta .history-category{align-self:center;white-space:nowrap;font-size:10px;color:var(--mh-muted)}
+#history #history-list .history-footer{margin-top:auto;border-top:0}
+#history .history-actions .history-icon-action,#history #history-list .history-footer .history-actions .history-icon-action{display:inline-flex;align-items:center;justify-content:center;min-width:36px;width:36px;min-height:40px;padding:4px;border:0;background:transparent;color:var(--mh-text)}
+#history .history-actions .history-icon-action.danger,#history #history-list .history-footer .history-actions .history-icon-action.danger{color:var(--mh-error)}
+#history .history-icon-action .tab-icon{width:17px;height:17px}
+#history .history-icon-action .tab-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#sleep .sleep-history-entry{margin:10px 0;padding:12px;background:#fff;border:1px solid #dadada;border-radius:10px}
+#sleep .sleep-history-entry .history-actions .history-icon-action{min-width:40px}
+#history-field-view .field-history-current{padding:10px 0 14px}
+#history-field-view .field-history-current-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--mh-muted)}
+#history-field-view .field-history-current-head time{white-space:nowrap}
+#history-field-view .field-history-current>strong{display:block;font-size:17px;line-height:1.5}
+#history-field-view .field-history-detail{padding-top:12px}
+#history-field-view .field-history-change{flex-wrap:nowrap}
+#history-field-view .field-history-change>span{overflow-wrap:anywhere}
+#history-professor-view .professor-history-card{display:block;margin:8px 0;padding:8px;background:#fff;border:1px solid #dadada;border-radius:10px}
+#history-professor-view .professor-history-line{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:4px;white-space:nowrap;font-size:11px}
+#history-professor-view .professor-history-line>span:nth-child(2){overflow:hidden;text-overflow:ellipsis}
+#history-professor-view .professor-history-line>strong{font-size:12px}
+#history-professor-view .history-actions{display:flex;gap:0}
+#history-professor-view .history-actions .history-icon-action{display:inline-flex;align-items:center;justify-content:center;min-width:28px;min-height:36px;margin:0;padding:4px;border:0;background:transparent;color:var(--mh-text)}
+#history-professor-view .history-actions .history-icon-action.danger{color:var(--mh-error)}
+#history-professor-view .history-icon-action .tab-icon{width:16px;height:16px}
+#history-professor-view .history-icon-action .tab-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+#history-professor-view .professor-history-edit{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--mh-border)}
+#history-professor-view .professor-history-edit>label{min-width:0}
+#history-professor-view .professor-history-edit>label:nth-child(3){grid-column:1/-1}
+@media(max-width:390px){#history #history-list .card{padding:9px}#history #history-list .history-topline .history-method{font-size:12px}#history #history-list .history-topline .history-time{font-size:10px}}
+#history #history-list .history-meta{flex-wrap:wrap}
+#history #history-list .history-meta .history-primary{flex:1 1 100%}
+#history-professor-view .professor-history-line>span:nth-child(2){overflow:visible;text-overflow:clip}
+
+#sleep .sleep-history-entry .history-icon-action{display:inline-flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;padding:4px;border:0;background:transparent;color:var(--mh-text)}
+#sleep .sleep-history-entry .history-icon-action.danger{color:var(--mh-error)}
+#sleep .sleep-history-entry .history-icon-action .tab-icon{width:17px;height:17px}
+#sleep .sleep-history-entry .history-icon-action .tab-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+#history-field-view .field-history-change .history-icon-action{display:inline-flex;align-items:center;justify-content:center;flex:none;min-width:40px;min-height:40px;margin:0;padding:4px;border:0;background:transparent;color:var(--mh-text)}
+#history-field-view .field-history-change .history-icon-action.danger{color:var(--mh-error)}
+#history-field-view .field-history-change .history-icon-action .tab-icon{width:17px;height:17px}
+#history-field-view .field-history-change .history-icon-action .tab-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
