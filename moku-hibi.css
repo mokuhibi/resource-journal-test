@@ -52,6 +52,8 @@ body .tabs [data-tab=shards][aria-current=page]:before{background:var(--resource
 .sleep-get-dot{color:#d74d50;font-size:.65em;margin-right:.25em;vertical-align:middle}
 #record-professor-view,#history-professor-view{padding-bottom:calc(90px + env(safe-area-inset-bottom));}
 #record #record-view-switch{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-bottom:16px!important}
+body:has(#record:not([hidden])) #notice:empty{min-height:0}
+body:has(#record:not([hidden])) .app>header{margin-bottom:6px}
 #record #record-view-switch>button{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:3px;width:100%;min-width:0;min-height:62px;padding:4px 1px;white-space:normal}
 #record #record-view-switch>button .tab-label{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;font-size:11px;line-height:1.25;white-space:normal;text-align:left}
 #record #record-view-switch>button .tab-icon{width:13px;height:13px;flex:none}
@@ -59,15 +61,21 @@ body .tabs [data-tab=shards][aria-current=page]:before{background:var(--resource
 .professor-history-card{padding:16px;border:1px solid var(--mh-edge,#ddd);border-radius:var(--mh-radius,12px);background:var(--mh-surface,#fff)}
 .professor-history-card label{display:grid;gap:4px;min-width:0}
 .professor-history-card input{min-width:0;max-width:100%;box-sizing:border-box}
-#record .professor-date-card{position:static;z-index:auto;padding:0;margin-bottom:8px;border:0;background:none;backdrop-filter:none}
+#record .professor-date-card{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;padding:8px 0;margin-bottom:8px;background:#fffffff5}
 #record .professor-date-card .record-date-row{width:100%}
-#record .professor-date-card .formatted-date-field{margin-top:0;height:48px;border:0;border-radius:0;background:transparent;box-shadow:none}
-#record .professor-date-card .formatted-date-field>.date-weekday{padding:0;font-size:16px;font-weight:600;letter-spacing:-.3px;color:var(--record-text);text-align:left}
-.professor-filters{display:grid;grid-template-columns:minmax(0,1fr) 48px 60px 48px;gap:3px;align-items:center;margin:0 0 8px;min-width:0}
-#record .professor-filters>input{width:100%;min-width:0;box-sizing:border-box;margin:0;font-size:12px}
-.professor-filters>button{width:100%;min-width:0;min-height:44px;margin:0;padding:2px 1px;font-size:10px;white-space:nowrap}
+.professor-date-card .record-date-row{display:grid;grid-template-columns:minmax(0,1fr) 94px;gap:6px;align-items:center}
+#record .professor-date-card .formatted-date-field{margin-top:0;height:48px;min-width:0}
+#record .professor-date-card .formatted-date-field>.date-weekday{padding:0 5px;font-size:14px;font-weight:600;letter-spacing:-.3px;color:var(--record-text);text-align:left}
+.professor-date-card button{margin:0;padding:4px 3px;min-height:44px;font-size:11px;white-space:nowrap}
+.professor-date-card button[aria-pressed=true]{background:var(--mh-selected)}
+.professor-view-switch{display:flex;gap:5px;margin-bottom:8px}
+.professor-view-switch>button{width:auto;min-height:40px;margin:0;padding:4px 10px;font-size:12px}
+.professor-view-switch>button[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent)}
+#record #record-professor-view>input[type=search]{width:100%;min-width:0;box-sizing:border-box;margin:0 0 8px}
+.professor-filters{display:grid;grid-template-columns:minmax(0,1fr) 94px minmax(0,1fr);gap:5px;align-items:center;margin:0 0 8px;min-width:0}
+.professor-filters>select{min-width:0;box-sizing:border-box;margin:0;height:44px;padding:4px;font-size:12px}
+.professor-filters>button{width:100%;min-width:0;min-height:44px;margin:0;padding:2px 1px;font-size:11px;white-space:nowrap}
 .professor-filters>button[aria-pressed=true]{background:var(--mh-selected);color:var(--mh-accent);border-color:var(--mh-accent)}
-.professor-content>select{width:100%;box-sizing:border-box;margin:0 0 8px}
 .professor-species-list{display:grid}
 .professor-species-row{display:grid;grid-template-columns:27px 34px minmax(0,1fr) 41px 27px 27px 34px;gap:2px;align-items:center;padding:7px 0;border-bottom:1px solid var(--mh-border);min-width:0;white-space:nowrap}
 .professor-species-row>small{font-size:9px;color:var(--mh-muted)}
@@ -78,18 +86,28 @@ body .tabs [data-tab=shards][aria-current=page]:before{background:var(--resource
 .professor-fp-editor>input{width:60px;min-width:0;min-height:32px!important;padding:2px}
 .professor-species-row>button{margin:0;min-width:0;min-height:44px;padding:0 1px;font-size:10px;line-height:1;white-space:nowrap}
 .professor-species-row>button .tab-icon{width:14px;height:14px}
-.professor-species-row>.professor-get-amount{min-width:0;gap:1px;font-size:10px}
+.professor-species-row>.professor-get-amount{display:inline-flex;align-items:center;min-width:0;gap:1px;white-space:nowrap;font-size:10px}
 .professor-get-group{border-bottom:1px solid var(--mh-border)}
 .professor-get-group>h3{margin:12px 0 4px;font-size:14px}
-.professor-get-row{display:grid;grid-template-columns:minmax(0,1fr) 54px 54px;gap:5px;align-items:center;padding:8px 0;border-top:1px solid var(--mh-border)}
-.professor-get-row.has-registration{grid-template-columns:minmax(0,1fr) 42px 42px 42px}
+.professor-get-row{display:grid;grid-template-columns:minmax(0,1fr) 45px 45px 45px;gap:5px;align-items:center;padding:8px 0;border-top:1px solid var(--mh-border)}
+.professor-get-slot{display:flex;align-items:center;justify-content:center;min-width:0}
+.professor-get-slot>button{width:100%;min-width:0;min-height:44px;margin:0;padding:4px 2px;font-size:12px}
 .professor-get-detail{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:wrap;overflow-wrap:anywhere}
 .professor-get-name.processed{color:var(--mh-muted)}
-.professor-get-amount{display:inline-flex;align-items:center;gap:2px;white-space:nowrap;font-size:12px}
-.professor-get-amount .tab-icon{width:14px;height:14px}
+.professor-get-slot{white-space:nowrap;font-size:12px}
+.professor-get-slot .tab-icon{width:14px;height:14px}
 .professor-get-row>button{min-width:0;min-height:44px;margin:0;padding:4px 2px;font-size:12px}
 .professor-get-row>button[aria-pressed=true]{color:var(--mh-text);background:#eee;border-color:var(--mh-border)}
 .professor-profile-modal .app-panel-body{overflow-y:auto;max-height:calc(100dvh - 140px)}
+.professor-profile-modal #register-panel{display:block;padding:0}
+.professor-profile-modal #register-panel .individual-top-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 62px;gap:8px}
+.professor-profile-modal #register-panel .individual-top-grid>.individual-field{grid-column:span 2;min-width:0}
+.professor-profile-modal #register-panel .individual-top-grid>.individual-field:has(#register-main-skill){grid-column:1/4}
+.professor-profile-modal #register-panel .individual-top-grid>.individual-field:has(#register-skill){grid-column:4}
+.professor-profile-modal #register-panel .individual-top-grid :is(input,select){min-width:0;width:100%;box-sizing:border-box}
+.professor-profile-modal #register-panel .individual-subskills label{display:flex;align-items:center;gap:4px;min-width:0}
+#team #register-top-grid:has(.individual-field:not([hidden]) #nickname) .individual-field:has(#pokemon-search),.professor-profile-modal #register-top-grid .individual-field:has(#pokemon-search){grid-column:span 2;position:relative}
+#team #register-top-grid .individual-field:has(#pokemon-search) #pokemon-search-results,.professor-profile-modal #register-top-grid .individual-field:has(#pokemon-search) #pokemon-search-results{position:absolute;z-index:30;top:100%;left:0;width:min(280px,calc(100vw - 32px));max-height:270px;background:var(--mh-surface);border:1px solid var(--mh-border);box-shadow:0 8px 18px #0002;grid-template-columns:1fr}
 #record #record-professor-view .individual-roster-grid{display:grid;grid-template-columns:repeat(var(--roster-columns,3),minmax(0,1fr));gap:8px}
 #record #record-professor-view .registered-row{position:relative;display:flex;flex-direction:column;min-width:0;min-height:102px;padding:5px 4px;border:1px solid var(--mh-border);border-radius:var(--mh-radius);background:var(--mh-surface)}
 #record #record-professor-view .pokemon-card-info{display:flex;flex-direction:column;min-width:0;width:100%}

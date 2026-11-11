@@ -41,10 +41,10 @@ const TeamUI=(()=>{
   $('individual-editor').hidden=!editing;
   for(const b of document.querySelectorAll('[data-team-view]')){b.setAttribute('aria-selected',String(b.dataset.teamView===view));b.tabIndex=b.dataset.teamView===view?0:-1;}
  }
- function show(name){view=name;editing=false;sync();window.scrollTo({top:0});}
+ function show(name){view=name;editing=false;if(name==='register'){selected='';catalogOpen=false;$('pokemon-search').value='';$('add-pokemon').disabled=true;ProfileForm.reset('');}sync();window.scrollTo({top:0});}
  function edit(origin='roster'){editOrigin=['team','roster'].includes(origin)?origin:'roster';view=editOrigin;editing=true;sync();window.scrollTo({top:0});$('profile-back').focus({preventScroll:true});}
  function finishEdit(){show(editOrigin);}
- function registration(){$('registration-fields').hidden=!selected;ProfileForm.refresh(selected);}
+ function registration(){$('registration-fields').hidden=false;ProfileForm.refresh(selected);}
  function renderRoster(root=$('registered-pokemon-list'),displayView=rosterView,search=$('roster-search').value){
   const q=normalize(search);root.replaceChildren();root.style.setProperty('--roster-columns',columns);root.dataset.columns=String(columns);
   const normal=state.pokemon.filter(p=>!special(p));
@@ -88,5 +88,5 @@ const TeamUI=(()=>{
   };
   sync();registration();
  }
- return {init,show,edit,finishEdit,sync,registration,renderRoster,name,cardInfo,typeBorder,sorted,reorder,renderSavedTeams,saveCurrent,useTeam,saveTeam};
+ return {init,show,edit,finishEdit,sync,registration,renderRoster,name,cardInfo,typeBorder,sorted,reorder,renderSavedTeams,saveCurrent,useTeam,saveTeam,currentView:()=>view};
 })();

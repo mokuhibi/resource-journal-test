@@ -35,7 +35,7 @@ const IndividualDev=(()=>{
   const level=$(prefix+'level');level.addEventListener('focus',()=>level.select());const grid=$(prefix+'top-grid'),stats=el('div',undefined,'individual-stats-row');for(const id of [prefix+'level',prefix+'nature',prefix+'shiny'])stats.append($(id).closest('label'));grid.append(stats);
  }
  function init(){bind('profile-');bind('register-');$('register-top-grid').after($('register-details'));const editHead=el('div',undefined,'individual-editor-head'),heading=$('individual-editor').querySelector('h2'),actions=$('profile-form').querySelector('.profile-editor-actions');editHead.append(heading,actions);$('individual-editor').prepend(editHead);for(const b of actions.querySelectorAll('button'))if(b.type==='submit')b.setAttribute('form','profile-form');
-  const registerHead=el('div',undefined,'individual-editor-head'),registerTitle=$('register-panel').querySelector('h2'),registerActions=el('div',undefined,'profile-editor-actions');const cancel=button('キャンセル',()=>TeamUI.show('team')),save=$('add-pokemon');save.textContent='保存';registerActions.append(cancel,save);registerHead.append(registerTitle,registerActions);$('register-panel').prepend(registerHead);
+  const registerHead=el('div',undefined,'individual-editor-head'),registerTitle=$('register-panel').querySelector('h2'),registerActions=el('div',undefined,'profile-editor-actions');const cancel=button('キャンセル',()=>{if(typeof ProfessorUI!=='undefined'&&ProfessorUI.registrationTarget())ProfessorUI.finishRegistration();else TeamUI.show('team');}),save=$('add-pokemon');save.textContent='保存';registerActions.append(cancel,save);registerHead.append(registerTitle,registerActions);$('register-panel').prepend(registerHead);
   sync();
  }
  return {init,sync,subs,nature,natureEffect};
