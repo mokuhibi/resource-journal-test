@@ -25,14 +25,14 @@ const NapIsland=(()=>{
   $('nap-island-search').oninput=()=>{selected='';search();};
   $('nap-island-form').onsubmit=e=>{e.preventDefault();try{const raw=$('nap-island-amount').value;if(!raw.trim())throw Error('アメの個数を入力してください。');const r=build(selected,Number(raw),recordDate(),uid());if(commit({...state,records:[...state.records,r]},resourceNotice(r)))$('nap-island-amount').value='';}catch(err){notice(err.message,true);}};
  }
- function edit(record){
-  const dialog=el('dialog'),form=el('form'),date=el('input'),species=el('select'),amount=el('input');dialog.id='nap-island-editor';dialog.append(form);document.body.append(dialog);
+ function edit(record,host,done,cancel){
+  const dialog=el('dialog'),form=el('form'),date=el('input'),species=el('select'),amount=el('input'),finish=saved=>host?(saved?done():cancel()):dialog.close();dialog.id='nap-island-editor';if(host)host.append(form);else{dialog.append(form);document.body.append(dialog);}
   Object.assign(date,{type:'datetime-local',value:C.localInput(record.datetime),required:true});Object.assign(amount,{type:'number',inputMode:'numeric',min:'1',max:'1000000000',step:'1',value:record.amount,required:true});
-  for(const name of names)species.add(new Option(C.speciesName(name),name));species.value=record.species;form.append(el('h2','おひるね島の記録を訂正'));
+  for(const name of names)species.add(new Option(C.speciesName(name),name));species.value=record.species;if(!host)form.append(el('h2','おひるね島の記録を訂正'));
   for(const [title,input] of [['日時',date],['ポケモン名',species],['アメの個数',amount]]){const label=el('label',title);input.setAttribute('aria-label',title);label.append(input);form.append(label);}
-  const error=el('p'),save=el('button','訂正を保存'),cancel=button('閉じる',()=>dialog.close());error.setAttribute('role','alert');save.type='submit';form.append(error,save,cancel);dialog.onclose=()=>dialog.remove();
-  form.onsubmit=e=>{e.preventDefault();try{const old=state.records.find(r=>r.id===record.id&&C.isNapRecord(r));if(!old)throw Error('編集する記録が見つかりません。');if(!amount.value.trim())throw Error('アメの個数を入力してください。');const next={...old,...build(species.value,Number(amount.value),date.value===C.localInput(old.datetime)?new Date(old.datetime):C.fromInput(date.value),old.id),updatedAt:new Date().toISOString()};if(commit({...state,records:state.records.map(r=>r.id===old.id?next:r)},'おひるね島の記録を訂正しました。'))dialog.close();}catch(err){error.textContent=err.message;}};
-  DateUI.update();dialog.showModal();
+  const error=el('p'),save=el('button','訂正を保存'),cancelButton=button('キャンセル',()=>finish(false));error.setAttribute('role','alert');save.type='submit';form.append(error,save,cancelButton);dialog.onclose=()=>dialog.remove();
+  form.onsubmit=e=>{e.preventDefault();try{const old=state.records.find(r=>r.id===record.id&&C.isNapRecord(r));if(!old)throw Error('編集する記録が見つかりません。');if(!amount.value.trim())throw Error('アメの個数を入力してください。');const next={...old,...build(species.value,Number(amount.value),date.value===C.localInput(old.datetime)?new Date(old.datetime):C.fromInput(date.value),old.id),updatedAt:new Date().toISOString()};if(commit({...state,records:state.records.map(r=>r.id===old.id?next:r)},'おひるね島の記録を訂正しました。'))finish(true);}catch(err){error.textContent=err.message;}};
+  DateUI.update();if(!host)dialog.showModal();return ()=>dialog.remove();
  }
  return {init,render,build,edit};
 })();

@@ -38,14 +38,14 @@ const CopySkills=(()=>{
    card.append(form);root.append(card);root.hidden=false;
   }
  }
- function edit(r){
-  const dialog=el('dialog'),form=el('form');dialog.append(form);document.querySelector('main').append(dialog);
-  form.append(el('h2','スキルによるアメの訂正'));const date=el('input'),amount=el('input'),target=el('select');date.type='datetime-local';date.value=C.localInput(r.datetime);amount.type='number';amount.min='1';amount.max='1000000000';amount.step='1';amount.inputMode='numeric';amount.value=r.amount;date.required=amount.required=true;
-  optionList(target,(r.context?.team||[]).map((p,i)=>p?{id:String(i+1),text:position(i+1)+' · '+label(p)}:null).filter(Boolean),String(r.slot));
+ function edit(r,host,done,cancel){
+  const dialog=el('dialog'),form=el('form'),finish=saved=>host?(saved?done():cancel()):dialog.close();if(host)host.append(form);else{dialog.append(form);document.querySelector('main').append(dialog);}
+  if(!host)form.append(el('h2','スキルによるアメの訂正'));const date=el('input'),amount=el('input'),target=el('select');date.type='datetime-local';date.value=C.localInput(r.datetime);amount.type='number';amount.min='1';amount.max='1000000000';amount.step='1';amount.inputMode='numeric';amount.value=r.amount;date.required=amount.required=true;
+  const recipients=[...state.pokemon];if(r.pokemonId&&!recipients.some(p=>p.id===r.pokemonId)){const old=r.pokemonSnapshot||r.context?.team?.find(p=>p?.id===r.pokemonId);if(old)recipients.unshift(old);}optionList(target,recipients.map(p=>({id:p.id,text:label(p)})),r.pokemonId||'');
   for(const [name,input] of [['日時',date],['アメの獲得先',target],['アメの個数',amount]]){const l=el('label',name);l.append(input);form.append(l);}
-  const error=el('p'),save=button('訂正を保存',()=>{}),cancel=button('閉じる',()=>dialog.close());save.type='submit';form.append(error,save,cancel);dialog.onclose=()=>dialog.remove();
-  form.onsubmit=e=>{e.preventDefault();try{const slot=Number(target.value),p=r.context.team[slot-1],n=Number(amount.value),d=C.fromInput(date.value);if(!p||!Number.isSafeInteger(n)||n<1||n>1000000000||!Number.isFinite(d.getTime()))throw Error('入力値を確認してください。');const next={...r,slot,amount:n,datetime:d.toISOString(),pokemonId:p.id,pokemon:storedLabel(p),species:p.species,nickname:p.nickname,candy:candyMap[p.species]};if(commit({...state,records:state.records.map(x=>x.id===r.id?next:x)},'履歴を訂正しました。'))dialog.close();}catch(e){error.textContent=e.message;}};
-  DateUI.update();dialog.showModal();
+  const error=el('p'),save=button('訂正を保存',()=>{}),cancelButton=button('キャンセル',()=>finish(false));save.type='submit';form.append(error,save,cancelButton);dialog.onclose=()=>dialog.remove();
+  form.onsubmit=e=>{e.preventDefault();try{const p=recipients.find(p=>p.id===target.value),n=Number(amount.value),d=C.fromInput(date.value);if(!p||!Number.isSafeInteger(n)||n<1||n>1000000000||!Number.isFinite(d.getTime()))throw Error('入力値を確認してください。');const next={...r,amount:n,datetime:d.toISOString(),pokemonId:p.id,pokemon:storedLabel(p),species:p.species,nickname:p.nickname,candy:candyMap[p.species],pokemonSnapshot:clone(p)};if(commit({...state,records:state.records.map(x=>x.id===r.id?next:x)},'履歴を訂正しました。'))finish(true);}catch(e){error.textContent=e.message;}};
+  DateUI.update();if(!host)dialog.showModal();return ()=>dialog.remove();
  }
  return {sources,handlesShards,build,render,edit};
 })();
