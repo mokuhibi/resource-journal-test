@@ -411,6 +411,7 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
 #team-panel .saved-team-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 #team-panel .saved-team-head input{flex:1;min-width:0;width:auto;margin:0}
 #team-panel .saved-team-head button{flex:none;min-height:44px;margin:0}
+#team-panel .saved-team-slot-row{display:flex;flex-direction:column;min-width:0;gap:2px}
 #team-panel .saved-slot-number{display:block;font-size:11px;color:var(--mh-muted);text-align:left}
 .team-save-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .team-save-choices button{min-width:0;overflow-wrap:anywhere}
@@ -431,9 +432,10 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
  :is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info{display:flex;flex-direction:column;min-width:0;width:100%;gap:0;text-align:left}
 :is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info>*{display:block;margin:0;min-width:0;line-height:18px}
 :is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info .pokemon-card-level{height:18px;text-align:right;font-size:13px;font-weight:400;color:var(--mh-text)}
-:is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info .pokemon-card-nickname{height:18px;font-size:13px;font-weight:650;color:var(--mh-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+:is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info .pokemon-card-level strong{font-weight:700}
+:is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info .pokemon-card-nickname{height:18px;font-size:13px;font-weight:700;color:var(--mh-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
 :is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info .individual-number{white-space:nowrap;font-size:10px;color:var(--mh-muted);font-weight:400}
-:is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info .pokemon-card-species{font-size:11px;line-height:14px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;height:28px;color:var(--mh-muted);font-weight:400;overflow-wrap:anywhere}
+:is(#team #registered-pokemon-list,#team #team-panel,#team-picker) .pokemon-card-info .pokemon-card-species{font-size:13px;line-height:16px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-height:32px;color:#555;font-weight:600;overflow-wrap:anywhere}
 #team .pokemon-card-info .provisional-badge,#team-picker .provisional-badge{position:absolute;bottom:2px;left:4px;font-size:9px;line-height:12px;color:var(--mh-accent)}
 #team-picker .team-picker-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;align-items:stretch}
 #team-picker .team-picker-grid .team-picker-status{font-size:9px;line-height:14px;min-height:14px;color:var(--mh-muted)}
@@ -446,11 +448,12 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
 #team #registered-pokemon-list .registered-row[data-pokemon-type],#team #team-panel .team-slot-button[data-pokemon-type],#team-picker .team-picker-row[data-pokemon-type]{border:2px solid var(--pokemon-type-color)}
 /* Registered and current team cards share the existing type border and information styles. */
 #team #registered-pokemon-list .registered-row[data-pokemon-type-label],#team #team-panel .team-slot-button[data-pokemon-type-label]{position:relative}
-#team #registered-pokemon-list .registered-row[data-pokemon-type-label]::before,#team #team-panel .team-slot-button[data-pokemon-type-label]::before{content:attr(data-pokemon-type-label);position:absolute;top:-8px;left:4px;z-index:1;padding:1px 5px;border-radius:4px;background:var(--pokemon-type-color);color:#fff;font-size:10px;line-height:14px;white-space:nowrap}
-#team #registered-pokemon-list .registered-row{padding-top:8px}
+#team #registered-pokemon-list .registered-row[data-pokemon-type-label]::before,#team #team-panel .team-slot-button[data-pokemon-type-label]::before{content:attr(data-pokemon-type-label);position:absolute;top:0;left:0;z-index:1;max-width:100%;box-sizing:border-box;padding:1px 2px;border-radius:3px;background:var(--pokemon-type-color);color:#fff;font-size:clamp(8px,2.4vw,10px);line-height:13px;white-space:nowrap;overflow:hidden}
+#team #registered-pokemon-list .registered-row{padding-top:18px}
 #team #team-panel #team-slots>.team-slot-row{padding-top:12px}
 #team #team-panel #team-slots .team-slot-row>span{top:0;left:2px;font-size:11px}
-#team #team-panel #team-slots .team-slot-row>.team-slot-button{height:102px;min-height:102px;padding:7px 3px 24px}
+#team #team-panel #team-slots .team-slot-row>.team-slot-button{height:116px;min-height:116px;padding:18px 3px 24px}
+#team #team-panel .saved-team-slot-row>.team-slot-button{height:102px;min-height:102px;padding:18px 3px 4px}
 #team #team-panel #team-slots .team-slot-actions{position:absolute;bottom:1px;left:2px;right:2px;display:flex;justify-content:space-between;align-items:center}
 #team #team-panel #team-slots .team-slot-actions button{position:static!important;display:grid;place-items:center;width:22px!important;min-width:22px!important;height:22px;min-height:22px;margin:0;padding:2px;border:0;background:transparent;color:var(--mh-text)}
 #team #team-panel #team-slots .team-slot-actions .tab-icon{width:15px;height:15px;margin:0}

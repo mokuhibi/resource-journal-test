@@ -16,7 +16,7 @@ const TeamUI=(()=>{
  // Both card lists use one display-only renderer; sorting never rewrites saved manual order.
  const level=p=>{const v=p?.profile?.level??p?.importedIndividual?.level;return Number.isFinite(Number(v))&&Number(v)>0?Number(v):null;};
  function sorted(members){const descending=rosterSort.endsWith('desc'),byLevel=rosterSort.startsWith('level'),dex=p=>nationalDex[p.species]??null;return [...members].sort((a,b)=>{const av=byLevel?level(a):dex(a),bv=byLevel?level(b):dex(b);if(av===null||bv===null)return av===bv?(dex(a)??Infinity)-(dex(b)??Infinity)||String(a.id).localeCompare(String(b.id)):av===null?1:-1;return (av-bv)*(descending?-1:1)||(dex(a)??Infinity)-(dex(b)??Infinity)||String(a.id).localeCompare(String(b.id));});}
- function cardInfo(p,includeDex=true){const info=el('div',undefined,'registered-info pokemon-card-info'),lv=level(p);info.append(el('small',lv===null?'':'Lv.'+lv,'pokemon-card-level'),el('strong',p.nickname?.trim()||C.speciesName(p.species)||'未確認','pokemon-card-nickname'));if(includeDex)info.append(el('small',nationalDex[p.species]?'No.'+String(nationalDex[p.species]).padStart(3,'0'):'No.—','individual-number'));info.append(el('small',C.speciesName(p.species)||'未確認','pokemon-card-species'));if(p.provisional)info.append(el('small','仮登録','provisional-badge'));return info;}
+ function cardInfo(p){const info=el('div',undefined,'registered-info pokemon-card-info'),lv=level(p),levelText=el('small',undefined,'pokemon-card-level');if(lv!==null)levelText.append(el('span','Lv.'),el('strong',String(lv)));info.append(levelText,el('strong',p.nickname?.trim()||C.speciesName(p.species)||'未確認','pokemon-card-nickname'),el('small',C.speciesName(p.species)||'未確認','pokemon-card-species'));if(p.provisional)info.append(el('small','仮登録','provisional-badge'));return info;}
 
  function typeBorder(node,p){if(typeof PokemonTypes!=='undefined'){PokemonTypes.apply(node,p?.species);if(node.dataset.pokemonType)node.dataset.pokemonTypeLabel=typeNames[node.dataset.pokemonType]||'';}}
  // Saved lineups use IDs only; current and saved slots are copied independently.
@@ -33,7 +33,7 @@ const TeamUI=(()=>{
    const slots=el('div',undefined,'saved-team-slots');
    for(let j=0;j<5;j++){
     const id=saved.team?.[j],p=state.pokemon.find(p=>p.id===id),b=button('',()=>TeamPicker.open(j,{name:savedTeam(i).name||'チーム'+(i+1),team:()=>savedTeam(i).team||Array(5).fill(null),save:team=>saveTeam(i,{team}),focusId:'saved-team-'+i+'-slot-'+j}),'team-slot-button');
-    typeBorder(b,p);b.setAttribute('aria-expanded','false');b.id='saved-team-'+i+'-slot-'+j;b.setAttribute('aria-label','チーム'+(i+1)+'の位置'+(j+1)+'：'+(p?label(p):'未設定'));b.setAttribute('aria-haspopup','dialog');b.append(el('span',j===0?'1R':String(j+1),'saved-slot-number'),p?cardInfo(p,false):name(p));slots.append(b);
+    const slot=el('div',undefined,'saved-team-slot-row');typeBorder(b,p);b.setAttribute('aria-expanded','false');b.id='saved-team-'+i+'-slot-'+j;b.setAttribute('aria-label','チーム'+(i+1)+'の位置'+(j+1)+'：'+(p?label(p):'未設定'));b.setAttribute('aria-haspopup','dialog');b.append(p?cardInfo(p):name(p));slot.append(el('span',j===0?'1R':String(j+1),'saved-slot-number'),b);slots.append(slot);
    }
    section.append(head,slots);root.append(section);
   }
