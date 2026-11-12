@@ -3,7 +3,7 @@ const SummaryExtras=(()=>{
  const candySources=[['research','睡眠'],['social','フレンド'],['help','アメ拾い'],['skills','スキル'],['professor','博士'],['other','その他']];
  const candySkillSources=[['mew','ミュウ'],['delibird','デリバード'],['copy','スキルコピー'],['metronome','ゆびをふる']];
  const color=(token,fallback)=>{const value=typeof document!=='undefined'&&typeof getComputedStyle==='function'?getComputedStyle(document.documentElement).getPropertyValue(token):'';return typeof value==='string'&&value.trim()||fallback;};
- const candySourceColors={research:color('--source-research','#4f78a8'),social:color('--source-social','#4f8666'),help:color('--source-help','#ad625b'),skills:color('--source-skills','#9C7A31'),professor:color('--source-professor','#8B5CF6'),other:color('--source-other','#82919B')};
+ const candySourceColors={research:color('--source-research','#4f78a8'),social:color('--source-social','#4f8666'),help:color('--source-help','#ad625b'),skills:color('--source-skills','#9C7A31'),professor:color('--source-professor','#8870A5'),other:color('--source-other','#82919B')};
  const candySource=r=>{const key=C.actionCategory(r);return ['mew','delibird','copy','metronome'].includes(key)?'skills':['research','social','help','professor'].includes(key)?key:'other';};
  const candyChild=r=>{const key=C.actionCategory(r);return ['mew','delibird','copy','metronome'].includes(key)?key:null;};
  const shardSources=[['research','睡眠リサーチ'],['skill','スキル'],['cluster','ゆめのかたまり'],['other','その他']];

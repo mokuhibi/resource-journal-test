@@ -71,7 +71,7 @@
    if(s.legacyResearchId)links.add(s.legacyResearchId);
    if(s.amount!==s.baseAmount+(s.researchRank===70?s.researchExp:0))throw Error('睡眠のゆめのかけら');
    ids.add(s.id);const key=s.date+':'+s.number;if(slots.has(key))throw Error('同じ睡眠回の重複');slots.add(key);const entries=new Set();
-   for(const e of s.entries){if(!e||typeof e.id!=='string'||!e.id||entries.has(e.id)||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>5||!count(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount))||(e.got!==undefined&&typeof e.got!=='boolean'))throw Error('睡眠のアメ明細');entries.add(e.id);}
+   for(const e of s.entries){if(!e||typeof e.id!=='string'||!e.id||entries.has(e.id)||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>5||!count(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount))||(e.got!==undefined&&typeof e.got!=='boolean')||(e.shiny!==undefined&&typeof e.shiny!=='boolean'))throw Error('睡眠のアメ明細');entries.add(e.id);}
    if(!count(s.entries.reduce((n,e)=>n+e.amount,0)))throw Error('睡眠のアメ合計が大きすぎます');
   }
   // 旧記録が既に2回超でも削除しない。追加時の回数制限はsaveで確認する。
@@ -83,7 +83,7 @@
    if(!d||key!==d.date+':'+d.number||!validDate(d.date)||![1,2].includes(d.number)||typeof d.id!=='string'||typeof d.field!=='string'||d.field.length>100||!['','うとうと','すやすや','ぐっすり','とくちょうなし','特徴なし'].includes(d.sleepType)||!Array.isArray(d.entries)||d.entries.length>100||(d.researchRank!==null&&(!Number.isInteger(d.researchRank)||d.researchRank<1||d.researchRank>70)))throw Error('睡眠の下書き');
    if(d.candyMultiplier!==undefined&&!multipliers.includes(d.candyMultiplier))throw Error('下書きのアメ倍率');
    const value=v=>(typeof v==='string'&&v.length<=30)||(typeof v==='number'&&Number.isFinite(v));if(!value(d.baseAmount)||!value(d.researchExp))throw Error('睡眠の下書き入力');
-   for(const e of d.entries)if(!e||typeof e.id!=='string'||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>5||!value(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount))||(e.got!==undefined&&typeof e.got!=='boolean'))throw Error('睡眠の下書き明細');
+   for(const e of d.entries)if(!e||typeof e.id!=='string'||!Object.hasOwn(map,e.species)||e.candy!==map[e.species]||!Number.isInteger(e.stars)||e.stars<1||e.stars>5||!value(e.amount)||(e.calculatedAmount!==null&&!count(e.calculatedAmount))||(e.got!==undefined&&typeof e.got!=='boolean')||(e.shiny!==undefined&&typeof e.shiny!=='boolean'))throw Error('睡眠の下書き明細');
   }
  }
  const datetime=s=>new Date(s.date+'T12:00:00+09:00').toISOString();

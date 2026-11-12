@@ -198,3 +198,22 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep #sleep-entries .sleep-entry-dragging{background:var(--mh-selected)}
 
 #sleep-shard-form .reward-ocr-diagnostics{margin-top:12px;padding:10px;border:1px solid #d8d8d8;border-radius:8px}#sleep-shard-form .reward-ocr-diagnostics summary{cursor:pointer;font-weight:600}#sleep-shard-form .reward-ocr-diagnostics textarea{display:block;box-sizing:border-box;width:100%;max-height:40vh;margin:8px 0;font:12px/1.5 monospace}#sleep-shard-form .reward-ocr-diagnostics button{min-height:44px}
+
+/* Keep all three research selectors identical in edit and saved views. */
+#sleep .sleep-research-heading .sleep-bonus .sleep-compact-select{flex:1;font-weight:400}
+#sleep .sleep-research-heading .sleep-fields{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 80px}
+#sleep .sleep-research-heading .sleep-bonus .sleep-compact-select>select{position:absolute;inset:0;width:100%;height:44px;padding:0;opacity:0;cursor:pointer}
+#sleep .sleep-readonly .sleep-compact-select>select:disabled{opacity:0!important}
+
+/* Shiny and GET are independent states for each research entry. */
+#sleep .sleep-entry{grid-template-columns:minmax(0,1fr) 26px 26px 38px 44px 24px;gap:2px}
+#sleep #sleep-entries .sleep-entry-sortable{grid-template-columns:26px minmax(0,1fr) 26px 26px 38px 44px 24px;gap:2px}
+#sleep #sleep-entries .sleep-entry-drag{min-width:26px}
+#sleep .sleep-entry .sleep-shiny-button,#sleep .sleep-entry .sleep-get-button{display:flex;align-items:center;justify-content:center;width:26px;min-width:26px;height:26px;min-height:26px;padding:0;border:1px solid var(--mh-border);border-radius:50%;background:var(--mh-surface)}
+#sleep .sleep-entry .sleep-shiny-button{color:var(--mh-muted)}
+#sleep .sleep-entry .sleep-shiny-button[aria-pressed=true],#sleep .sleep-readonly .sleep-entry .sleep-shiny-button[aria-pressed=true]:disabled{color:#B8860B}
+#sleep .sleep-entry .sleep-shiny-button .tab-icon{width:16px;height:16px;flex:none}
+#sleep .sleep-entry .sleep-shiny-button .tab-label{display:none}
+#sleep .sleep-entry .sleep-star-button{width:38px;min-width:38px}
+#sleep .sleep-entry .sleep-entry-amount{width:44px}
+#sleep .sleep-entry .sleep-entry-remove{min-width:24px}

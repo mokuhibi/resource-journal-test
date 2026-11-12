@@ -5,7 +5,7 @@
  --resource-candy:#DC9EB5;--resource-shard:#E5C96C;
  --resource-candy-bg:#FAEFF3;--resource-shard-bg:#FCF8E8;
  --editorial-candy:var(--resource-candy);--editorial-shard:var(--resource-shard);
- --source-research:#4f78a8;--source-social:#4f8666;--source-help:#ad625b;--source-skills:#9C7A31;--source-professor:#8B5CF6;--source-other:#82919B;
+ --source-research:#4f78a8;--source-social:#4f8666;--source-help:#ad625b;--source-skills:#9C7A31;--source-professor:#8870A5;--source-other:#82919B;
  --shard-skill-color:var(--source-skills);--shard-research-color:var(--source-research);--shard-other-color:var(--source-other);
  --shard-skill-tint:#F6F0E1;--shard-research-tint:#EDF2F8;--shard-other-tint:#F0F3F5;
  --mh-accent:#80643B;--mh-border:#E5E5E5;--mh-selected:#F3EEE5;--mh-error:#B45353;

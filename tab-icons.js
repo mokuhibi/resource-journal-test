@@ -19,11 +19,13 @@ const TabIcons=(()=>{
  paths['file-pen-line']='<path d="M14.364 13.634a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506l4.013-4.009a1 1 0 0 0-3.004-3.004z" /><path d="M14.487 7.858A1 1 0 0 1 14 7V2" /><path d="M20 19.645V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l2.516 2.516" /><path d="M8 18h1" />';
  paths["mail"]="<rect width=\"20\" height=\"16\" x=\"2\" y=\"4\" rx=\"2\" />\n  <path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\" />";
  paths["bed"]='<path d="M2 4v16" /><path d="M2 8h16a4 4 0 0 1 4 4v8" /><path d="M2 17h20" /><path d="M6 8v9" />';
+ paths['arrow-right-left']='<path d="m16 3 4 4-4 4" /><path d="M20 7H4" /><path d="m8 21-4-4 4-4" /><path d="M4 17h16" />';
+ paths.sparkles='<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z" /><path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />';
  paths["rotate-ccw"]='<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" />';
  paths["image-plus"]="<path d=\"M16 5h6\" />\n  <path d=\"M19 2v6\" />\n  <path d=\"M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5\" />\n  <path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\" />\n  <circle cx=\"9\" cy=\"9\" r=\"2\" />";
  paths.pencil='<path d="m18 2 4 4-14 14-6 2 2-6L18 2Z" /><path d="m14.5 5.5 4 4" />';
  paths.x='<path d="M18 6 6 18" /><path d="m6 6 12 12" />';
- const main={record:'notebook-pen',summary:'candy',shards:'diamond',history:'history',team:'users',settings:'settings'},record={main:'notebook-pen',sleep:'moon',social:'mail',professor:'bed',nap:'mountain'};
+ const main={record:'notebook-pen',summary:'candy',shards:'diamond',history:'history',team:'users',settings:'settings'},record={main:'notebook-pen',sleep:'moon',social:'mail',professor:'arrow-right-left',nap:'mountain'};
  function add(button,name){
   if(!paths[name]||button.querySelector('.tab-icon'))return;
   const label=document.createElement('span');label.className='tab-label';while(button.firstChild)label.append(button.firstChild);
