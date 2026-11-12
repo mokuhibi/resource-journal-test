@@ -79,7 +79,7 @@ const groupRank=p=>p.species==='ミュウ'?0:p.species==='デリバード'?1:2;
 const orderedPokemon=()=>state.pokemon.map((p,i)=>({p,i})).sort((a,b)=>groupRank(a.p)-groupRank(b.p)||(groupRank(a.p)<2?a.p.registrationOrder-b.p.registrationOrder:a.i-b.i)).map(x=>x.p);
 let showOtherPokemon=false;
 const relatedPokemon=p=>special(p)||ShardUI.isTarget(p);
-let sorting=false,editingId=null,editPool=[],historyEditDone=null,historyEditCancel=null;
+let sorting=false,editingId=null,editPool=[],historyEditDone=null,historyEditCancel=null,historyInlineCancel=null;
 
 function load(){try{const raw=localStorage.getItem(KEY);if(raw){const old=JSON.parse(raw);state=C.migrate(old,candyMap);if(old.version===1){localStorage.setItem(KEY+'-before-v2',raw);localStorage.setItem(KEY,JSON.stringify(state));}}else{for(let i=0;i<5;i++){const species=localStorage.getItem('pokemon-slot-'+i);if(names.includes(species)){const p={id:uid(),species,nickname:'',profile:null};state.pokemon.push(p);state.team[i]=p.id;}}localStorage.setItem(KEY,JSON.stringify(state));}}catch(e){blocked=true;notice('保存データを読み込めません。上書きを停止しました。設定からバックアップを書き出してください。');}}
 // 履歴と編成をまとめて保存。保存できた時だけ画面の状態を確定します。
@@ -300,9 +300,9 @@ function openHistoryEditor(r,host,done,cancel){
  $('edit-context').checked=!!r.context;const root=$('edit-team');root.replaceChildren();
  for(let i=0;i<5;i++){const l=el('label',position(i+1)),s=el('select');s.id='edit-team-'+i;optionList(s,editPool.map((p,n)=>({id:p.id,text:speciesEnabled(p.species)?label(p):'非表示'})),r.context?.team[i]?.id||'','未設定');s.onchange=()=>refreshHistoryEditor();l.append(s);root.append(l);}
  $('edit-multiplier').value=r.context?.event?.multiplier||1;$('edit-boost').value=r.context?.event?.boost||0;
- MewUI.openEditor(r);refreshHistoryEditor(r.slot,r.amount,r.context?.actorId||'');if(host){const form=$('history-edit-form');form.querySelector('.section-head').hidden=true;host.append(form);historyEditDone=done;historyEditCancel=cancel;return ()=>{if(historyEditDone){$('history-editor').append(form);form.querySelector('.section-head').hidden=false;historyEditDone=historyEditCancel=null;}};}else $('history-editor').showModal();
+ MewUI.openEditor(r);refreshHistoryEditor(r.slot,r.amount,r.context?.actorId||'');if(host){const form=$('history-edit-form');form.querySelector('.section-head').hidden=true;historyInlineCancel=button('キャンセル',()=>finishHistoryEdit(false));form.append(historyInlineCancel);host.append(form);historyEditDone=done;historyEditCancel=cancel;return ()=>{if(historyEditDone){$('history-editor').append(form);form.querySelector('.section-head').hidden=false;historyInlineCancel.remove();historyInlineCancel=historyEditDone=historyEditCancel=null;}};}else $('history-editor').showModal();
 }
-function finishHistoryEdit(saved){if(!historyEditDone)return $('history-editor').close();const action=saved?historyEditDone:historyEditCancel,form=$('history-edit-form');$('history-editor').append(form);form.querySelector('.section-head').hidden=false;historyEditDone=historyEditCancel=null;action();}
+function finishHistoryEdit(saved){if(!historyEditDone)return $('history-editor').close();const action=saved?historyEditDone:historyEditCancel,form=$('history-edit-form');$('history-editor').append(form);form.querySelector('.section-head').hidden=false;historyInlineCancel.remove();historyInlineCancel=historyEditDone=historyEditCancel=null;action();}
 function editTeam(){return Array.from({length:5},(_,i)=>clone(editPool.find(p=>p.id===$('edit-team-'+i).value)||null));}
 function refreshHistoryEditor(slot,amount,actorId){
  const method=$('edit-method').value,s=$('edit-slot'),oldSlot=slot===undefined?s.value:(method==='mew'&&amount===0?'none':String(slot??''));s.replaceChildren(new Option('不明',''));if(method==='mew')s.add(new Option('アメなし','none'));for(let i=1;i<=(method==='delibird'?6:5);i++)s.add(new Option(i===6?'6 · アメなし':position(i),String(i)));s.value=oldSlot;
