@@ -138,6 +138,9 @@
 #record #today-total .daily-resource>.total .quantity-unit{font-size:13px;font-weight:400;letter-spacing:0;margin-left:3px}
 /* ミュウ位置分析：確率が主、獲得先は回数の比較。 */
 #summary .mew-position{padding:12px 0;border-bottom:1px solid #e4e3da}
+#summary .analysis-metrics{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0}
+#summary .analysis-metrics button{min-height:44px;padding:6px 8px;font-size:12px}
+#summary .analysis-metrics button[aria-pressed=true]{background:var(--mh-selected);border-color:var(--mh-accent);color:var(--mh-accent)}
 #summary .mew-position:last-child{border-bottom:0}
 #summary .mew-position-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 #summary .mew-position-head h4{font-size:15px;margin:0;font-weight:600}

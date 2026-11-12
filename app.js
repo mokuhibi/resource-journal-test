@@ -186,13 +186,14 @@ function renderSlotCounts(records){
  const group=el('div',undefined,'slot-group help');
  const table=el('table',undefined,'slot-table slot-horizontal'),head=el('thead'),headRow=el('tr'),body=el('tbody');
  const denominator=source.filter(r=>r.slot>=1&&r.slot<=5).length;
- const cells=Array.from({length:5},(_,i)=>({name:i===0?'R':String(i+1),xs:source.filter(r=>r.slot===i+1)}));
+ const cells=Array.from({length:5},(_,i)=>({name:i===0?'1R':String(i+1),xs:source.filter(r=>r.slot===i+1)}));
  const unknown=source.filter(r=>r.slot===null&&r.amount!==0);if(unknown.length)cells.push({name:'位置不明',xs:unknown,unknown:true});
- const corner=el('th','位置');corner.scope='col';headRow.append(corner);
+ const corner=el('th','');corner.scope='col';headRow.append(corner);
  for(const c of cells){const th=el('th',c.name);th.scope='col';headRow.append(th);}head.append(headRow);table.append(head,body);
  for(const [name,value] of [['回数',c=>c.xs.length+'回'],['割合',c=>c.unknown||!denominator?'―':(100*c.xs.length/denominator).toFixed(1)+'%'],['アメ',c=>C.sum(c.xs)+'個']]){const tr=el('tr'),th=el('th',name);th.scope='row';tr.append(th);for(const c of cells)tr.append(qel('td',value(c)));body.append(tr);}
  group.append(table);root.append(group);
 }
+let analysisMetric='percent';
 function renderAnalysis(){
  const method=$('analysis-method').value,actor='',amount='';
  const source=SummaryExtras.candyRecords(filteredRecords()).filter(r=>r.method===method&&(method!=='mew'||r.amount>0));
@@ -202,17 +203,18 @@ function renderAnalysis(){
  const analysisHeading=$('analysis-card').querySelector('h3');analysisHeading.firstChild.textContent='メインスキルの記録';
  headingTotal('analysis',C.sum(rs));const root=$('analysis');root.className=method;
  root.replaceChildren();
- if(rs.length)renderMewPositions(root,result);else root.append(el('p','この条件の記録はありません。'));
+ const metrics=el('div',undefined,'analysis-metrics');for(const [key,label] of [['count','発動回数'],['candy','獲得アメ数'],['percent','割合（%）']]){const choice=button(label,()=>{analysisMetric=key;renderAnalysis();});choice.type='button';choice.setAttribute('aria-pressed',String(analysisMetric===key));metrics.append(choice);}root.append(metrics);
+ if(rs.length)renderMewPositions(root,result,analysisMetric);else root.append(el('p','この条件の記録はありません。'));
  if(result.excluded)root.append(qel('p','発動した場所・個数不明 '+result.excluded+'回','analysis-note'));
 
 }
 // 発動位置ごとの獲得数の割合と、獲得先の回数を分けて表示します。
-function renderMewPositions(root,result){
+function renderMewPositions(root,result,metric='combined'){
 
  function targets(rows,distribution=false){
   const table=el('table',undefined,'mew-target-table'),head=el('thead'),tr=el('tr'),body=el('tbody');table.append(el('caption',distribution?'アメゲット場所':'アメゲット場所(回数)'));if(distribution)table.className='mew-target-table mew-distribution'+(result.destinations.length>5?' mew-six-targets':'');
   tr.append(el('th',distribution?'分類':'アメ'));for(const j of result.destinations){const th=el('th',j===1?'1R':j===6?'アメなし':String(j));th.scope='col';tr.append(th);}head.append(tr);table.append(head,body);
-  for(const data of rows){const line=el('tr',undefined,data.amount===null?'mew-all':''),name=el('th',data.name);name.scope='row';line.append(name);for(const cell of data.cells){const td=el('td');if(distribution){td.append(el('strong',cell.percent===null?'―':cell.percent.toFixed(1)+'%'),qel('small',cell.count+'回'));if(data.amount!==null&&data.amount!==1)td.append(qel('small',cell.candyAmount+'個','mew-cell-amount'));}else td.textContent=cell.count.toLocaleString('ja-JP');line.append(td);}body.append(line);if(distribution&&data.amount===null){const totals=el('tr',undefined,'mew-totals');totals.append(el('th','アメ合計'));for(const cell of data.cells)totals.append(qel('td',cell.candyAmount+'個'));body.append(totals);}}
+  for(const data of rows){const line=el('tr',undefined,data.amount===null?'mew-all':''),name=el('th',data.name);name.scope='row';line.append(name);for(const cell of data.cells){const td=el('td');if(distribution){if(metric==='count')td.append(el('strong',cell.count+'回'));else if(metric==='candy')td.append(el('strong',cell.candyAmount+'個'));else{td.append(el('strong',cell.percent===null?'―':cell.percent.toFixed(1)+'%'));if(metric==='combined'){td.append(qel('small',cell.count+'回'));if(data.amount!==null&&data.amount!==1)td.append(qel('small',cell.candyAmount+'個','mew-cell-amount'));}}}else td.textContent=cell.count.toLocaleString('ja-JP');line.append(td);}body.append(line);if(distribution&&data.amount===null&&metric==='combined'){const totals=el('tr',undefined,'mew-totals');totals.append(el('th','アメ合計'));for(const cell of data.cells)totals.append(qel('td',cell.candyAmount+'個'));body.append(totals);}}
   return table;
  }
  for(const block of result.blocks){

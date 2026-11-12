@@ -154,8 +154,8 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep .sleep-candidate-stars{flex-wrap:wrap}
 
 /* 選択済み行は入力枠と同寸法。操作領域は行の高さを維持する。 */
-:is(#sleep,.sleep-ocr-panel) .sleep-entry{grid-template-columns:minmax(0,1fr) 52px 52px 44px}
-:is(#sleep,.sleep-ocr-panel) .sleep-entry .sleep-star-button{width:52px;min-width:52px;height:36px;min-height:36px;padding:4px 6px}
+:is(#sleep,.sleep-ocr-panel) .sleep-entry{grid-template-columns:minmax(0,1fr) 28px 40px 48px 28px;gap:4px}
+:is(#sleep,.sleep-ocr-panel) .sleep-entry .sleep-star-button{width:40px;min-width:40px;height:36px;min-height:36px;padding:4px 2px}
 #sleep .sleep-sticky-total :is(#sleep-candy-total,.sleep-entry-count){font-size:20px;color:var(--mh-text);font-weight:400;line-height:1.3}
 #sleep .sleep-sticky-total [data-saved=true]{font-weight:700}
 #sleep .sleep-sticky-total .quantity-number{font-size:inherit;font-weight:inherit}
@@ -170,6 +170,8 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 :is(#sleep,#sleep-editor) .sleep-save:not(:disabled){border-color:transparent}
 
 #sleep .sleep-entry-name{min-width:0;text-align:left;overflow-wrap:anywhere}#sleep .sleep-entry-name>strong{font-weight:400}
+#sleep .sleep-entry .sleep-get-button{width:28px;min-width:28px;min-height:28px;height:28px;padding:0;border:1px solid var(--mh-border);border-radius:50%;font-size:9px;font-weight:700;background:var(--mh-surface);color:var(--mh-muted)}
+#sleep .sleep-entry .sleep-get-button[aria-pressed=true]{background:var(--mh-error);border-color:var(--mh-error);color:white}
 
 /* Confirmed research is read-only until its own Edit action is chosen. */
 #sleep .sleep-readonly .sleep-search-row,#sleep .sleep-readonly .sleep-candidates{display:none}
@@ -189,8 +191,8 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 
 #sleep-entries .sleep-entry-selected{outline:2px solid var(--mh-accent);outline-offset:-2px;border-radius:8px}
 #sleep-entries .sleep-entry-review{box-shadow:inset 3px 0 #b07b2d;border-radius:8px}
-#sleep #sleep-entries .sleep-entry-sortable{grid-template-columns:42px minmax(0,1fr) 52px 52px 44px;gap:4px}
-#sleep #sleep-entries .sleep-entry-drag{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-width:42px;min-height:44px;color:var(--mh-muted);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+#sleep #sleep-entries .sleep-entry-sortable{grid-template-columns:30px minmax(0,1fr) 28px 40px 48px 28px;gap:4px}
+#sleep #sleep-entries .sleep-entry-drag{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-width:30px;min-height:44px;color:var(--mh-muted);touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 #sleep #sleep-entries .sleep-entry-drag>span{height:19px;font-size:20px;line-height:19px}
 #sleep #sleep-entries .sleep-entry-drag>small{font-size:10px;font-variant-numeric:tabular-nums;line-height:14px}
 #sleep #sleep-entries .sleep-entry-dragging{background:var(--mh-selected)}

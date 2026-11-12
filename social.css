@@ -39,6 +39,7 @@
 .social-species{display:block;min-width:0;border-radius:4px;padding:1px 3px;color:var(--mh-text)}
 .social-name-form{display:block;font-size:inherit;overflow-wrap:anywhere}
 .social-species[data-pokemon-type]{background:color-mix(in srgb,var(--pokemon-type-color) 18%,var(--mh-surface))}
+.social-candidate .social-species[data-pokemon-type]{background:transparent}
 .social-entry-names{display:flex;flex-direction:column;min-width:0;line-height:1.3!important}
 .social-entry-names small{font-size:10px;color:var(--mh-muted);padding-inline:3px}
 .social-entry{grid-template-columns:26px minmax(0,1fr) 30px 30px}
@@ -50,6 +51,6 @@
 #record #social-root :is(.social-actions button,.social-heading button,.social-search>button,.social-candidate button,.social-entry>button:not(.social-entry-drag)){border:1px solid var(--record-line);border-radius:var(--record-control-radius);background:var(--record-action);color:var(--record-text);font-weight:500;box-shadow:none}
 #record #social-root .social-actions button{font-size:13px;padding:6px 8px}
 #record #social-root .social-search>button{font-size:10px;padding-inline:1px}
-#record #social-root .social-entry>button:not(.social-entry-drag){color:var(--mh-error)}
+#record #social-root .social-entry>button:not(.social-entry-drag){color:var(--record-text)}
 @media(max-width:350px){.social-columns{grid-template-columns:minmax(0,11fr) minmax(0,14fr)}}
 #app-panel .social-ocr-diagnostics{margin:12px 0;padding:10px;border:1px solid #d8d8d8;border-radius:8px}#app-panel .social-ocr-diagnostics summary{cursor:pointer;font-weight:600}#app-panel .social-ocr-diagnostics textarea{display:block;box-sizing:border-box;width:100%;max-height:40vh;margin:8px 0;font:12px/1.5 monospace}#app-panel .social-ocr-diagnostics button{min-height:44px}

@@ -67,7 +67,7 @@ const SummaryExtras=(()=>{
   root.hidden=!root.children.length;
  }
  // 選択日付は操作部に一度だけ表示し、ここでは範囲の意味を説明する。
- function periodCaption(period){return period?Math.round((Date.parse(period[1])-Date.parse(period[0]))/86400000)+'日分の獲得数(04:00切替)':'保存済みのすべての記録';}
+ function periodCaption(period){if(!period)return '保存済みのすべての記録';const days=Math.round((Date.parse(period[1])-Date.parse(period[0]))/86400000);return days===1?C.displayDate(period[0]):days+'日分の獲得数(04:00切替)';}
  function recordSummary(){
   const date=recordDate();if(!Number.isFinite(date.getTime()))return;
   const day=C.gameDay(date),period=C.range('day',day),root=$('today-total'),wasOpen=root.querySelector('details')?.open||false;const heading=el('small',day===C.gameDay(new Date())?'今日の獲得数':'選択日の獲得数');if(C.localInput(date).slice(0,10)!==day)heading.append(el('span','集計日：'+C.displayDate(day)+'(04:00切替)','record-day-note'));root.replaceChildren(heading);
