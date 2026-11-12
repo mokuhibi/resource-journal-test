@@ -248,13 +248,14 @@ function historyCard(card,r,method,primary,target,actions){
  // 分類は保存済みの入手方法で判定。名称や獲得数からスキルを推測しない。
  const mewShards=r.method==='mew'&&SK.id(r.firedSkill)==='dream_shard_s',shards=card.classList.contains('shards')||mewShards;
  if(mewShards){card.classList.add('shards');card.dataset.shardSource='skill';const actor=actorOf(r.context);target=historyPlace(r.context?.actorSlot)+(actor?'　'+label(actor):'');}
- const categoryMethod=shards?(mewShards||['skill','lucky'].includes(r.method)?'スキル':r.method==='research'?'睡眠リサーチ':r.method==='other'&&r.otherKind==='nap_island'?'おひるね島':r.method==='cluster'?'ゆめのかたまり':r.method==='other'?'その他':'入手方法不明'):(C.isNapRecord(r)?'おひるね島':r.method==='skill'?'その他':method||'入手方法不明');
+ const categoryMethod=shards?(mewShards||['skill','lucky'].includes(r.method)?'スキル':r.method==='research'?'睡眠リサーチ':r.method==='other'&&r.otherKind==='nap_island'?'おひるね島':r.method==='cluster'?'ゆめのかたまり':r.method==='other'?'その他':'入手方法不明'):(C.isNapRecord(r)?'おひるね島':['mew','delibird'].includes(r.method)?'スキル':r.method==='skill'?'その他':method||'入手方法不明');
+ card.dataset.historySource=categoryMethod==='アメ拾い'?'help':categoryMethod==='スキル'?'skills':categoryMethod==='睡眠リサーチ'?'research':['その他','おひるね島','ゆめのかたまり'].includes(categoryMethod)?'other':'';
  const stamp=historyTime(r.recordedAt||r.datetime).split(' '),head=el('div',undefined,'history-topline'),time=el('time',undefined,'history-time');time.dateTime=r.recordedAt||r.datetime;time.append(el('span',stamp[0].slice(3)),el('span',stamp[1]||''));head.append(el('strong',shards?'ゆめのかけら':'アメ','history-category'),time);
- const meta=el('div',undefined,'history-meta');meta.append(el('strong',categoryMethod,'history-method'),qel('strong',(mewShards?r.shardAmount:r.amount)+'個','history-amount'));
- if(!shards&&primary&&!['アメ','スキルのみ'].includes(primary)){const name=el('strong',primary,'history-primary');name.title=primary;meta.append(name);}
+ const meta=el('div',undefined,'history-meta'),amount=qel('strong',(mewShards?r.shardAmount:r.amount)+'個','history-amount');meta.append(el('strong',categoryMethod,'history-method'),amount);
+ if(!shards&&primary&&!['アメ','スキルのみ'].includes(primary)){const name=el('span',primary,'history-primary');name.title=primary;amount.append(name);}
  card.append(head,meta);
  // 過去のスナップショットを優先し、現在の登録名・編成を参照しない。
- const pokemon=mewShards?actorOf(r.context):(r.method==='research'||r.method==='mew'&&r.amount===0)?null:historicalPokemon(r),species=pokemon?.species?C.speciesName(pokemon.species):'',nickname=pokemon?.nickname?.trim()||'',slot=mewShards?r.context?.actorSlot:r.slot,place=Number.isInteger(slot)&&slot>=1&&slot<=5?slot+'番':'';
+ const actor=['mew','delibird'].includes(r.method)?actorOf(r.context):null,pokemon=actor||((r.method==='research'||r.method==='mew'&&r.amount===0)?null:historicalPokemon(r)),species=pokemon?.species?C.speciesName(pokemon.species):'',nickname=pokemon?.nickname?.trim()||'',slot=actor?r.context?.actorSlot:r.slot,place=Number.isInteger(slot)&&slot>=1&&slot<=5?(slot===1?'1R':slot+'番'):'';
  if(species){
   const line=el('p',[place,nickname||species].filter(Boolean).join('　'),'history-target');line.title=line.textContent;card.append(line);
   if(nickname){const speciesLine=el('p',species,'history-target history-species');speciesLine.title=species;card.append(speciesLine);}
@@ -298,7 +299,7 @@ function openHistoryEditor(r,host,done,cancel){
  const species=$('edit-species');species.replaceChildren();for(const name of names.filter(speciesEnabled))species.add(new Option(C.speciesName(name),name));species.value=r.species||names[0];
  let recipient=$('edit-recipient');if(!recipient){const row=el('label','アメの獲得先'),select=el('select');select.id='edit-recipient';row.append(select);$('edit-slot').closest('label').after(row);recipient=select;}const recipients=[...state.pokemon];if(r.pokemonId&&!recipients.some(p=>p.id===r.pokemonId)){const saved=r.pokemonSnapshot||r.context?.team?.find(p=>p?.id===r.pokemonId);if(saved)recipients.unshift(saved);}optionList(recipient,recipients.map(p=>({id:p.id,text:label(p)})),r.pokemonId||'','獲得先を選択');recipient.closest('label').hidden=r.method==='mew'||r.amount===0;
  $('edit-context').checked=!!r.context;const root=$('edit-team');root.replaceChildren();
- for(let i=0;i<5;i++){const l=el('label',position(i+1)),s=el('select');s.id='edit-team-'+i;optionList(s,editPool.map((p,n)=>({id:p.id,text:speciesEnabled(p.species)?label(p):'非表示'})),r.context?.team[i]?.id||'','未設定');s.onchange=()=>refreshHistoryEditor();l.append(s);root.append(l);}
+ for(let i=0;i<5;i++){const l=el('label',i===0?'1R':String(i+1)),s=el('select');s.id='edit-team-'+i;optionList(s,editPool.map((p,n)=>({id:p.id,text:speciesEnabled(p.species)?label(p):'非表示'})),r.context?.team[i]?.id||'','未設定');s.onchange=()=>refreshHistoryEditor();l.append(s);root.append(l);}
  $('edit-multiplier').value=r.context?.event?.multiplier||1;$('edit-boost').value=r.context?.event?.boost||0;
  MewUI.openEditor(r);refreshHistoryEditor(r.slot,r.amount,r.context?.actorId||'');if(host){const form=$('history-edit-form');form.querySelector('.section-head').hidden=true;historyInlineCancel=button('キャンセル',()=>finishHistoryEdit(false));form.append(historyInlineCancel);host.append(form);historyEditDone=done;historyEditCancel=cancel;return ()=>{if(historyEditDone){$('history-editor').append(form);form.querySelector('.section-head').hidden=false;historyInlineCancel.remove();historyInlineCancel=historyEditDone=historyEditCancel=null;}};}else $('history-editor').showModal();
 }

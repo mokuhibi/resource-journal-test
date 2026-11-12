@@ -83,7 +83,7 @@ const SleepUI=(()=>{
     if(typeof SkillActions!=='undefined')SkillActions.show();
    }
   }
-  const historyFilters=$('history-period')?.closest('.filters');if(historyFilters)historyFilters.hidden=professorHistoryView||fieldView||historyView;
+  const historyFilters=$('history-period')?.closest('.period-picker')||$('history-period')?.closest('.filters');if(historyFilters)historyFilters.hidden=professorHistoryView||fieldView||historyView;
   $('history-social-view').hidden=!socialHistoryView;if(socialHistoryView&&activeTab==='history'&&typeof SocialUI!=='undefined')SocialUI.renderHistory($('history-social-view'),historyRange());
   $('history-field-view').hidden=!fieldView;if(fieldView&&activeTab==='history')FieldHistoryUI.showHistory($('history-field-view'));
   $('record-professor-view').hidden=!professorRecordView;$('history-professor-view').hidden=!professorHistoryView;if(typeof ProfessorUI!=='undefined')ProfessorUI.sync(professorRecordView,professorHistoryView);

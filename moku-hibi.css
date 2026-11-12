@@ -484,7 +484,17 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
 #history-professor-view .professor-history-edit>label:nth-child(3){grid-column:1/-1}
 @media(max-width:390px){#history #history-list .card{padding:9px}#history #history-list .history-topline .history-method{font-size:12px}#history #history-list .history-topline .history-time{font-size:10px}}
 #history #history-list .history-meta{flex-wrap:wrap}
-#history #history-list .history-meta .history-primary{flex:1 1 100%}
+#history .period-picker[hidden]{display:none!important}
+#history #history-list .history-meta .history-amount{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 5px;min-width:0}
+#history #history-list .history-meta .history-primary{font-size:11px;font-weight:400;line-height:1.3;overflow-wrap:anywhere;min-width:0}
+#history #history-list .card :is(.history-meta,.history-target){margin-block:3px}
+#history #history-list .card[data-history-source=help] .history-method{color:var(--source-help)}
+#history #history-list .card[data-history-source=skills] .history-method{color:var(--source-skills)}
+#history #history-list .card[data-history-source=research] .history-method{color:var(--source-research)}
+#history #history-list .card[data-history-source=other] .history-method{color:var(--source-other)}
+#history-details-panel #edit-team{display:grid;gap:7px;min-width:0}
+#history-details-panel #edit-team>label{display:grid;grid-template-columns:36px minmax(0,1fr);align-items:center;justify-items:center;gap:8px;min-width:0;margin:0}
+#history-details-panel #edit-team>label select{width:100%;min-width:0;min-height:42px;margin:0;border-radius:var(--mh-radius)}
 #history-professor-view .professor-history-line>span:nth-child(2){overflow:visible;text-overflow:clip}
 
 #sleep .sleep-history-entry .history-icon-action{display:inline-flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;padding:4px;border:0;background:transparent;color:var(--mh-text)}
