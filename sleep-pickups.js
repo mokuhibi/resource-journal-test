@@ -27,7 +27,7 @@ const SleepPickups=(()=>{
  // Date arguments are already game dates; timestamps are converted at JST 04:00.
  function eventDay(value){if(validDay(value))return value;const d=new Date(value);return Number.isFinite(d.getTime())?fieldData.day(d):'';}
  function tiersFor(event,value){const tiers={};for(const source of [event.tiers||{},event.dailyTiers?.find(x=>x.date===eventDay(value))?.tiers||{}])for(const [key,xs] of Object.entries(source))tiers[key]=[...(tiers[key]||[]),...xs];return tiers;}
- function eventMembers(e,day,field){const members=e.dailyTiers?Object.values(tiersFor(e,day)).flat():e.pokemon;return field&&e.fieldPokemon?members.filter(n=>e.fieldPokemon[field]?.includes(n)):members;}
+ function eventMembers(e,day,field){if(e.pokemonReleaseAt&&typeof day==='string'&&day.includes('T')&&Date.parse(day)<Date.parse(e.pokemonReleaseAt))return [];const members=e.dailyTiers?Object.values(tiersFor(e,day)).flat():e.pokemon;return field&&e.fieldPokemon?members.filter(n=>e.fieldPokemon[field]?.includes(n)):members;}
  function targets(events,day,field){return [...new Set(matching(events,day,field).flatMap(e=>eventMembers(e,day,field)))];}
  function periodText(event){if(!event.gameDayHours)return C.displayDate(event.start)+' 〜 '+C.displayDate(event.end);const end=new Date(Date.parse(event.end)+86400000).toISOString().slice(0,10);return C.displayDate(event.start)+' 4:00 〜 '+C.displayDate(end)+' 3:59';}
  function list(){return [...standard.map(e=>({...e,standard:true})),...(state.settings.sleepPickupEvents||[]).map(e=>({...e,standard:false}))].sort((a,b)=>b.start.localeCompare(a.start)||a.name.localeCompare(b.name));}
