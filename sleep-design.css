@@ -211,6 +211,7 @@ body:has(#sleep.sleep-keyboard-open:not([hidden])) .tabs{visibility:hidden;point
 #sleep #sleep-entries .sleep-entry-drag{min-width:26px}
 #sleep .sleep-entry .sleep-shiny-button,#sleep .sleep-entry .sleep-get-button{display:flex;align-items:center;justify-content:center;width:26px;min-width:26px;height:26px;min-height:26px;padding:0;border:1px solid var(--mh-border);border-radius:50%;background:var(--mh-surface)}
 #sleep .sleep-entry .sleep-shiny-button{color:var(--mh-muted)}
+#sleep .sleep-readonly .sleep-entry .sleep-shiny-button:disabled{color:var(--mh-muted)}
 #sleep .sleep-entry .sleep-shiny-button[aria-pressed=true],#sleep .sleep-readonly .sleep-entry .sleep-shiny-button[aria-pressed=true]:disabled{color:#B8860B}
 #sleep .sleep-entry .sleep-shiny-button .tab-icon{width:16px;height:16px;flex:none}
 #sleep .sleep-entry .sleep-shiny-button .tab-label{display:none}
