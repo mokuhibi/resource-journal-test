@@ -71,6 +71,7 @@ const SleepUI=(()=>{
  function syncNavigation(){
   if(!navigationReady)return;
   if(socialView&&state.settings.displayActions?.social===false)socialView=false;
+  if(professorRecordView&&state.settings.displayActions?.professor===false)professorRecordView=false;
   const enabled=SleepResearch.visible(state);if(!enabled&&activeTab!=='record')recordView=false;
   for(const [hostId,on] of [['record',recordView],['history',historyView]]){
    $(hostId+'-main-view').hidden=on||(hostId==='record'&&(socialView||professorRecordView))||(hostId==='history'&&(socialHistoryView||fieldView||professorHistoryView));const buttons=$(hostId+'-view-switch').children;
@@ -79,6 +80,7 @@ const SleepUI=(()=>{
    if(hostId==='record'){
     buttons[1].hidden=!enabled&&!(typeof SummaryExtras!=='undefined'&&SummaryExtras.shardVisible('research'))&&!recordView;
     if(typeof SocialUI!=='undefined'&&buttons[2])buttons[2].hidden=state.settings.displayActions?.social===false;
+    if(buttons[3])buttons[3].hidden=state.settings.displayActions?.professor===false;
 
     if(typeof SkillActions!=='undefined')SkillActions.show();
    }
