@@ -270,11 +270,11 @@ function finishHistoryCard(card){
 }
 function historyActionIcons(root){if(!root.querySelectorAll)return;for(const b of root.querySelectorAll('.history-actions button, .field-history-change button')){const name=b.textContent.trim(),icon=name==='編集'||name==='訂正'?'pencil':name==='削除'||name==='取り消す'?'x':'';if(!icon)continue;b.setAttribute('aria-label',name);b.title=name;TabIcons.add(b,icon);b.classList.add('history-icon-action');}}
 
-let historyFilter='all';
+let historyFilter=null;
 function renderHistory(){
  PeriodPicker.sync();const period=historyRange();$('history-day').textContent=period?C.displayDate(period[0])+' 〜 '+C.displayDate(C.addDays(period[1],-1)):'全期間';
- const root=$('history-list'),controls=$('history-source-filters')||el('div',undefined,'history-source-filters');controls.id='history-source-filters';controls.replaceChildren();if(!controls.isConnected)root.before?.(controls);
- for(const [key,name] of [['all','すべて'],['social','フレンド'],['help','アメ拾い'],['skills','メインスキル'],['professor','博士'],['other','その他']]){const b=button(name,()=>{historyFilter=key;renderHistory();});b.setAttribute('aria-pressed',String(historyFilter===key));controls.append(b);}
+ const root=$('history-list'),controls=$('history-source-filters')||el('div');controls.id='history-source-filters';controls.className='history-source-filters candy-source-switches';controls.replaceChildren();if(!controls.isConnected)root.before?.(controls);
+ for(const [key,name] of [['social','フレンド'],['help','アメ拾い'],['skills','スキル'],['professor','博士'],['other','その他']]){const item=el('div',undefined,'candy-source-choice'),b=button(name,()=>{historyFilter=historyFilter===key?null:key;renderHistory();});b.dataset.source=key;b.style?.setProperty?.('--source-color',SummaryExtras.sourceColor(key));b.setAttribute('aria-pressed',String(historyFilter===key));item.append(b);controls.append(item);}
  root.replaceChildren();for(const r of [...state.records].filter(r=>visibleRecord(r)&&C.inRange(r,period)).reverse().sort((a,b)=>Date.parse(b.datetime)-Date.parse(a.datetime))){
   if(r.activationVersion===1||r.skillOnlyActivation===true){SkillActions.history(root,r);continue;}
   const card=el('div',undefined,'card '+r.method);card.dataset.datetime=r.datetime;const actions=el('div',undefined,'history-actions');
@@ -284,7 +284,7 @@ function renderHistory(){
  ShardUI.appendHistory(root,period);for(const card of [...root.children])if(card.dataset.historySource==='research')card.remove();
  if(typeof SocialUI!=='undefined')SocialUI.appendHistory(root,period);
  if(typeof ProfessorUI!=='undefined'){const holder=el('div');ProfessorUI.renderHistory(holder,()=>renderHistory());for(const card of [...holder.children])if(C.inRange({datetime:card.dataset.datetime},period))root.append(card);}
- const cards=[...root.children].filter(card=>card.dataset.datetime&&(historyFilter==='all'||card.dataset.historySource===historyFilter));cards.sort((a,b)=>Date.parse(b.dataset.datetime)-Date.parse(a.dataset.datetime));root.replaceChildren(...cards);
+ const cards=[...root.children].filter(card=>card.dataset.datetime&&(!historyFilter||card.dataset.historySource===historyFilter));cards.sort((a,b)=>Date.parse(b.dataset.datetime)-Date.parse(a.dataset.datetime));root.replaceChildren(...cards);
  if($('history-period').value!=='day'){let previous;for(const card of cards){const day=C.gameDay(new Date(card.dataset.datetime));if(day!==previous){root.insertBefore(el('h3',C.displayDate(day),'history-date-divider'),card);previous=day;}}}
  if(!cards.length)root.append(el('p','履歴なし'));historyActionIcons(root);
 }

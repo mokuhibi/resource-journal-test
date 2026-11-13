@@ -271,9 +271,9 @@ body #notice .toast.record-error{background:var(--mh-error);color:#fff}
 :is(#summary,#shards,#history,#sleep) .period-picker-top{height:52px;min-height:52px}
 :is(#summary,#shards,#history,#sleep) .period-picker-top>.period-picker-date{grid-column:2;min-height:52px;height:52px;padding-block:4px;line-height:20px;display:flex;align-items:center;justify-content:center}
 :is(#summary,#shards,#history,#sleep) .period-picker-top>button:disabled{opacity:.25}
-:is(#summary,#shards) .candy-source-choice button{border-color:var(--source-color);color:var(--source-color)}
-:is(#summary,#shards) .candy-source-choice button[aria-pressed=true]{background:var(--source-color);border-color:var(--source-color);color:#fff}
-:is(#summary,#shards) .candy-source-choice button[aria-pressed=false]{background:var(--mh-surface);opacity:.65}
+:is(#summary,#shards,#history) .candy-source-choice button{border-color:var(--source-color);color:var(--source-color)}
+:is(#summary,#shards,#history) .candy-source-choice button[aria-pressed=true]{background:var(--source-color);border-color:var(--source-color);color:#fff}
+:is(#summary,#shards,#history) .candy-source-choice button[aria-pressed=false]{background:var(--mh-surface);opacity:.65}
 #summary .slot-horizontal{table-layout:fixed;width:100%}
 #summary .slot-horizontal :is(th,td){width:auto;white-space:nowrap;padding-inline:2px}
 #summary .slot-horizontal :is(th,td):first-child{width:42px}
@@ -420,8 +420,8 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
 
 /* Ver.1.1.0 TEST: one row of acquisition sources, shared with dream shards. */
 :is(#summary,#shards) .candy-source-switches{display:grid;grid-template-columns:repeat(var(--source-count,6),minmax(0,1fr));gap:2px;flex-wrap:nowrap}
-:is(#summary,#shards) .candy-source-choice{width:auto;min-width:0;flex:none}
-:is(#summary,#shards) .candy-source-choice button{width:100%;min-width:0;min-height:44px;padding:6px 0;font-size:clamp(8px,2.7vw,12px);line-height:1.3;white-space:nowrap;writing-mode:horizontal-tb;border-radius:var(--mh-radius)}
+:is(#summary,#shards,#history) .candy-source-choice{width:auto;min-width:0;flex:none}
+:is(#summary,#shards,#history) .candy-source-choice button{width:100%;min-width:0;min-height:44px;padding:6px 0;font-size:clamp(8px,2.7vw,12px);line-height:1.3;white-space:nowrap;writing-mode:horizontal-tb;border-radius:var(--mh-radius)}
 #summary .candy-source-choice[data-source=skills] button[data-source=skills]{min-height:30px;height:30px;border-radius:var(--mh-radius) var(--mh-radius) 0 0}
 #summary .candy-source-choice .candy-skill-expand{display:block;min-height:14px;height:14px;padding:0;border-top:0;border-radius:0 0 var(--mh-radius) var(--mh-radius);font-size:11px;line-height:14px;background:var(--mh-surface);color:var(--source-color)}
 #summary .candy-source-choice .candy-skill-expand[aria-expanded=true]{background:color-mix(in srgb,var(--source-color) 22%,var(--mh-surface))}
@@ -533,7 +533,7 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
 
 /* Five history views share the existing tab treatment without horizontal scrolling. */
 #history #history-view-switch{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;width:100%;margin-bottom:12px}
-.history-source-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:8px 0 14px}.history-source-filters button{min-width:0;white-space:nowrap;font-size:clamp(11px,3vw,14px)}.history-source-filters button[aria-pressed=true]{background:var(--mh-button-active-bg,#f4efe6);color:var(--mh-text-accent,#765c38)}
+.history-source-filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin:8px 0 14px}.history-source-filters button{min-width:0}
 #history #history-view-switch>button{width:100%;min-width:0;min-height:58px;padding:5px 1px;gap:2px;white-space:normal}
 #history #history-view-switch .tab-label{display:flex;flex-direction:column;min-width:0;font-size:10px;line-height:1.25;text-align:left}
 #history #history-view-switch .tab-icon{width:13px;height:13px}
@@ -586,8 +586,15 @@ body :is(#app-panel,#history-field-view) .field-history-days>button.field-histor
 #history-details-panel .history-inline-editor form>.filters{display:block}
 @media(max-width:390px){#history-details-panel .history-inline-editor{padding:10px 12px 18px}#history-details-panel .history-inline-editor form>label,#history-details-panel .history-inline-editor form>.filters>label{grid-template-columns:minmax(76px,32%) minmax(0,1fr);gap:6px}}
 @media(max-width:390px){#history #history-professor-view .professor-history-card{padding:8px}#history #history-professor-view .professor-history-head{font-size:10px}}
-/* メインスキル履歴。7日×24時間をスマホ幅内に収める。 */
-.skill-timeline-controls{display:flex;align-items:center;gap:6px;margin:12px 0}.skill-timeline-controls button{min-width:36px}.skill-timeline-controls button[aria-pressed=true]{background:var(--mh-button-active-bg,#f4efe6);color:var(--source-skills,#9c7a31)}.skill-timeline-controls span{margin-left:auto;font-weight:700;font-size:.8rem;white-space:nowrap}
-.skill-timeline-week{display:grid;grid-template-columns:32px repeat(7,minmax(0,1fr));gap:2px;width:100%;min-width:0}.skill-timeline-corner,.skill-timeline-hour,.skill-timeline-day,.skill-timeline-weekday{text-align:center;font-size:.68rem}.skill-timeline-day{display:flex;flex-direction:column;min-width:0;line-height:1.25}.skill-timeline-day small{font-size:.62rem;white-space:nowrap}.skill-timeline-day strong{font-size:.85rem}.skill-timeline-hour{align-self:center}.skill-timeline-cell{min-height:23px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:.72rem;font-weight:700}.skill-shade-0{background:#f7f6f2}.skill-shade-1{background:#eee2bf}.skill-shade-2{background:#dfc878}.skill-shade-3{background:#b99b4c;color:#fff}.skill-shade-4{background:var(--source-skills,#9c7a31);color:#fff}
+/* メインスキル履歴。睡眠履歴と同じ日付・期間選択を使う。 */
+#history .skill-timeline-controls{margin:12px 0}#history .skill-timeline-periods>button:last-child{margin-left:0;border:1px solid var(--mh-border);border-left:0;border-radius:0 var(--mh-radius) var(--mh-radius) 0;background:var(--mh-surface)}#history .skill-timeline-periods>button:last-child[aria-pressed=true]{background:var(--mh-selected)}
+.skill-timeline-week{display:grid;grid-template-columns:32px repeat(7,minmax(0,1fr));gap:2px;width:100%;min-width:0}.skill-timeline-corner,.skill-timeline-hour,.skill-timeline-day,.skill-timeline-weekday{text-align:center;font-size:.68rem}.skill-timeline-day{display:flex;flex-direction:column;min-width:0;line-height:1.25}.skill-timeline-day small{font-size:.62rem;white-space:nowrap}.skill-timeline-day small:first-child{font-size:.67rem}.skill-timeline-day strong{font-size:.85rem}.skill-timeline-hour{align-self:center}.skill-timeline-cell{min-height:23px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:.72rem;font-weight:700}.skill-shade-0{background:#f7f6f2}.skill-shade-1{background:#eee2bf}.skill-shade-2{background:#dfc878}.skill-shade-3{background:#b99b4c;color:#fff}.skill-shade-4{background:var(--source-skills,#9c7a31);color:#fff}
 .skill-timeline-month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.skill-timeline-monthday{min-height:48px;padding:3px;background:#f7f6f2;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center}.skill-timeline-monthday small{font-size:.7rem}.skill-timeline-monthday strong{font-size:1rem}.skill-total-mid{color:var(--source-skills,#9c7a31)}.skill-total-high{color:var(--source-help,#ad625b)}
-@media(max-width:390px){.skill-timeline-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) repeat(2,36px);gap:3px}.skill-timeline-controls button{padding:6px;font-size:.8rem}.skill-timeline-controls button:nth-of-type(3){grid-column:3;grid-row:1}.skill-timeline-controls button:nth-of-type(4){grid-column:4;grid-row:1}.skill-timeline-controls span{grid-column:1/-1;grid-row:2;margin:0;text-align:center;font-size:.7rem}.skill-timeline-week{gap:1px}}
+@media(max-width:390px){.skill-timeline-week{gap:1px}}
+#record #action-skills>.simple-skill-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,32%);grid-template-rows:auto auto;align-items:center;gap:4px 10px}
+#record #action-skills>.simple-skill-card .skill-record-heading{grid-column:1;grid-row:1;margin:0}
+#record #action-skills>.simple-skill-card .skill-record-detail{grid-column:1;grid-row:2;margin:0}
+#record #action-skills>.simple-skill-card>button{grid-column:2;grid-row:1;width:100%;min-width:0;min-height:44px;margin:0;background:var(--record-action);border-color:transparent;color:var(--record-text)}
+#record #action-skills .skill-nickname,#record #action-skills .skill-species:only-child{font-weight:700}
+@media(max-width:360px){#record #action-skills>.simple-skill-card{grid-template-columns:minmax(0,1fr) 120px}}
+#record #today-total .daily-metrics{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,.95fr);gap:4px}

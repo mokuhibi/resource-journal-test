@@ -163,7 +163,7 @@ const SkillActions=(()=>{
     const row=shardRows.find(n=>n.querySelector('.shard-record-name small')?.textContent===recordPosition(slot));if(row){row.dataset.actorId=p.id;row.querySelector('.shard-record-name').replaceWith(skillRecordHeading(p));row.insertBefore(skillRecordDetail(p),row.children[1]||null);root.append(row);}
    }
    else if(!['ミュウ','デリバード'].includes(p.species)&&!copies(p)&&!metronome(p)&&!SK.shardMode(p)&&SK.find(key)){
-    const card=el('div',undefined,'card activation-card');card.dataset.actorId=p.id;title(card,p,slot);card.append(button('記録',()=>saveActivation(p)));root.append(card);
+    const card=el('div',undefined,'card activation-card simple-skill-card');card.dataset.actorId=p.id;title(card,p,slot);card.append(button('記録',()=>saveActivation(p)));root.append(card);
    }
   });
   if(!root.querySelector('[data-actor-id]'))root.append(el('p','記録できるスキルのポケモンが編成にいません。','muted'));

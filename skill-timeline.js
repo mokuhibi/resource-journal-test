@@ -17,18 +17,18 @@ const SkillTimeline=(()=>{
  let mode='week',anchor='';
  function show(host,data){
   if(!host)return;anchor||=C.gameDay(new Date());host.replaceChildren();
-  const controls=el('div',undefined,'skill-timeline-controls'),period=el('span'),previous=button('‹',()=>move(-1)),next=button('›',()=>move(1));
-  for(const [key,name] of [['week','週間'],['month','月間']]){const choice=button(name,()=>{mode=key;show(host,state);});choice.setAttribute('aria-pressed',String(mode===key));controls.append(choice);}
-  controls.append(previous,period,next);host.append(controls);
-  function move(n){anchor=mode==='week'?C.addDays(anchor,7*n):(()=>{const d=new Date(anchor+'T12:00:00Z');d.setUTCMonth(d.getUTCMonth()+n);return d.toISOString().slice(0,10);})();show(host,state);}
+  const input=el('input');input.type='date';input.value=anchor;input.id='skill-history-date';input.setAttribute('aria-label','メインスキル履歴の基準日');input.onchange=()=>{if(C.dateOnly(input.value)){anchor=input.value;show(host,state);}};
+  const controls=PeriodPicker.dayHeader(input,mode),choices=el('div',undefined,'period-quick-buttons sleep-history-periods skill-timeline-periods');
+  for(const [key,name] of [['week','週'],['month','月']]){const choice=button(name,()=>{mode=key;show(host,state);});choice.setAttribute('aria-pressed',String(mode===key));choices.append(choice);}
+  controls.classList.add('skill-timeline-controls');controls.append(choices);host.append(controls);
   if(mode==='week'){
-   const result=week(data,anchor),grid=el('div',undefined,'skill-timeline-week');period.textContent=C.displayDate(result.start)+' 〜 '+C.displayDate(C.addDays(result.start,6));
+   const result=week(data,anchor),grid=el('div',undefined,'skill-timeline-week');
    grid.append(el('span','時間','skill-timeline-corner'));
-   for(const d of result.days){const head=el('div',undefined,'skill-timeline-day');head.append(el('small',d.date.slice(5).replace('-','/')+C.weekday(d.date)),el('strong',String(d.total),'skill-total-'+band(d.total)));grid.append(head);}
+   for(const d of result.days){const head=el('div',undefined,'skill-timeline-day');head.append(el('small',C.weekday(d.date).replace(/[()]/g,'')),el('small',d.date.slice(5).replace('-','/')),el('strong',String(d.total),'skill-total-'+band(d.total)));grid.append(head);}
    for(let h=0;h<24;h++){grid.append(el('span',String((h+4)%24).padStart(2,'0'),'skill-timeline-hour'));for(const d of result.days){const n=d.hours[h],cell=el('span',String(n),'skill-timeline-cell skill-shade-'+shade(n,result.max));cell.setAttribute('aria-label',d.date+' '+(h+4)%24+'時 '+n+'回');grid.append(cell);}}
    host.append(grid);
   }else{
-   const result=month(data,anchor),grid=el('div',undefined,'skill-timeline-month');period.textContent=result.start.slice(0,7).replace('-','/');
+   const result=month(data,anchor),grid=el('div',undefined,'skill-timeline-month');
    for(const name of ['月','火','水','木','金','土','日'])grid.append(el('span',name,'skill-timeline-weekday'));
    const offset=(new Date(result.start).getUTCDay()+6)%7;for(let i=0;i<offset;i++)grid.append(el('span',undefined,'skill-timeline-blank'));
    for(const d of result.days){const cell=el('div',undefined,'skill-timeline-monthday');cell.append(el('small',String(Number(d.date.slice(-2)))),el('strong',String(d.total),'skill-total-'+band(d.total)));grid.append(cell);}host.append(grid);
