@@ -76,7 +76,7 @@ const SummaryExtras=(()=>{
   const day=C.gameDay(date),period=C.range('day',day),root=$('today-total'),wasOpen=root.querySelector('details')?.open||false;const heading=el('small',day===C.gameDay(new Date())?'今日の記録':'選択日の記録');if(C.localInput(date).slice(0,10)!==day)heading.append(el('span','集計日：'+C.displayDate(day)+'(04:00切替)','record-day-note'));root.replaceChildren(heading);
   const candy=el('div',undefined,'daily-resource'),shard=el('div',undefined,'daily-resource');
   totals(candy,candyRecords(allCandyRecords()).filter(r=>C.inRange(r,period)),'アメ',true,key=>candySourceVisible(key));
-  const records=ShardUI.summaryRecords().filter(r=>C.inRange(r,period)),total=C.sum(records);
+  const records=ShardUI.summaryRecords().filter(r=>C.inRange(r,period)),total=C.sum(records);shard.dataset.digits=String(Math.min(7,String(Math.trunc(Math.abs(total))).length));
   // 未記録の日だけ省略。0個のスキル記録がある日は回数・内訳も表示します。
   if(records.length||total!==0){
    shard.append(el('small','ゆめのかけら'),qel('div',total+'個','total'));
@@ -88,7 +88,7 @@ const SummaryExtras=(()=>{
    const table=resource.querySelector('.total-breakdown');details.append(el('h3',resource.querySelector('small').textContent),table);metrics.append(resource);
   }
   if(!metrics.contains(shard)){shard.append(el('small','ゆめのかけら'),qel('div','0個','total'));metrics.append(shard);}
-  const activations=SkillTimeline.day(state,day).total,skills=el('div',undefined,'daily-resource');skills.append(el('small','メインスキル'),qel('div',activations+'回','total'));metrics.prepend(skills);
+  const activations=SkillTimeline.day(state,day).total,skills=el('div',undefined,'daily-resource');skills.append(el('small','メインスキル'),qel('div',activations+'回','total'));metrics.append(skills);
   root.append(metrics,details);
  }
  function candyGroups(records){
