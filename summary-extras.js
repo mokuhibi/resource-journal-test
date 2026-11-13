@@ -88,7 +88,7 @@ const SummaryExtras=(()=>{
    const table=resource.querySelector('.total-breakdown');details.append(el('h3',resource.querySelector('small').textContent),table);metrics.append(resource);
   }
   if(!metrics.contains(shard)){shard.append(el('small','ゆめのかけら'),qel('div','0個','total'));metrics.append(shard);}
-  const activations=SkillTimeline.day(state,day).total,skills=el('div',undefined,'daily-resource');skills.append(el('small','メインスキル'),qel('div',activations+'回','total'));metrics.append(skills);
+  const activations=SkillTimeline.day(state,day).total,skills=el('div',undefined,'daily-resource');skills.append(el('small','メインスキル'),qel('div',activations+'回','total'));metrics.prepend(skills);
   root.append(metrics,details);
  }
  function candyGroups(records){
