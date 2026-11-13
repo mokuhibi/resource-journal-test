@@ -2,13 +2,13 @@
 // 入力の再配置だけを担当。睡眠・かたまり・その他の既存フォームは移動して再利用します。
 const SkillActions=(()=>{
  const drafts=new Map();
- const visible=p=>{const settings=typeof state==='undefined'?{}:state.settings,key=p.species==='ミュウ'?'mew':p.species==='デリバード'?'delibird':copies(p)?'copy':metronome(p)?'metronome':'shards';return C.actionAllowed(settings,key,'displayActions')&&(!['copy','metronome'].includes(key)||settings.displayActions?.[key]!==undefined||settings.showOtherCandy!==false||settings.showShardSkill!==false);};
+ const visible=p=>{if(p.provisional)return false;const settings=typeof state==='undefined'?{}:state.settings,key=p.species==='ミュウ'?'mew':p.species==='デリバード'?'delibird':copies(p)?'copy':metronome(p)?'metronome':'shards';return C.actionAllowed(settings,key,'displayActions')&&(!['copy','metronome'].includes(key)||settings.displayActions?.[key]!==undefined||settings.showOtherCandy!==false||settings.showShardSkill!==false);};
  const ownManual=p=>copies(p)||typeof state!=='undefined'&&state.settings.displayActions?.metronome===true;
 
  const copies=p=>['メタモン','バリヤード','マネネ'].includes(p.species);
  const metronome=p=>p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome';
  function copySources(p,team=currentTeam()){
-  return team.filter(q=>q&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'||q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
+  return team.filter(q=>q&&!q.provisional&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'||q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
  }
  function capabilities(p,team=currentTeam()){
   if(metronome(p))return {candy:true,shards:true};
@@ -50,6 +50,12 @@ const SkillActions=(()=>{
   return r;
  }
  function save(p,data){try{const r=build(p,data);if($('auto-now').checked)$('datetime').value=C.localInput(r.datetime);if(commit({...state,records:[...state.records,r]},resourceNotice(r))){drafts.delete(p.id);renderRecord();return true;}}catch(e){notice(e.message,true);}return false;}
+ function saveActivation(p){
+  const date=recordDate(),context=skillContext('skill',p.id),mainSkillId=SK.id(SK.forPokemon(p));
+  if(!context||!Number.isFinite(date.getTime())||!SK.find(mainSkillId)){notice('メインスキルと記録日時を確認してください。',true);return false;}
+  const r={id:uid(),datetime:date.toISOString(),method:'skill',skillOnlyActivation:true,amount:0,slot:null,pokemonId:null,pokemon:'スキルのみ',species:null,nickname:'',candy:null,mainSkillId,registeredMainSkill:SK.value(mainSkillId),recordedSkillLevel:context.actor.profile.skillLevel,context};
+  return commit({...state,records:[...state.records,r]},'メインスキルを記録しました。');
+ }
  function field(placeholder,value,oninput){const i=el('input');Object.assign(i,{type:'number',inputMode:'numeric',min:'0',max:'1000000000',step:'1',value:value||'',placeholder});i.setAttribute('aria-label',placeholder);i.oninput=()=>oninput(i.value);return i;}
  function title(card,p,slot){card.append(skillRecordHeading(p),skillRecordDetail(p));}
  function rewards(card,p,slot){
@@ -90,14 +96,14 @@ const SkillActions=(()=>{
   if(cap.candy){
    const choices=el('div',undefined,'skill-choice-grid candy-choices');choices.setAttribute('aria-label','アメの獲得先');
    const input=field('アメの個数',draft.candy,v=>{draft.candy=v;valid();});input.disabled=!draft.target;
-   currentTeam().forEach((q,i)=>{const b=button(q?candyMap[q.species]:'未設定',()=>{draft.target=draft.target===String(i+1)?'':String(i+1);input.disabled=!draft.target;for(const x of choices.children)x.setAttribute('aria-pressed',String(x===b&&!!draft.target));valid();});b.disabled=!q;b.setAttribute('aria-pressed',String(draft.target===String(i+1)));choices.append(b);});form.append(choices,input);
+   currentTeam().forEach((q,i)=>{const b=button(q?(candyMap[q.species]||'種類未確認'):'未設定',()=>{draft.target=draft.target===String(i+1)?'':String(i+1);input.disabled=!draft.target;for(const x of choices.children)x.setAttribute('aria-pressed',String(x===b&&!!draft.target));valid();});b.disabled=!q||!Object.hasOwn(candyMap,q.species);b.setAttribute('aria-pressed',String(draft.target===String(i+1)));choices.append(b);});form.append(choices,input);
   }
   if(cap.shards)form.append(field('ゆめのかけら',draft.shards,v=>{draft.shards=v;valid();}));
   form.append(submit);valid();form.onsubmit=e=>{e.preventDefault();if(submit.disabled)return;const candy=cap.candy&&draft.target?draft.candy:'',shards=cap.shards?draft.shards:'';try{save(p,{sourceId:draft.sourceId,target:draft.target,candy,shards,only:!numeric(candy,'アメ')&&!numeric(shards,'ゆめのかけら')});}catch(error){notice(error.message,true);}};card.append(form);
  }
  function targets(card,p,recordTarget,zero,amounts=null){
   const grid=el('div',undefined,'record-slots activation-targets');
-  currentTeam().forEach((q,i)=>{const box=el('div',undefined,'help-card candy-target-row'),content=el('span',undefined,'record-row-content');content.append(el('strong',q?candyMap[q.species]:'未設定'));box.append(el('small',recordPosition(i+1)),content);const actions=el('div',undefined,'mew-actions');for(const amount of (amounts||(zero?[4]:C.mewAmounts(eventSkill(p).effectiveLevel)))){const b=button(amount+'個',()=>recordTarget(i+1,amount));b.disabled=!q;actions.append(b);}box.append(actions);grid.append(box);});
+  currentTeam().forEach((q,i)=>{const box=el('div',undefined,'help-card candy-target-row'),content=el('span',undefined,'record-row-content');content.append(el('strong',q?(candyMap[q.species]||'種類未確認'):'未設定'));box.append(el('small',recordPosition(i+1)),content);const actions=el('div',undefined,'mew-actions');for(const amount of (amounts||(zero?[4]:C.mewAmounts(eventSkill(p).effectiveLevel)))){const b=button(amount+'個',()=>recordTarget(i+1,amount));b.disabled=!q||!Object.hasOwn(candyMap,q.species);actions.append(b);}box.append(actions);grid.append(box);});
   if(zero){const box=el('div',undefined,'help-card candy-target-row skill-only-target'),actions=el('div',undefined,'mew-actions');actions.append(button('スキルのみ',()=>recordTarget(6,0)));box.append(actions);grid.append(box);}card.append(grid);
  }
  function setupGuide(root){
@@ -149,12 +155,15 @@ const SkillActions=(()=>{
  function render(){
   mount();const root=$('action-skills');if(!root)return;const heading=el('h2','メインスキル','record-subheading');root.replaceChildren(heading);if(!C.actionAllowed(state.settings,'skills','displayActions')||setupGuide(root)){show();return;}if(typeof EventEffects!=='undefined')EventEffects.renderField(root,EventEffects.recordDay());
   const shardRows=[...$('shard-skill-inputs').querySelectorAll('.shard-skill-row')].filter(n=>!n.classList.contains('copy-skill-card'));
-  currentTeam().forEach((p,i)=>{if(!p||!visible(p))return;const slot=i+1,key=SK.id(SK.forPokemon(p)),cap=capabilities(p);
+  currentTeam().forEach((p,i)=>{if(!p)return;const slot=i+1,key=SK.id(SK.forPokemon(p)),cap=capabilities(p);
    if(p.species==='ミュウ'&&recordVisible('mew')){const card=el('div',undefined,'card mew activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
    else if(p.species==='デリバード'&&recordVisible('delibird')){const card=el('div',undefined,'card delibird activation-card');card.dataset.actorId=p.id;title(card,p,slot);targets(card,p,(target,n)=>record('delibird',target,n,p.id),true);root.append(card);}
    else if((metronome(p)||copies(p))&&(ownManual(p)?cap.candy||cap.shards:cap.candy&&recordVisible('skill')||cap.shards&&SummaryExtras.shardVisible('skill'))){const card=el('div',undefined,'card activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
    else if(p.species!=='ミュウ'&&!copies(p)&&!metronome(p)&&SummaryExtras.shardVisible('skill')&&SK.shardMode(p)){
     const row=shardRows.find(n=>n.querySelector('.shard-record-name small')?.textContent===recordPosition(slot));if(row){row.dataset.actorId=p.id;row.querySelector('.shard-record-name').replaceWith(skillRecordHeading(p));row.insertBefore(skillRecordDetail(p),row.children[1]||null);root.append(row);}
+   }
+   else if(!['ミュウ','デリバード'].includes(p.species)&&!copies(p)&&!metronome(p)&&!SK.shardMode(p)&&SK.find(key)){
+    const card=el('div',undefined,'card activation-card');card.dataset.actorId=p.id;title(card,p,slot);card.append(button('記録',()=>saveActivation(p)));root.append(card);
    }
   });
   if(!root.querySelector('[data-actor-id]'))root.append(el('p','記録できるスキルのポケモンが編成にいません。','muted'));
@@ -162,13 +171,18 @@ const SkillActions=(()=>{
   show();
  }
  function history(root,r){
-  const card=el('div',undefined,'card '+(r.amount?'skill':'shards')),actions=el('div',undefined,'history-actions');card.dataset.datetime=r.datetime;
-  actions.append(button('訂正',(host,done,cancel)=>edit(r,host,done,cancel)),button('削除',()=>{if(confirm('このスキル発動の記録を削除しますか？'))commit({...state,records:state.records.filter(x=>x.id!==r.id)},'スキル記録を削除');},'danger'));
+  const only=r.skillOnlyActivation===true,card=el('div',undefined,'card '+(r.amount||only?'skill':'shards')),actions=el('div',undefined,'history-actions');card.dataset.datetime=r.datetime;
+  actions.append(button('訂正',(host,done,cancel)=>only?editActivation(r,host,done,cancel):edit(r,host,done,cancel)),button('削除',()=>{if(confirm('このスキル発動の記録を削除しますか？'))commit({...state,records:state.records.filter(x=>x.id!==r.id)},'スキル記録を削除');},'danger'));
   const actor=r.context.actor;historyCard(card,{...r,slot:r.context.actorSlot,pokemonSnapshot:actor},r.method==='mew'?'ミュウ':'スキル',r.amount?r.candy:'スキルのみ',label(actor),actions);
+  if(only){card.append(el('p',SK.name(r.mainSkillId)+' · Lv.'+r.recordedSkillLevel,'history-supplement'));card.historyInfo.r=r;finishHistoryCard(card);root.append(card);return;}
   // 履歴は発動ごとに1枚。両獲得量・発動個体を常に残します。
   const meta=card.querySelector('.history-meta');if(r.resourceFlags.shards&&r.amount)meta.append(qel('span','ゆめのかけら '+r.shardAmount+'個'));
   if(r.method!=='mew')card.append(el('p',mainSkillText(actor)+' · Lv.'+r.recordedSkillLevel+(r.outcomeSkillId?' · '+SK.name(r.outcomeSkillId):' · 結果不明'),'history-supplement'));
   card.historyInfo.r=r;finishHistoryCard(card);root.append(card);
+ }
+ function editActivation(r,host,done,cancel){
+  const form=el('form'),date=el('input'),error=el('p');date.type='datetime-local';date.value=C.localInput(r.datetime);date.required=true;date.setAttribute('aria-label','記録日時');form.append(date,error);const save=el('button','保存');save.type='submit';form.append(save,button('キャンセル',()=>cancel()));host.append(form);
+  form.onsubmit=e=>{e.preventDefault();const parsed=C.fromInput(date.value);if(!Number.isFinite(parsed.getTime())){error.textContent='日時を確認してください。';return;}if(commit({...state,records:state.records.map(x=>x.id===r.id?{...x,datetime:parsed.toISOString()}:x)},'スキル記録を訂正しました。'))done();};DateUI.update();return ()=>form.remove();
  }
  function edit(r,host,done,cancel){
   const dialog=el('dialog'),form=el('form');(host||dialog).append(form);if(!host){document.body.append(dialog);form.append(el('h2','スキル記録の訂正'));}
@@ -178,5 +192,5 @@ const SkillActions=(()=>{
   form.onsubmit=e=>{e.preventDefault();try{const current=state.records.find(x=>x.id===r.id);if(!current)throw Error('記録が見つかりません。');const a=numeric(amount.value,'アメ'),s=numeric(shards.value,'ゆめのかけら'),p=a?recipients.find(p=>p.id===target.value):null;if(a&&!p||r.method==='mew'&&!C.mewAmounts(r.context?.effectiveLevel??r.recordedSkillLevel).includes(a))throw Error('アメ個数と獲得先を確認してください。');const next={...current,datetime:date.value===C.localInput(r.datetime)?r.datetime:C.fromInput(date.value).toISOString(),amount:a,shardAmount:s,resourceFlags:{candy:!!a||r.resourceFlags.candy,shards:!!s||r.resourceFlags.shards},slot:p?r.slot:null,pokemonId:p?.id||null,pokemon:p?storedLabel(p):'スキルのみ',species:p?.species||null,nickname:p?.nickname||'',candy:p?candyMap[p.species]:null,pokemonSnapshot:p?clone(p):null,updatedAt:new Date().toISOString()};if(next.method==='mew'&&!s){delete next.firedSkill;next.outcomeSkillId='';}else if(next.method==='mew'&&SK.id(next.registeredMainSkill)==='dream_shard_s'&&s){next.firedSkill=SK.value('dream_shard_s');next.outcomeSkillId='dream_shard_s';}if(commit({...state,records:state.records.map(x=>x.id===r.id?next:x)},'スキル記録を訂正')){if(host)done();else dialog.close();}}catch(e){error.textContent=e.message;}};
   DateUI.update();if(!host)dialog.showModal();return ()=>dialog.remove();
  }
- return {setupGuide,render,show,build,capabilities,copySources,copiedMewAmounts,history,edit};
+ return {setupGuide,render,show,build,saveActivation,capabilities,copySources,copiedMewAmounts,history,edit};
 })();

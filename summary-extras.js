@@ -35,7 +35,7 @@ const SummaryExtras=(()=>{
  const skillDisplayName=scope=>{const on=candySkillSources.filter(([key])=>aggregateVisible('candy',key)&&filterOn(scope,key));return on.length===1?on[0][1]:'スキル';};
  const localVisible=(scope,record)=>{if(!scope)return true;const key=typeof record==='string'?record:candySource(record);return key==='skills'&&typeof record!=='string'?filterOn(scope,candyChild(record)):key==='skills'?candySkillSources.some(([child])=>filterOn(scope,child)):filterOn(scope,key);};
  const candySourceVisible=(method,scope)=>aggregateVisible('candy',method)&&localVisible(scope,method);
- const candyRecords=(records,scope)=>records.filter(r=>(r.activationVersion!==1||r.resourceFlags.candy)&&allowedRecord(r)&&localVisible(scope,r));
+ const candyRecords=(records,scope)=>records.filter(r=>r.skillOnlyActivation!==true&&(r.activationVersion!==1||r.resourceFlags.candy)&&allowedRecord(r)&&localVisible(scope,r));
  const visibleCandySources=scope=>candySources.filter(([key])=>candySourceVisible(key,scope)).map(([key,name])=>[key,key==='skills'?skillDisplayName(scope):name]);
  const shardSourceVisible=method=>(method==='other'?aggregateVisible('shard','other')||aggregateVisible('shard','cluster'):aggregateVisible('shard',method))&&shardSummaryOn(method);
  const shardRecords=records=>records.filter(r=>allowedRecord(r,'shard')&&shardSummaryOn(r.method));
@@ -73,7 +73,7 @@ const SummaryExtras=(()=>{
  function periodCaption(period){if(!period)return '保存済みのすべての記録';const days=Math.round((Date.parse(period[1])-Date.parse(period[0]))/86400000);return days===1?C.displayDate(period[0]):days+'日分の獲得数(04:00切替)';}
  function recordSummary(){
   const date=recordDate();if(!Number.isFinite(date.getTime()))return;
-  const day=C.gameDay(date),period=C.range('day',day),root=$('today-total'),wasOpen=root.querySelector('details')?.open||false;const heading=el('small',day===C.gameDay(new Date())?'今日の獲得数':'選択日の獲得数');if(C.localInput(date).slice(0,10)!==day)heading.append(el('span','集計日：'+C.displayDate(day)+'(04:00切替)','record-day-note'));root.replaceChildren(heading);
+  const day=C.gameDay(date),period=C.range('day',day),root=$('today-total'),wasOpen=root.querySelector('details')?.open||false;const heading=el('small',day===C.gameDay(new Date())?'今日の記録':'選択日の記録');if(C.localInput(date).slice(0,10)!==day)heading.append(el('span','集計日：'+C.displayDate(day)+'(04:00切替)','record-day-note'));root.replaceChildren(heading);
   const candy=el('div',undefined,'daily-resource'),shard=el('div',undefined,'daily-resource');
   totals(candy,candyRecords(allCandyRecords()).filter(r=>C.inRange(r,period)),'アメ',true,key=>candySourceVisible(key));
   const records=ShardUI.summaryRecords().filter(r=>C.inRange(r,period)),total=C.sum(records);
@@ -87,6 +87,8 @@ const SummaryExtras=(()=>{
   for(const resource of [candy,...(records.length||total!==0?[shard]:[])]){
    const table=resource.querySelector('.total-breakdown');details.append(el('h3',resource.querySelector('small').textContent),table);metrics.append(resource);
   }
+  if(!metrics.contains(shard)){shard.append(el('small','ゆめのかけら'),qel('div','0個','total'));metrics.append(shard);}
+  const activations=SkillTimeline.day(state,day).total,skills=el('div',undefined,'daily-resource');skills.append(el('small','メインスキル'),qel('div',activations+'回','total'));metrics.append(skills);
   root.append(metrics,details);
  }
  function candyGroups(records){

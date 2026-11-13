@@ -118,7 +118,9 @@ const CandyCore = (() => {
    if(!r||typeof r.id!=='string'||rids.has(r.id)||!['help','mew','delibird','skill'].includes(r.method)||typeof r.datetime!=='string'||!Number.isFinite(Date.parse(r.datetime)))throw Error('履歴');rids.add(r.id);
    const unified=r.activationVersion===1;
    if(unified){const f=r.resourceFlags;if(!['mew','skill'].includes(r.method)||r.activationId!==r.id||!f||typeof f.candy!=='boolean'||typeof f.shards!=='boolean'||!f.candy&&!f.shards||!Number.isSafeInteger(r.shardAmount)||r.shardAmount<0||r.shardAmount>1000000000||!f.shards&&r.shardAmount!==0||!f.candy&&r.amount!==0||!Number.isInteger(r.recordedSkillLevel)||r.recordedSkillLevel<1||r.recordedSkillLevel>8||typeof r.outcomeSkillId!=='string'||r.outcomeSkillId&&!SK.find(r.outcomeSkillId)||!r.context?.actor||r.method==='mew'&&r.amount<1)throw Error('統合スキル記録');}
-   const noCandy=(unified&&r.amount===0)||(r.method==='delibird'&&r.amount===0&&r.slot===6)||(r.method==='mew'&&r.amount===0&&r.slot===null&&(r.firedSkill!==undefined||r.registeredMainSkill!==undefined));
+   const skillOnly=r.skillOnlyActivation===true;
+   if(skillOnly&&(r.method!=='skill'||r.amount!==0||r.slot!==null||r.pokemonId!==null||r.candy!==null||!r.context?.actor||!Number.isInteger(r.context.actorSlot)||r.mainSkillId!==SK.id(SK.forPokemon(r.context.actor))||!SK.find(r.mainSkillId)))throw Error('メインスキル発動履歴');
+   const noCandy=skillOnly||(unified&&r.amount===0)||(r.method==='delibird'&&r.amount===0&&r.slot===6)||(r.method==='mew'&&r.amount===0&&r.slot===null&&(r.firedSkill!==undefined||r.registeredMainSkill!==undefined));
    if(r.recordedSkillLevel!==undefined&&(!Number.isInteger(r.recordedSkillLevel)||r.recordedSkillLevel<1||r.recordedSkillLevel>8))throw Error('記録時スキルLv');
    if(r.registeredMainSkill!==undefined&&(typeof r.registeredMainSkill!=='string'||!r.registeredMainSkill.trim()))throw Error('記録時メインスキル');
    if(r.firedSkill!==undefined&&(r.method!=='mew'||!mewSkills.slice(1).includes(r.firedSkill)||!r.context||!Number.isSafeInteger(r.shardAmount)||r.shardAmount<0||r.shardAmount>1000000000||(SK.id(r.firedSkill)==='dream_shard_s'?r.shardAmount===0:r.shardAmount!==0)))throw Error('ミュウ発動スキル');
