@@ -445,5 +445,8 @@ SleepPickups.load();
 
 SaveFeedback.init();
 
+// 非同期の保存データ読込後、登録フォームなどの初期化が終わってから入力補助を付ける。
+if(typeof TextClear!=='undefined')TextClear.init();
+
 }
 boot();

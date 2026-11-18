@@ -12,4 +12,4 @@ const TextClear=(()=>{
  function init(){scan();new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});document.addEventListener('click',()=>scan());}
  return {init};
 })();
-TextClear.init();
+// app.js の非同期起動後に初期化する。
