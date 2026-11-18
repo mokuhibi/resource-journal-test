@@ -63,13 +63,13 @@ const IndividualImportUI=(()=>{
    scrollY=window.scrollY;bodyStyle={position:document.body.style.position,top:document.body.style.top,width:document.body.style.width,overflow:document.body.style.overflow};Object.assign(document.body.style,{position:'fixed',top:-scrollY+'px',width:'100%',overflow:'hidden'});
    $('individual-import-dialog').showModal();$('individual-import-close').focus({preventScroll:true});
  }
- function save(){
+ async function save(){
   if(current()!==snapshot){$('individual-import-error').textContent='登録情報が変更されました。ファイルを選び直して確認してください。';return;}
   try{
    const next=IndividualImport.apply(state,rows,env());
    if(!confirm($('individual-import-count').textContent+'します。既存の履歴と編成は変更しません。よろしいですか？'))return;
    const c=counts(),result='新規'+c.add+'匹・更新'+c.update+'匹・除外'+c.exclude+'件・保留'+c.hold+'件';
-   if(commit(next,'個体データを取り込み：'+result)){let output=$('individual-import-result');if(!output){output=el('p');output.id='individual-import-result';output.setAttribute('role','status');$('individual-import-open').before(output);}output.textContent='取り込み結果：'+result;close();TeamUI.show('roster');$('roster-search').value='';showOtherPokemon=true;renderTeam();}
+   if(await commit(next,'個体データを取り込み：'+result)){let output=$('individual-import-result');if(!output){output=el('p');output.id='individual-import-result';output.setAttribute('role','status');$('individual-import-open').before(output);}output.textContent='取り込み結果：'+result;close();TeamUI.show('roster');$('roster-search').value='';showOtherPokemon=true;renderTeam();}
    else $('individual-import-error').textContent='保存できませんでした。既存データは変更されていません。';
   }catch(e){$('individual-import-error').textContent=e.message;}
  }

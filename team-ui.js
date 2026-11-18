@@ -25,11 +25,11 @@ const TeamUI=(()=>{
  function useTeam(i){const saved=savedTeam(i);if(!saved.team)return false;return commit({...state,team:[...saved.team]},'編成を保存');}
  function saveCurrent(i){if(savedTeam(i).team&&!confirm(savedTeam(i).name+'を現在のチームで上書きしますか？'))return false;return saveTeam(i,{team:[...state.team]});}
  function renderSavedTeams(){
-  $('save-current-team').onclick=()=>AppPanels.open('チームの保存先',body=>{const choices=el('div',undefined,'team-save-choices');for(let i=0;i<8;i++)choices.append(button(savedTeam(i).name||'チーム'+(i+1),()=>{if(saveCurrent(i))AppPanels.close();}));body.append(choices);});
+  $('save-current-team').onclick=()=>AppPanels.open('チームの保存先',body=>{const choices=el('div',undefined,'team-save-choices');for(let i=0;i<8;i++)choices.append(button(savedTeam(i).name||'チーム'+(i+1),async()=>{if(await saveCurrent(i))AppPanels.close();}));body.append(choices);});
   const root=$('saved-teams');root.replaceChildren();
   for(let i=0;i<8;i++){
    const saved=savedTeam(i),section=el('section',undefined,'saved-team'),head=el('div',undefined,'saved-team-head'),title=el('input'),apply=button('編成',()=>useTeam(i));
-   title.type='text';title.value=saved.name;title.placeholder='チーム'+(i+1);title.setAttribute('aria-label','チーム'+(i+1)+'の名前');title.onchange=()=>{if(saveTeam(i,{name:title.value},false))apply.setAttribute('aria-label',(title.value||title.placeholder)+'を編成');};apply.disabled=!saved.team;apply.setAttribute('aria-label',(saved.name||title.placeholder)+'を編成');head.append(title,apply);
+   title.type='text';title.value=saved.name;title.placeholder='チーム'+(i+1);title.setAttribute('aria-label','チーム'+(i+1)+'の名前');title.onchange=async()=>{if(await saveTeam(i,{name:title.value},false))apply.setAttribute('aria-label',(title.value||title.placeholder)+'を編成');};apply.disabled=!saved.team;apply.setAttribute('aria-label',(saved.name||title.placeholder)+'を編成');head.append(title,apply);
    const slots=el('div',undefined,'saved-team-slots');
    for(let j=0;j<5;j++){
     const id=saved.team?.[j],p=state.pokemon.find(p=>p.id===id),b=button('',()=>TeamPicker.open(j,{name:savedTeam(i).name||'チーム'+(i+1),team:()=>savedTeam(i).team||Array(5).fill(null),save:team=>saveTeam(i,{team}),focusId:'saved-team-'+i+'-slot-'+j}),'team-slot-button');
@@ -89,9 +89,9 @@ const TeamUI=(()=>{
   for(const [key,title] of [['new','新規登録'],['import','データ取り込み']]){const choice=button(title,()=>{registerEntry=key;syncEntry();});choice.dataset.registerEntry=key;choices.append(choice);}
   $('roster-other-toggle').remove();const views=el('div',undefined,'roster-views');for(const [key,title] of [['skills','記録スキル'],['registered','登録済み'],['provisional','仮登録'],['all','すべて']]){const b=button(title,()=>{rosterView=key;renderRoster();});b.dataset.rosterView=key;views.append(b);}$('registered-pokemon-list').before(views);$('roster-search').addEventListener('change',renderRoster);
   const toolbar=el('div',undefined,'profile-editor-actions'),cancel=$('profile-back'),save=$('profile-form').querySelector('button[type=submit]');cancel.textContent='キャンセル';save.textContent='保存';save.classList.add('primary');toolbar.append(cancel,$('profile-remove'),save);$('profile-form').prepend(toolbar);cancel.onclick=finishEdit;
-  $('profile-remove').onclick=()=>{
+  $('profile-remove').onclick=async()=>{
    const p=state.pokemon.find(p=>p.id===$('profile-select').value);if(!p)return;
-   if(confirm(label(p)+'を登録解除しますか？')&&commit({...state,pokemon:state.pokemon.filter(x=>x.id!==p.id),team:state.team.map(id=>id===p.id?null:id),...(state.savedTeams?{savedTeams:state.savedTeams.map(t=>t?{...t,team:t.team?.map(id=>id===p.id?null:id)||null}:null)}:{})},'登録解除しました。'))finishEdit();
+   if(confirm(label(p)+'を登録解除しますか？')&&await commit({...state,pokemon:state.pokemon.filter(x=>x.id!==p.id),team:state.team.map(id=>id===p.id?null:id),...(state.savedTeams?{savedTeams:state.savedTeams.map(t=>t?{...t,team:t.team?.map(id=>id===p.id?null:id)||null}:null)}:{})},'登録解除しました。'))finishEdit();
   };
   sync();registration();
  }

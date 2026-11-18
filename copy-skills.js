@@ -34,7 +34,7 @@ const CopySkills=(()=>{
    const l=el('label',kind==='candy'?'獲得したアメの個数':undefined);if(kind!=='candy')input.setAttribute('aria-label',label(p)+'のゆめのかけら');l.append(input);form.append(l);const b=button('記録',()=>{});b.type='submit';form.append(b);
    function remember(){drafts.set(key,{amount:input.value,source:source.value,target:target.value});}
    function updateMin(){input.min=kind==='shards'&&SK.id(SK.forPokemon(choices.find(q=>q.id===source.value)))==='super_luck'?'0':'1';remember();}source.onchange=updateMin;target.onchange=remember;updateMin();
-   form.onsubmit=e=>{e.preventDefault();try{if(!input.value.trim())throw Error('獲得数を入力してください。');const r=build(kind,p.id,source.value,Number(input.value),Number(target.value),recordDate());const field=kind==='candy'?'records':'shardRecords';drafts.delete(key);if(!commit({...state,[field]:[...state[field],r]},resourceNotice(r,kind==='candy'?'candy':'shards')))remember();}catch(e){notice(e.message,true);}};
+   form.onsubmit=async e=>{e.preventDefault();try{if(!input.value.trim())throw Error('獲得数を入力してください。');const r=build(kind,p.id,source.value,Number(input.value),Number(target.value),recordDate());const field=kind==='candy'?'records':'shardRecords';drafts.delete(key);if(!await commit({...state,[field]:[...state[field],r]},resourceNotice(r,kind==='candy'?'candy':'shards')))remember();}catch(e){notice(e.message,true);}};
    card.append(form);root.append(card);root.hidden=false;
   }
  }
@@ -44,7 +44,7 @@ const CopySkills=(()=>{
   const recipients=[...state.pokemon];if(r.pokemonId&&!recipients.some(p=>p.id===r.pokemonId)){const old=r.pokemonSnapshot||r.context?.team?.find(p=>p?.id===r.pokemonId);if(old)recipients.unshift(old);}optionList(target,recipients.map(p=>({id:p.id,text:label(p)})),r.pokemonId||'');
   for(const [name,input] of [['日時',date],['アメの獲得先',target],['アメの個数',amount]]){const l=el('label',name);l.append(input);form.append(l);}
   const error=el('p'),save=button('訂正を保存',()=>{}),cancelButton=button('キャンセル',()=>finish(false));save.type='submit';form.append(error,save,cancelButton);dialog.onclose=()=>dialog.remove();
-  form.onsubmit=e=>{e.preventDefault();try{const p=recipients.find(p=>p.id===target.value),n=Number(amount.value),d=C.fromInput(date.value);if(!p||!Number.isSafeInteger(n)||n<1||n>1000000000||!Number.isFinite(d.getTime()))throw Error('入力値を確認してください。');const next={...r,amount:n,datetime:d.toISOString(),pokemonId:p.id,pokemon:storedLabel(p),species:p.species,nickname:p.nickname,candy:candyMap[p.species],pokemonSnapshot:clone(p)};if(commit({...state,records:state.records.map(x=>x.id===r.id?next:x)},'履歴を訂正しました。'))finish(true);}catch(e){error.textContent=e.message;}};
+  form.onsubmit=async e=>{e.preventDefault();try{const p=recipients.find(p=>p.id===target.value),n=Number(amount.value),d=C.fromInput(date.value);if(!p||!Number.isSafeInteger(n)||n<1||n>1000000000||!Number.isFinite(d.getTime()))throw Error('入力値を確認してください。');const next={...r,amount:n,datetime:d.toISOString(),pokemonId:p.id,pokemon:storedLabel(p),species:p.species,nickname:p.nickname,candy:candyMap[p.species],pokemonSnapshot:clone(p)};if(await commit({...state,records:state.records.map(x=>x.id===r.id?next:x)},'履歴を訂正しました。'))finish(true);}catch(e){error.textContent=e.message;}};
   DateUI.update();if(!host)dialog.showModal();return ()=>dialog.remove();
  }
  return {sources,handlesShards,build,render,edit};

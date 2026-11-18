@@ -13,11 +13,13 @@ const SleepShards=(()=>{
  }
  function selectResearch(day,round){if(!C.dateOnly(day)||![1,2].includes(round))return;researchDate=day;selectedNumber=round;selectedKey=SleepResearch.researchRows(state,day).find(r=>r.number===round)?.key||'new:'+round;touched=true;if($('shard-research-form'))render(true);}
  function selection(){return touched?{date:researchDate,number:selectedNumber}:null;}
+ let pendingDraft=Promise.resolve(true);
  function keepDraft(){
   touched=true;
   try{const date=$('shard-research-date').value,rows=SleepResearch.researchRows(state,date),row=rows.find(r=>r.key===selectedKey),n=row?.number||Number(selectedKey.split(':')[1]);
-   if(!C.dateOnly(date)||![1,2].includes(n))return;
-   if(blocked)throw Error('保存を停止しています');const next=SleepResearch.researchDraft(state,date,n,{baseAmount:$('shard-research-base').value,researchExp:$('shard-research-exp').value},candyMap,uid());localStorage.setItem(KEY,JSON.stringify(next));state=next;
+   if(!C.dateOnly(date)||![1,2].includes(n))return pendingDraft;
+   const values={baseAmount:$('shard-research-base').value,researchExp:$('shard-research-exp').value};
+   pendingDraft=pendingDraft.then(async()=>{try{const next=SleepResearch.researchDraft(state,date,n,values,candyMap,uid());return await commit(next,null,false);}catch(err){notice('入力途中の保存ができません：'+err.message,true);return false;}});return pendingDraft;
   }catch(err){notice('入力途中の保存ができません：'+err.message,true);}
  }
  function render(force=false){
@@ -42,7 +44,7 @@ const SleepShards=(()=>{
   const dateHeader=PeriodPicker.dayHeader(day);dateHeader.id='record-shard-date';dateHeader.querySelector('.period-picker-date').querySelector('span').id='record-shard-date-text';$('shard-research-form').prepend(dateHeader);
 
   const old=$('shard-research-form').querySelector('.research-fields'),shared=fields('shard-research',{},keepDraft);const dateInput=$('shard-research-date');dateInput.type='hidden';dateInput.hidden=true;shared.prepend(dateInput);old.replaceWith(shared);
-  $('shard-research-form').onsubmit=e=>{e.preventDefault();try{const date=$('shard-research-date').value;if(!C.dateOnly(date)||date!==researchDate)throw Error('対象日を確認してください。');const round=SleepResearch.researchRows(state,date).find(r=>r.key===selectedKey)?.number||selectedNumber;const next=SleepResearch.updateResearch(state,date,selectedKey,{baseAmount:number('shard-research-base'),researchExp:number('shard-research-exp',true)},candyMap,uid(),new Date().toISOString());if(commit(next,sleepResourceNotice(next,date,round,'shards'))){selectResearch(date,round);if(typeof SleepUI!=='undefined')SleepUI.selectResearch(date,round);}}catch(err){notice(err.message,true);}};
+  $('shard-research-form').onsubmit=async e=>{e.preventDefault();try{if(!await pendingDraft)return;const date=$('shard-research-date').value;if(!C.dateOnly(date)||date!==researchDate)throw Error('対象日を確認してください。');const round=SleepResearch.researchRows(state,date).find(r=>r.key===selectedKey)?.number||selectedNumber;const next=SleepResearch.updateResearch(state,date,selectedKey,{baseAmount:number('shard-research-base'),researchExp:number('shard-research-exp',true)},candyMap,uid(),new Date().toISOString());if(await commit(next,sleepResourceNotice(next,date,round,'shards'))){selectResearch(date,round);if(typeof SleepUI!=='undefined')SleepUI.selectResearch(date,round);}}catch(err){notice(err.message,true);}};
  }
  return {init,render,fields,selectResearch,selection};
 })();

@@ -20,9 +20,9 @@ const BackupReminder=(()=>{
  function read(){let raw;try{raw=JSON.parse(localStorage.getItem(key())||'null');}catch{}return normalize(raw);}
  function write(meta){localStorage.setItem(key(),JSON.stringify(meta));}
  function update(values){try{write({...read(),...values});sync();renderBanner();return true;}catch(e){notice('バックアップ通知の設定を保存できません：'+e.message,true);sync();return false;}}
- function exportCSV(){let url;
+ async function exportCSV(){let url;
   try{
-   const data=blocked?JSON.parse(localStorage.getItem(KEY)):state,now=new Date(),meta=read(),file=filename(meta,now),csv=CandyBackup.encode(data),a=el('a');
+   const stored=blocked&&JournalStorage.active()?await JournalStorage.read():null;const data=blocked?(stored?.marker?.active?stored.item.value:JSON.parse(localStorage.getItem(KEY))):state,now=new Date(),meta=read(),file=filename(meta,now),csv=CandyBackup.encode(data),a=el('a');
    url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.href=url;a.download=file.name;document.body.append(a);a.click();a.remove();
    // The browser accepts the download request; saving to the user's disk cannot be verified.
    try{write({...meta,lastBackupAt:now.toISOString(),baseline:count(data),filenameMinute:file.filenameMinute,filenameSequence:file.filenameSequence,dismissedAt:null});sync();renderBanner();notice('CSVバックアップのダウンロードを開始');}

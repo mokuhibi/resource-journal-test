@@ -22,11 +22,11 @@ const TeamPicker=(()=>{
   candidates.forEach(add);
   if(query&&!candidates.length)grid.append(el('p','一致する登録ポケモンがありません。','muted'));
  }
- function choose(id){
+ async function choose(id){
   if(slot===null||id!==null&&(!state.pokemon.some(p=>p.id===id)||members().some((pid,i)=>i!==slot&&pid===id)))return;
   if(members()[slot]===id){close();return;}
   const team=[...members()];team[slot]=id;
-  if(target?target.save(team):commit({...state,team},'編成を保存しました。'))close();
+  if(await (target?target.save(team):commit({...state,team},'編成を保存しました。')))close();
   else $('team-picker-error').textContent='編成を保存できませんでした。選択は変更されていません。';
  }
  function open(index,options=null){

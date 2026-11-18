@@ -6,7 +6,7 @@ const SleepUI=(()=>{
  function savedComponent(){const r=rowFor(),s=r?.kind==='session'?r.record:r?.sleepSession;return mode==='candy'?Boolean(s&&s.candyRecorded!==false):Boolean(r&&(r.kind==='legacy'||r.record.shardsRecorded!==false));}
  const readOnly=()=>savedComponent()&&!editing.has(editKey());
  function beginEdit(){editing.add(editKey());draft=loadDraft();researchSource=null;render();}
- function cancelEdit(){const fresh=SleepResearch.getDraft({...state,sleepDrafts:{}},date,number,draft.id);draft=mode==='candy'?{...draft,field:fresh.field,sleepType:fresh.sleepType,candyMultiplier:fresh.candyMultiplier??1,entries:clone(fresh.entries)}:{...draft,baseAmount:fresh.baseAmount,researchExp:fresh.researchExp,researchRank:fresh.researchRank};if(!keep())return;editing.delete(editKey());draft=loadDraft();researchSource=null;render();}
+ async function cancelEdit(){const fresh=SleepResearch.getDraft({...state,sleepDrafts:{}},date,number,draft.id);draft=mode==='candy'?{...draft,field:fresh.field,sleepType:fresh.sleepType,candyMultiplier:fresh.candyMultiplier??1,entries:clone(fresh.entries)}:{...draft,baseAmount:fresh.baseAmount,researchExp:fresh.researchExp,researchRank:fresh.researchRank};if(!await keep())return;editing.delete(editKey());draft=loadDraft();researchSource=null;render();}
  const rowFor=()=>SleepResearch.researchRows(state,date).find(r=>r.number===number);
  function loadDraft(){const d=SleepResearch.getDraft(readOnly()?{...state,sleepDrafts:{}}:state,date,number,uid());if(!rowFor()&&SleepResearch.isExField(d.field))d.entries=d.entries.map(e=>SleepResearch.changeStars(e,e.stars,d.candyMultiplier??1,d.field));return {...d,...((!rowFor()||rowFor().kind==='session'&&rowFor().record.shardsRecorded===false)&&(d.researchExp==='0'||d.researchExp===0)?{researchExp:''}:{}),candyMultiplier:number===1?(d.candyMultiplier??SleepResearch.candyMultiplier(state,date)):1};}
  const effectiveMultiplier=()=>number===1?(draft?.candyMultiplier??SleepResearch.candyMultiplier(state,date)):1;
@@ -18,9 +18,20 @@ const SleepUI=(()=>{
   return SleepResearch.candyMultiplier({...state,sleepDrafts:Object.fromEntries(Object.entries(state.sleepDrafts||{}).map(([k,s])=>[k,clean(s)])),sleepSessions:sessions().map(clean)},date);
  }
  function applyBonus(){const eventBonus=SleepPickups.bonus(date,draft.field,number),multiplier=number===1?(eventBonus>1?eventBonus:baseMultiplier()):1;draft.candyMultiplier=multiplier;draft.entries=draft.entries.map(e=>SleepResearch.changeStars(e,e.stars,entryMultiplier(e.species),draft.field));}
- function keep(){if(!draft||readOnly())return true;try{const drafts={...(state.sleepDrafts||{})};if(draft.entries.length||draft.baseAmount!==''||Number(draft.researchExp)>0)drafts[draftKey()]=clone(draft);else delete drafts[draftKey()];if(JSON.stringify(drafts)===JSON.stringify(state.sleepDrafts||{}))return true;const next={...state,sleepDrafts:drafts};if(blocked)throw Error('保存を停止しています');SleepResearch.validateDrafts(drafts,candyMap);localStorage.setItem(KEY,JSON.stringify(next));state=next;return true;}catch(e){notice('入力途中の保存ができません：'+e.message,true);return false;}}
- function choose(n){if(!keep())return;number=n;researchSource=null;draft=loadDraft();loaded=true;if(!rowFor())applyBonus();render();}
- function switchMode(next){if(mode!=='history'&&next!=='history'&&!keep())return;mode=inputMode=next;draft=loadDraft();researchSource=null;render();}
+ let pendingDraft=Promise.resolve(true);
+ function keep(){
+  if(!draft||readOnly())return pendingDraft;
+  const snapshot=clone(draft),key=draftKey();
+  pendingDraft=pendingDraft.then(async()=>{
+   try{const drafts={...(state.sleepDrafts||{})};if(snapshot.entries.length||snapshot.baseAmount!==''||Number(snapshot.researchExp)>0)drafts[key]=snapshot;else delete drafts[key];
+    if(JSON.stringify(drafts)===JSON.stringify(state.sleepDrafts||{}))return true;
+    SleepResearch.validateDrafts(drafts,candyMap);
+    if(!await commit({...state,sleepDrafts:drafts},null,false))throw Error('下書きを保存できませんでした。');return true;
+   }catch(e){notice('入力途中の保存ができません：'+e.message,true);return false;}
+  });return pendingDraft;
+ }
+ async function choose(n){if(!await keep())return;number=n;researchSource=null;draft=loadDraft();loaded=true;if(!rowFor())applyBonus();render();}
+ async function switchMode(next){if(mode!=='history'&&next!=='history'&&!await keep())return;mode=inputMode=next;draft=loadDraft();researchSource=null;render();}
  function input(value,change,attrs={}){const l=el('label'),i=el('input');Object.assign(i,{type:'number',inputMode:'numeric',min:'0',max:'1000000000',step:'1',value,...attrs});i.oninput=()=>{change(i.value);keep();updateTotal();};l.append(i);return l;}
  function options(label,values,value,change){const s=el('select');s.setAttribute('aria-label',label);const placeholder=new Option(label,'');placeholder.disabled=true;placeholder.hidden=true;s.add(placeholder);for(const name of values)s.add(new Option(name,name));if(value&&!values.includes(value)){const legacy=new Option(value==='とくちょうなし'?'旧設定：すべて':value,value);legacy.hidden=true;legacy.disabled=true;s.add(legacy);}s.value=value;s.dataset.empty=String(!value);s.onchange=()=>{s.dataset.empty=String(!s.value);change(s.value);keep();updateTotal();};return s;}
  function pokemonName(species){
@@ -56,7 +67,7 @@ const SleepUI=(()=>{
   const total=$('sleep-candy-total');if(total){total.dataset.saved=String(value.saved);if($('sleep-entry-count'))$('sleep-entry-count').dataset.saved=String(value.saved);}
  }
  function pickupsChanged(){if(draft&&!rowFor()){applyBonus();keep();}if(loaded)render();}
- function remove(id){if(!confirm('この睡眠リサーチのアメとゆめのかけらを削除しますか？'))return;const item=sessions().find(s=>s.id===id),drafts={...(state.sleepDrafts||{})};if(item)delete drafts[item.date+':'+item.number];const next={...state,sleepSessions:sessions().filter(s=>s.id!==id),sleepDrafts:drafts,...(item?.legacyResearchId?{shardRecords:state.shardRecords.filter(r=>r.id!==item.legacyResearchId)}:{})};if(commit(next,'睡眠リサーチを削除しました。')){draft=null;loaded=false;render();}}
+ async function remove(id){if(!confirm('この睡眠リサーチのアメとゆめのかけらを削除しますか？'))return;const item=sessions().find(s=>s.id===id),drafts={...(state.sleepDrafts||{})};if(item)delete drafts[item.date+':'+item.number];const next={...state,sleepSessions:sessions().filter(s=>s.id!==id),sleepDrafts:drafts,...(item?.legacyResearchId?{shardRecords:state.shardRecords.filter(r=>r.id!==item.legacyResearchId)}:{})};if(await commit(next,'睡眠リサーチを削除しました。')){draft=null;loaded=false;render();}}
  // Move the existing screen as a sibling: its IDs, sticky header and form handlers stay intact.
  function initNavigation(){
   for(const [hostId,title] of [['record','記録'],['history','履歴']]){
@@ -95,10 +106,10 @@ const SleepUI=(()=>{
   $('sleep').hidden=!host;if(typeof SocialUI!=='undefined')SocialUI.sync(activeTab==='record'&&socialView);
   if(host&&$(host).nextElementSibling!==$('sleep'))$(host).after($('sleep'));
  }
- function selectSocial(){if(!keep())return;socialView=true;recordView=professorRecordView=false;showTab('record');}
- function selectProfessor(host){if(!keep())return;if(host==='record'){professorRecordView=true;recordView=socialView=false;}else{professorHistoryView=true;historyView=skillHistoryView=socialHistoryView=fieldView=false;}showTab(host);}
- function navigate(tab){
-  if(draft&&$('sleep')?.hidden===false&&mode==='candy'&&(tab!=='record'||!recordView)&&!readOnly()&&!draft.entries.length){const fresh=SleepResearch.getDraft({...state,sleepDrafts:{}},date,number,draft.id);draft={...draft,field:fresh.field,sleepType:fresh.sleepType,candyMultiplier:fresh.candyMultiplier??SleepResearch.candyMultiplier({...state,sleepDrafts:{}},date)};if(keep()){editing.delete(editKey());date='';draft=null;loaded=false;number=1;researchSource=null;}}
+ async function selectSocial(){if(!await keep())return;socialView=true;recordView=professorRecordView=false;showTab('record');}
+ async function selectProfessor(host){if(!await keep())return;if(host==='record'){professorRecordView=true;recordView=socialView=false;}else{professorHistoryView=true;historyView=skillHistoryView=socialHistoryView=fieldView=false;}showTab(host);}
+ async function navigate(tab){
+  if(draft&&$('sleep')?.hidden===false&&mode==='candy'&&(tab!=='record'||!recordView)&&!readOnly()&&!draft.entries.length){const fresh=SleepResearch.getDraft({...state,sleepDrafts:{}},date,number,draft.id);draft={...draft,field:fresh.field,sleepType:fresh.sleepType,candyMultiplier:fresh.candyMultiplier??SleepResearch.candyMultiplier({...state,sleepDrafts:{}},date)};if(await keep()){editing.delete(editKey());date='';draft=null;loaded=false;number=1;researchSource=null;}}
   if(mode!=='history')inputMode=mode;
   mode=tab==='history'&&historyView?'history':inputMode;syncNavigation();render();
  }
@@ -107,7 +118,7 @@ const SleepUI=(()=>{
  function selectSkillHistory(){historyView=fieldView=socialHistoryView=professorHistoryView=false;skillHistoryView=true;showTab('history');}
  function selectSocialHistory(){historyView=fieldView=professorHistoryView=false;socialHistoryView=true;showTab('history');}
  function selectView(host,sleep){if(host==='record'){if(recordView&&!sleep&&date&&(readOnly()||draft?.entries.length))SleepShards.selectResearch(date,number);if(!recordView&&sleep){const selected=SleepShards.selection();if(selected)selectResearch(selected.date,selected.number);}recordView=sleep;socialView=professorRecordView=false;}else{if(sleep&&!historyView){historyKind='week';historyDay=C.gameDay(new Date());calendarMonth=historyDay.slice(0,7);}historyView=sleep;skillHistoryView=socialHistoryView=fieldView=professorHistoryView=false;}showTab(host);}
- function openResearch(day,round,nextMode){
+ async function openResearch(day,round,nextMode){
   if(mode!=='history'&&!keep())return;date=day;number=round;mode=inputMode=nextMode;draft=loadDraft();loaded=true;researchSource=null;recordView=true;socialView=professorRecordView=false;showTab('record');
  }
  function edit(id){const item=sessions().find(s=>s.id===id);if(item){openResearch(item.date,item.number,'candy');beginEdit();}}
@@ -118,7 +129,7 @@ const SleepUI=(()=>{
   researchSource=key;
  }
  function tabs(items,current,change,label){const root=el('div',undefined,'period-quick-buttons sleep-switch');root.setAttribute('role','tablist');root.setAttribute('aria-label',label);for(const [key,title] of items){const b=button(title,()=>change(key));b.dataset.view=key;b.setAttribute('role','tab');b.setAttribute('aria-selected',String(current===key));b.setAttribute('aria-pressed',String(current===key));if(typeof TabIcons!=='undefined'&&!['day','week','month','all'].includes(key))TabIcons.add(b,({candy:'candy',shards:'diamond'})[key]);root.append(b);}return root;}
- function home(host){if(recordView&&mode!=='history'&&!keep())return false;if(host==='record'){mode=inputMode='candy';}selectView(host,false);return true;}
+ async function home(host){if(recordView&&mode!=='history'&&!await keep())return false;if(host==='record'){mode=inputMode='candy';}selectView(host,false);return true;}
  function reset(){editing.clear();date='';draft=null;loaded=false;number=1;researchSource=null;mode=inputMode='candy';recordView=socialView=professorRecordView=historyView=skillHistoryView=socialHistoryView=fieldView=professorHistoryView=false;query='';showOtherTypes=false;historyKind='all';historyDay='';pickupOnly=false;calendarMonth='';calendarOpen=true;}
  function renderHistory(root){
   if(!historyDay)historyDay=date||C.gameDay(new Date());
@@ -138,8 +149,8 @@ const SleepUI=(()=>{
  }
  function confirmRemoveHistory(day,key){
   AppPanels.open('削除の確認',body=>{
-   const actions=el('div',undefined,'history-actions');actions.append(button('キャンセル',()=>AppPanels.close()),button('削除する',()=>{
-    try{const next=SleepResearch.removeResearch(state,day,key);if(commit(next,'睡眠リサーチを削除しました。')){draft=null;loaded=false;researchSource=null;render();AppPanels.close();}}catch(e){notice(e.message,true);}
+   const actions=el('div',undefined,'history-actions');actions.append(button('キャンセル',()=>AppPanels.close()),button('削除する',async()=>{
+    try{const next=SleepResearch.removeResearch(state,day,key);if(await commit(next,'睡眠リサーチを削除しました。')){draft=null;loaded=false;researchSource=null;render();AppPanels.close();}}catch(e){notice(e.message,true);}
    },'danger'));body.append(el('p','この睡眠リサーチ履歴を削除しますか？'),actions);
   });
  }
@@ -187,10 +198,10 @@ const SleepUI=(()=>{
   const root=$('sleep-root');if(!root||$('sleep')?.hidden===true)return;
   if(mode==='history'){root.replaceChildren();renderHistory(root);return;}
   if(!date)date=SleepResearch.initialDate(state,C.gameDay(new Date()));
-  if($('sleep')?.hidden===false&&!Object.hasOwn(state.settings.sleepCandyMultipliers||{},date)){try{const next={...state,settings:{...state.settings,sleepCandyMultipliers:{...(state.settings.sleepCandyMultipliers||{}),[date]:SleepResearch.candyMultiplier(state,date)}}};if(!blocked){localStorage.setItem(KEY,JSON.stringify(next));state=next;}}catch(err){notice('倍率設定を保存できません：'+err.message,true);}}
+  if($('sleep')?.hidden===false&&!Object.hasOwn(state.settings.sleepCandyMultipliers||{},date)&&!blocked){const next={...state,settings:{...state.settings,sleepCandyMultipliers:{...(state.settings.sleepCandyMultipliers||{}),[date]:SleepResearch.candyMultiplier(state,date)}}};void commit(next,null,false);}
   if(!loaded){number=1;draft=loadDraft();loaded=true;if(!rowFor())applyBonus();}
   if(readOnly())draft=loadDraft();syncResearch();if(!rowFor()||rowFor().kind==='session'&&rowFor().record.shardsRecorded===false)draft.researchRank=DreamClusters.validRank(state.settings.researchRank)?state.settings.researchRank:null;
-  root.replaceChildren();const dateInput=el('input');Object.assign(dateInput,{type:'date',value:date});dateInput.setAttribute('aria-label','リサーチ日');dateInput.onchange=()=>{if(!SleepResearch.validDate(dateInput.value))return;if(!keep())return;date=dateInput.value;loaded=false;draft=null;researchSource=null;render();};
+  root.replaceChildren();const dateInput=el('input');Object.assign(dateInput,{type:'date',value:date});dateInput.setAttribute('aria-label','リサーチ日');dateInput.onchange=async()=>{if(!SleepResearch.validDate(dateInput.value))return;if(!await keep())return;date=dateInput.value;loaded=false;draft=null;researchSource=null;render();};
   const header=PeriodPicker.dayHeader(dateInput),actions=el('div',undefined,'sleep-sticky-actions'+(mode==='shards'?' sleep-shard-actions':'')),total=el('div',undefined,'sleep-sticky-total'),value=el('strong');value.id='sleep-candy-total';if(mode!=='candy')total.append(el('span','ゆめのかけら'));total.append(value);if(mode==='candy'){const count=el('span',draft.entries.length+'匹','sleep-entry-count');count.id='sleep-entry-count';total.append(count);total.setAttribute('aria-label','選択中のリサーチのアメ個数と匹数');}
   const save=el('button','記録','sleep-save');save.id='sleep-save';save.type='submit';save.setAttribute('form',mode==='candy'?'sleep-form':'sleep-shard-form');save.setAttribute('aria-label',number+'回目の'+(mode==='candy'?'アメ':'ゆめのかけら')+'を保存');const rounds=tabs([[1,'1回目'],[2,'2回目']],number,choose,'睡眠の回数');rounds.classList.add('sleep-rounds');actions.append(total,rounds);if(editing.has(editKey())){const cancel=button('キャンセル',cancelEdit);cancel.id='sleep-cancel';actions.append(cancel);}actions.append(save);if(readOnly()){save.type='button';save.onclick=beginEdit;}root.append(header);
   header.append(tabs([['candy','アメ'],['shards','ゆめのかけら']],mode,switchMode,'睡眠の記録項目'));header.append(actions);
@@ -198,7 +209,7 @@ const SleepUI=(()=>{
   const selectedHead=el('div',undefined,'sleep-research-heading'),entries=el('div');entries.id='sleep-entries';entries.setAttribute('aria-label','リサーチしたポケモン');selectedHead.hidden=mode!=='candy';header.append(selectedHead);form.append(entries);
   function bindEntryDrag(handle,row){
    let startY=0,pointerId=null,moved=false;
-   const finish=cancel=>{if(pointerId===null)return;pointerId=null;document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',cancelDrag);row.classList.remove('sleep-entry-dragging');if(cancel){renderEntries();return;}if(!moved)return;const previous=draft.entries,byId=new Map(previous.map(e=>[e.id,e]));draft.entries=[...entries.querySelectorAll('.sleep-entry')].map(item=>byId.get(item.dataset.entryId));if(!keep())draft.entries=previous;renderEntries();updateTotal();};
+   const finish=async cancel=>{if(pointerId===null)return;pointerId=null;document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',up);document.removeEventListener('pointercancel',cancelDrag);row.classList.remove('sleep-entry-dragging');if(cancel){renderEntries();return;}if(!moved)return;const previous=draft.entries,byId=new Map(previous.map(e=>[e.id,e]));draft.entries=[...entries.querySelectorAll('.sleep-entry')].map(item=>byId.get(item.dataset.entryId));if(!await keep())draft.entries=previous;renderEntries();updateTotal();};
    const move=e=>{if(e.pointerId!==pointerId)return;if(!moved&&Math.abs(e.clientY-startY)<5)return;moved=true;row.classList.add('sleep-entry-dragging');const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('#sleep-entries .sleep-entry');if(!target||target===row)return;if(row.compareDocumentPosition(target)&Node.DOCUMENT_POSITION_FOLLOWING)target.after(row);else target.before(row);};
    const up=e=>{if(e.pointerId===pointerId)finish(false);},cancelDrag=e=>{if(e.pointerId===pointerId)finish(true);};
    handle.onpointerdown=e=>{if(readOnly()||e.button!==0)return;pointerId=e.pointerId;startY=e.clientY;moved=false;document.addEventListener('pointermove',move);document.addEventListener('pointerup',up);document.addEventListener('pointercancel',cancelDrag);};
@@ -226,8 +237,8 @@ const SleepUI=(()=>{
    if(!results.children.length)results.append(el('p',target?'この日付・フィールドに該当するピックアップはありません。':'確認済みの候補はありません。条件を変更してください。','sleep-note'));
    if(target&&draft.field&&typeof SleepPickups.candidateEvents==='function'){const eligible=new Set(SleepPickups.candidateEvents(date,draft.field).map(e=>e.id));for(const event of SleepPickups.candidateEvents(date,'').filter(e=>!eligible.has(e.id)))results.append(el('p',event.name+'の対象フィールド：'+event.fields.join('・'),'sleep-note'));}
   }
-  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);if(typeof SleepOCRUI!=='undefined'){const screenshot=button('',()=>{if(keep())SleepOCRUI.open({date,number,field:draft.field});},'sleep-screenshot');screenshot.setAttribute('aria-label','スクショ読み取り');TabIcons.add(screenshot,'image-plus');searchRow.append(screenshot);}form.append(searchRow,results);renderCandidates();updateEventLabel();
-  form.onsubmit=e=>{e.preventDefault();if(readOnly())return;try{if(!keep())return;let next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(number===1)next={...next,settings:{...next.settings,sleepCandyMultipliers:{...next.settings.sleepCandyMultipliers,[date]:effectiveMultiplier()}}};if(commit(next,sleepResourceNotice(next,date,number,'candy'))){editing.delete(editKey());draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
+  q.oninput=()=>{if(query===q.value)return;query=q.value;renderCandidates();};q.onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229)e.preventDefault();};selectedHead.append(settings);const searchRow=el('div',undefined,'sleep-search-row');searchRow.append(search,filterInfo);if(typeof SleepOCRUI!=='undefined'){const screenshot=button('',async()=>{if(await keep())SleepOCRUI.open({date,number,field:draft.field});},'sleep-screenshot');screenshot.setAttribute('aria-label','スクショ読み取り');TabIcons.add(screenshot,'image-plus');searchRow.append(screenshot);}form.append(searchRow,results);renderCandidates();updateEventLabel();
+  form.onsubmit=async e=>{e.preventDefault();if(readOnly())return;try{if(!await keep())return;let next=SleepResearch.saveCandy(state,draft,candyMap,new Date().toISOString());if(number===1)next={...next,settings:{...next.settings,sleepCandyMultipliers:{...next.settings.sleepCandyMultipliers,[date]:effectiveMultiplier()}}};if(await commit(next,sleepResourceNotice(next,date,number,'candy'))){editing.delete(editKey());draft=loadDraft();researchSource=null;render();}}catch(err){notice(err.message,true);}};
   const shardForm=el('form');shardForm.id='sleep-shard-form';shardForm.hidden=mode!=='shards';
   const shardFields=SleepShards.fields('sleep-shard',draft,(key,v)=>{draft[key]=v;keep();updateTotal();});shardForm.append(shardFields);
   const rewardInput=el('input');rewardInput.type='file';rewardInput.accept='image/png,image/jpeg,image/webp';rewardInput.hidden=true;rewardInput.setAttribute('aria-label','リサーチ報酬のスクショ');const rewardButton=button('',()=>rewardInput.click(),'sleep-screenshot');rewardButton.type='button';rewardButton.setAttribute('aria-label','スクショ読み取り');if(typeof TabIcons!=='undefined')TabIcons.add(rewardButton,'image-plus');if(mode==='shards')save.before(rewardButton);shardForm.append(rewardInput);
@@ -236,7 +247,7 @@ const SleepUI=(()=>{
   if(diagnosticPanel){diagnosticPanel.hidden=true;diagnosticPanel.append(el('summary','OCR診断（端末内）'),el('p','読み取り結果だけを表示します。画像は送信しません。','sleep-note'));diagnosticText.readOnly=true;diagnosticText.rows=12;diagnosticText.setAttribute('aria-label','OCR診断情報');const copy=button('診断情報をコピー',async()=>{try{await navigator.clipboard.writeText(diagnosticText.value);notice('診断情報をコピーしました。');}catch{diagnosticText.focus();diagnosticText.select();let copied=false;try{copied=document.execCommand('copy');}catch{}notice(copied?'診断情報をコピーしました。':'選択した診断情報をコピーしてください。');}});copy.type='button';diagnosticPanel.append(diagnosticText,copy);shardForm.append(diagnosticPanel);}
   rewardInput.onchange=async()=>{const file=rewardInput.files?.[0];rewardInput.value='';if(!file)return;const currentDate=date,currentNumber=number,currentDraft=draft,trace=[];rewardButton.disabled=true;try{notice('スクショを読み取っています…');const values=await ShardRewardOCR.read(file,rewardDebug?event=>trace.push(event):undefined);if(date!==currentDate||number!==currentNumber||draft!==currentDraft){trace.push({stage:'apply',reason:'対象日または入力状態が変更されたため反映なし'});notice('読み取り中に対象が変わりました。もう一度選んでください。',true);return;}for(const [field,id] of [['researchExp','sleep-shard-exp'],['baseAmount','sleep-shard-base']]){const input=shardFields.querySelector('#'+id);if(values[field]!==null){input.value=String(values[field]);input.dispatchEvent(new Event('input',{bubbles:true}));}if(rewardDebug)trace.push({stage:'apply',field,ocrValue:values[field],inputValue:input?.value??null,draftValue:draft[field]??null});}const missing=[values.researchExp===null?'リサーチEXP':'',values.baseAmount===null?'ゆめのかけら':''].filter(Boolean);notice(missing.length?'読み取れなかった項目（'+missing.join('・')+'）は入力欄で確認してください。':'リサーチ報酬を入力欄に反映しました。',Boolean(missing.length));}catch(err){trace.push({stage:'error',message:String(err?.message||err).slice(0,200)});notice(err.message,true);}finally{rewardButton.disabled=false;if(diagnosticPanel){diagnosticText.value=JSON.stringify(trace,null,2);diagnosticPanel.hidden=false;diagnosticPanel.open=true;}}};
   if(!draft.researchRank)shardForm.append(el('p','設定でリサーチランクを設定してください。','rank-hint'));
-  shardForm.onsubmit=e=>{e.preventDefault();if(readOnly())return;try{if(!keep())return;const values={baseAmount:whole(draft.baseAmount),researchExp:whole(draft.researchExp===''?0:draft.researchExp)},row=rowFor(),next=SleepResearch.updateResearch(state,date,row?.key||'new:'+number,values,candyMap,draft.id,new Date().toISOString(),draft.field);if(commit(next,sleepResourceNotice(next,date,number,'shards'))){editing.delete(editKey());draft=loadDraft();researchSource=null;SleepShards.selectResearch(date,number);render();}}catch(err){notice(err.message,true);}};
+  shardForm.onsubmit=async e=>{e.preventDefault();if(readOnly())return;try{if(!await keep())return;const values={baseAmount:whole(draft.baseAmount),researchExp:whole(draft.researchExp===''?0:draft.researchExp)},row=rowFor(),next=SleepResearch.updateResearch(state,date,row?.key||'new:'+number,values,candyMap,draft.id,new Date().toISOString(),draft.field);if(await commit(next,sleepResourceNotice(next,date,number,'shards'))){editing.delete(editKey());draft=loadDraft();researchSource=null;SleepShards.selectResearch(date,number);render();}}catch(err){notice(err.message,true);}};
   root.append(form,shardForm);
   root.classList.toggle('sleep-readonly',readOnly());if(readOnly()){searchRow.hidden=true;results.hidden=true;for(const control of [...settings.querySelectorAll('select'),...entries.querySelectorAll('button,input'),...shardForm.querySelectorAll('input,select,button'),rewardButton])control.disabled=true;for(const b of entries.querySelectorAll('.sleep-entry-remove'))b.hidden=true;}
   bindSearchViewport(root,header,q);updateTotal();
@@ -248,7 +259,7 @@ const SleepUI=(()=>{
   historyCard(card,r,'睡眠リサーチ',shardsOnly?'ゆめのかけら':'アメ',s.number+'回目'+(!shardsOnly&&s.shardsRecorded!==false?' · ゆめのかけら '+s.amount.toLocaleString('ja-JP')+'個':''),actions);finishHistoryCard(card);root.append(card);
  }}
  function matchingOCR(rows){const hashes=new Set(rows.map(r=>r.imageHash).filter(Boolean));return draft.entries.filter(e=>hashes.has(e.ocrSource?.imageHash)).length;}
- function appendOCR(rows,expected,replaceMatching=false,preserveSelected=false,sourceRows=rows){if(date!==expected.date||number!==expected.number)throw Error('日付・回数が変更されました。選び直してください。');const hashes=new Set(sourceRows.map(r=>r.imageHash).filter(Boolean)),retained=replaceMatching?draft.entries.filter(e=>!hashes.has(e.ocrSource?.imageHash)):draft.entries,result=SleepOCR.draftEntries(rows,{...draft,entries:retained},candyMap,uid,preserveSelected),previous=draft;draft={...draft,entries:[...retained,...result.entries]};if(!keep()){draft=previous;throw Error('入力途中の保存ができません。読み取りを再実行してください。');}render();return {...result,total:draft.entries.length};}
+ async function appendOCR(rows,expected,replaceMatching=false,preserveSelected=false,sourceRows=rows){if(date!==expected.date||number!==expected.number)throw Error('日付・回数が変更されました。選び直してください。');const hashes=new Set(sourceRows.map(r=>r.imageHash).filter(Boolean)),retained=replaceMatching?draft.entries.filter(e=>!hashes.has(e.ocrSource?.imageHash)):draft.entries,result=SleepOCR.draftEntries(rows,{...draft,entries:retained},candyMap,uid,preserveSelected),previous=draft;draft={...draft,entries:[...retained,...result.entries]};if(!await keep()){draft=previous;throw Error('入力途中の保存ができません。読み取りを再実行してください。');}render();return {...result,total:draft.entries.length};}
  function invalidateOCR(){draft=null;loaded=false;researchSource=null;}
  return {selectSocial,appendOCR,matchingOCR,entryRow,invalidateOCR,selectFieldHistory,selectResearch,render,edit,appendHistory,reset,initNavigation,syncNavigation,navigate,selectView,home,pickupsChanged,saveStatus};
 })();
