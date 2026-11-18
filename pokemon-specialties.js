@@ -1,6 +1,7 @@
 // ポケモン名 → とくいなもの。イベント倍率の条件判定に使用します。
 // 247種: Neroli's Lab (Apache-2.0), 固定版 647ddf8167fb8ae2295769ea70914af125f16a79。
 // タマゲタケ・モロバレル、ムウマ・ムウマージ: 攻略・検証Wikiの種族ページで個別照合。
+// モンメン・エルフーン: https://wikiwiki.jp/poke_sleep/モンメン ・ https://wikiwiki.jp/poke_sleep/エルフーン （2026-11-18確認）。
 // 出典・利用条件: DATA_SOURCES.md
 const pokemonSpecialties = Object.freeze({
   "フシギダネ": "ingredient",
@@ -200,6 +201,8 @@ const pokemonSpecialties = Object.freeze({
   "ダークライ": "all",
   "ムンナ": "berry",
   "ムシャーナ": "berry",
+  "モンメン": "ingredient",
+  "エルフーン": "ingredient",
   "イシズマイ": "skill",
   "イワパレス": "skill",
   "タマゲタケ": "ingredient",

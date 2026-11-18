@@ -2,6 +2,7 @@
 // メインスキルマスター。表示名の変更は entries の name だけを変更します。
 // id と legacyName は保存データとの対応に使うため変更しません。
 // 基本スキル出典: https://wikiwiki.jp/poke_sleep/ポケモンの一覧 （2026-09-15確認）
+// モンメン・エルフーン: https://wikiwiki.jp/poke_sleep/モンメン ・ https://wikiwiki.jp/poke_sleep/エルフーン （2026-11-18確認）。
 // ミュウの選択肢、かけら対象の名前・種類は既存アプリのユーザー指定を優先。
 const MainSkillMaster=(()=>{
  const entries=[
@@ -809,6 +810,12 @@ const MainSkillMaster=(()=>{
   "ムシャーナ": {
     "skillId": "dream_shard_s",
     "shardMode": "random"
+  },
+  "モンメン": {
+    "skillId": "charge_strength_s"
+  },
+  "エルフーン": {
+    "skillId": "charge_strength_s"
   },
   "イシズマイ": {
     "skillId": "skill_22"
