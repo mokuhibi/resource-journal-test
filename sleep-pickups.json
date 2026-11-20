@@ -161,7 +161,7 @@
           "start": "2026-11-09",
           "end": "2026-11-15",
           "multiplier": 1.5,
-          "firstOnly": false,
+          "firstOnly": true,
           "specialty": "ingredient",
           "mainSkillIncludes": "食材セレクトS"
         }

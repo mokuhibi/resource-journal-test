@@ -43,7 +43,7 @@
  const normalize=s=>s.normalize('NFKC').trim().replace(/[\u3041-\u3096]/g,c=>String.fromCharCode(c.charCodeAt(0)+96));
  const isExField=field=>/\s*EX$/.test(field||'');
  function estimate(species,stars,field=''){return isExField(field)?null:autoStars[species]?.includes(stars)?candidateAmount(species,stars):null;}
- function changeStars(entry,stars,multiplier=1,field=''){const basic=estimate(entry.species,stars,field),calculatedAmount=basic===null?null:Math.ceil(basic*multiplier),manual=entry.manualAmount===true||(entry.amount!==''&&(entry.calculatedAmount===null||Number(entry.amount)!==entry.calculatedAmount));return {...entry,stars,calculatedAmount,amount:manual?entry.amount:(calculatedAmount??''),...(manual?{manualAmount:true}:{})};}
+ function changeStars(entry,stars,multiplier=1,field='',reduced=false){const basic=estimate(entry.species,stars,field),calculatedAmount=reduced?1:basic===null?null:Math.ceil(basic*multiplier),manual=entry.manualAmount===true||(entry.amount!==''&&(entry.calculatedAmount===null||Number(entry.amount)!==entry.calculatedAmount));return {...entry,stars,calculatedAmount,amount:manual?entry.amount:(calculatedAmount??''),...(manual?{manualAmount:true}:{})};}
  const multipliers=[1,1.5,2,3];
  function candyMultiplier(state,date){
   const stored=state.settings?.sleepCandyMultipliers||{};if(Object.hasOwn(stored,date))return stored[date];
