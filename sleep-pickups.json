@@ -475,6 +475,35 @@
         "ワカクサ本島EX": ["モンメン", "エルフーン"],
         "シアンの砂浜EX": ["モンメン", "エルフーン"]
       }
+    },
+    {
+      "id": "dream-shard-week-3",
+      "name": "ゆめのかけらGETウィーク vol.3",
+      "start": "2026-11-23",
+      "end": "2026-11-29",
+      "gameDayHours": true,
+      "fields": ["*"],
+      "pokemon": [],
+      "shardBonuses": [
+        {"scope": "sleep", "multiplier": 1.5, "rounding": "ceil"},
+        {"scope": "skill", "multiplier": 1.5, "rounding": "ceil"}
+      ]
+    },
+    {
+      "id": "good-sleep-day-41",
+      "name": "第41回グッドスリープデー",
+      "start": "2026-11-23",
+      "end": "2026-11-25",
+      "gameDayHours": true,
+      "fullMoon": "2026-11-24",
+      "fields": ["*"],
+      "pokemon": ["ミュウ", "ピィ", "ピッピ", "ピクシー"],
+      "tiers": {"special": ["ミュウ"]},
+      "dailyTiers": [
+        {"date": "2026-11-23", "tiers": {"medium": ["ピィ", "ピッピ", "ピクシー"]}},
+        {"date": "2026-11-24", "tiers": {"large": ["ピィ", "ピッピ", "ピクシー"]}},
+        {"date": "2026-11-25", "tiers": {"medium": ["ピィ", "ピッピ", "ピクシー"]}}
+      ]
     }
   ]
 }
