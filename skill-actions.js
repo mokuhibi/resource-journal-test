@@ -8,7 +8,7 @@ const SkillActions=(()=>{
  const copies=p=>['メタモン','バリヤード','マネネ'].includes(p.species);
  const metronome=p=>p.species!=='ミュウ'&&SK.id(SK.forPokemon(p))==='metronome';
  function copySources(p,team=currentTeam()){
-  return team.filter(q=>q&&!q.provisional&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'||q.species==='デリバード'||['dream_shard_s','aura_sphere','super_luck','metronome'].includes(SK.id(SK.forPokemon(q)))));
+  return team.filter(q=>q&&!q.provisional&&q.id!==p.id&&!copies(q)&&(q.species==='ミュウ'||q.species==='デリバード'||SK.find(SK.forPokemon(q))));
  }
  function capabilities(p,team=currentTeam()){
   if(metronome(p))return {candy:true,shards:true};
@@ -50,10 +50,10 @@ const SkillActions=(()=>{
   return r;
  }
  async function save(p,data){try{const r=build(p,data);if($('auto-now').checked)$('datetime').value=C.localInput(r.datetime);if(await commit({...state,records:[...state.records,r]},resourceNotice(r))){drafts.delete(p.id);renderRecord();return true;}}catch(e){notice(e.message,true);}return false;}
- function saveActivation(p){
+ function saveActivation(p,source=null){
   const date=recordDate(),context=skillContext('skill',p.id),mainSkillId=SK.id(SK.forPokemon(p));
-  if(!context||!Number.isFinite(date.getTime())||!SK.find(mainSkillId)){notice('メインスキルと記録日時を確認してください。',true);return false;}
-  const r={id:uid(),datetime:date.toISOString(),method:'skill',skillOnlyActivation:true,amount:0,slot:null,pokemonId:null,pokemon:'スキルのみ',species:null,nickname:'',candy:null,mainSkillId,registeredMainSkill:SK.value(mainSkillId),recordedSkillLevel:context.actor.profile.skillLevel,context};
+  if(!context||!Number.isFinite(date.getTime())||!SK.find(mainSkillId)||source&&!copySources(p).some(q=>q.id===source.id)){notice('メインスキルと記録日時を確認してください。',true);return false;}
+  const r={id:uid(),datetime:date.toISOString(),method:'skill',skillOnlyActivation:true,amount:0,slot:null,pokemonId:null,pokemon:'スキルのみ',species:null,nickname:'',candy:null,mainSkillId,registeredMainSkill:SK.value(mainSkillId),recordedSkillLevel:context.actor.profile.skillLevel,context,...(source?{sourcePokemonId:source.id,sourcePokemon:clone(source),sourceSkillId:SK.id(SK.forPokemon(source))}:{})};
   return commit({...state,records:[...state.records,r]},'メインスキルを記録しました。');
  }
  function field(placeholder,value,oninput){const i=el('input');Object.assign(i,{type:'number',inputMode:'numeric',min:'0',max:'1000000000',step:'1',value:value||'',placeholder});i.setAttribute('aria-label',placeholder);i.oninput=()=>oninput(i.value);return i;}
@@ -69,9 +69,11 @@ const SkillActions=(()=>{
   title(card,p,slot);
   if(copies(p)){
    const sources=el('div',undefined,'skill-choice-grid copy-targets');sources.setAttribute('aria-label','コピー先');
-   for(const q of copySources(p)){const b=button(q.nickname||C.speciesName(q.species),()=>{draft.sourceId=draft.sourceId===q.id?'':q.id;draft.target='';draft.candy=draft.shards='';card.replaceChildren();rewards(card,p,slot);});b.setAttribute('aria-pressed',String(draft.sourceId===q.id));b.dataset.sourceId=q.id;sources.append(b);}card.append(sources);
+   for(const q of copySources(p)){const b=button((q.nickname||C.speciesName(q.species))+(draft.sourceId===q.id?' · '+mainSkillText(q):''),()=>{draft.sourceId=draft.sourceId===q.id?'':q.id;draft.target='';draft.candy=draft.shards='';card.replaceChildren();rewards(card,p,slot);});b.setAttribute('aria-pressed',String(draft.sourceId===q.id));b.dataset.sourceId=q.id;sources.append(b);}card.append(sources);
    const source=copySources(p).find(q=>q.id===draft.sourceId);if(!source)return;
    const kind=effect(source),data={sourceId:source.id};card.classList.toggle('copied-mew',kind==='mew-copy');
+   const detail=card.querySelector('.skill-record-detail');if(detail)detail.textContent=mainSkillText(source)+' · Lv.'+eventSkill(p,source).effectiveLevel;
+   if(!kind){card.append(button('記録',()=>saveActivation(p,source)));return;}
    if(kind==='mew-copy'){
     const amounts=copiedMewAmounts(p,source),canShard=['metronome','dream_shard_s'].includes(SK.id(SK.forPokemon(source)));
     if(!amounts){manual(card,p,draft,{candy:true,shards:canShard},true);return;}
@@ -158,7 +160,7 @@ const SkillActions=(()=>{
   currentTeam().forEach((p,i)=>{if(!p)return;const slot=i+1,key=SK.id(SK.forPokemon(p)),cap=capabilities(p);
    if(p.species==='ミュウ'&&recordVisible('mew')){const card=el('div',undefined,'card mew activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
    else if(p.species==='デリバード'&&recordVisible('delibird')){const card=el('div',undefined,'card delibird activation-card');card.dataset.actorId=p.id;title(card,p,slot);targets(card,p,(target,n)=>record('delibird',target,n,p.id),true);root.append(card);}
-   else if((metronome(p)||copies(p))&&(ownManual(p)?cap.candy||cap.shards:cap.candy&&recordVisible('skill')||cap.shards&&SummaryExtras.shardVisible('skill'))){const card=el('div',undefined,'card activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
+   else if((metronome(p)||copies(p))&&(copies(p)?copySources(p).length>0:ownManual(p)?cap.candy||cap.shards:cap.candy&&recordVisible('skill')||cap.shards&&SummaryExtras.shardVisible('skill'))){const card=el('div',undefined,'card activation-card');card.dataset.actorId=p.id;rewards(card,p,slot);root.append(card);}
    else if(p.species!=='ミュウ'&&!copies(p)&&!metronome(p)&&SummaryExtras.shardVisible('skill')&&SK.shardMode(p)){
     const row=shardRows.find(n=>n.querySelector('.shard-record-name small')?.textContent===recordPosition(slot));if(row){row.dataset.actorId=p.id;row.querySelector('.shard-record-name').replaceWith(skillRecordHeading(p));row.insertBefore(skillRecordDetail(p),row.children[1]||null);root.append(row);}
    }
@@ -174,7 +176,7 @@ const SkillActions=(()=>{
   const only=r.skillOnlyActivation===true,card=el('div',undefined,'card '+(r.amount||only?'skill':'shards')),actions=el('div',undefined,'history-actions');card.dataset.datetime=r.datetime;
   actions.append(button('訂正',(host,done,cancel)=>only?editActivation(r,host,done,cancel):edit(r,host,done,cancel)),button('削除',()=>{if(confirm('このスキル発動の記録を削除しますか？'))commit({...state,records:state.records.filter(x=>x.id!==r.id)},'スキル記録を削除');},'danger'));
   const actor=r.context.actor;historyCard(card,{...r,slot:r.context.actorSlot,pokemonSnapshot:actor},r.method==='mew'?'ミュウ':'スキル',r.amount?r.candy:'スキルのみ',label(actor),actions);
-  if(only){card.append(el('p',SK.name(r.mainSkillId)+' · Lv.'+r.recordedSkillLevel,'history-supplement'));card.historyInfo.r=r;finishHistoryCard(card);root.append(card);return;}
+  if(only){card.append(el('p',SK.name(r.sourceSkillId||r.mainSkillId)+' · Lv.'+r.recordedSkillLevel,'history-supplement'));card.historyInfo.r=r;finishHistoryCard(card);root.append(card);return;}
   // 履歴は発動ごとに1枚。両獲得量・発動個体を常に残します。
   const meta=card.querySelector('.history-meta');if(r.resourceFlags.shards&&r.amount)meta.append(qel('span','ゆめのかけら '+r.shardAmount+'個'));
   if(r.method!=='mew')card.append(el('p',mainSkillText(actor)+' · Lv.'+r.recordedSkillLevel+(r.outcomeSkillId?' · '+SK.name(r.outcomeSkillId):' · 結果不明'),'history-supplement'));
